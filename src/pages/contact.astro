@@ -1,0 +1,100 @@
+---
+import Base from "../layouts/Base.astro";
+const socials = [
+  { name: "Instagram", href: "https://instagram.com/your_handle" },
+  { name: "LinkedIn",  href: "https://www.linkedin.com/company/your_org" },
+  { name: "GitHub",    href: "https://github.com/your-org" },
+  { name: "WhatsApp",  href: "https://chat.whatsapp.com/your_invite" },
+];
+---
+<Base title="Contact — Robotics Society" description="Contact Robotics Society: email, socials, and community links.">
+  <section class="mx-auto max-w-6xl px-4 py-12">
+    <h1 class="text-3xl font-semibold tracking-tight">Contact</h1>
+    <p class="text-slate-600 mt-2">Reach out for collaborations, sponsorships, or general inquiries.</p>
+
+    <!-- Contact cards -->
+    <div class="grid md:grid-cols-3 gap-6 mt-8">
+      <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
+        <h3 class="font-semibold">Email</h3>
+        <p class="text-slate-600 mt-1">Official inbox</p>
+        <a class="mt-3 inline-block underline" href="mailto:robotics@university.edu">robotics@university.edu</a>
+      </article>
+
+      <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
+        <h3 class="font-semibold">Socials</h3>
+        <ul class="mt-2 space-y-1 text-slate-700">
+          {socials.map((s) => (
+            <li><a class="underline" href={s.href} target="_blank" rel="noopener">{s.name}</a></li>
+          ))}
+        </ul>
+      </article>
+
+      <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
+        <h3 class="font-semibold">Community</h3>
+        <p class="text-slate-600 mt-1">Join our WhatsApp & newsletter.</p>
+        <div class="mt-3 flex gap-3">
+          <a class="rounded-lg px-3 py-2 text-sm bg-indigo-600 text-white hover:bg-indigo-700" href="https://chat.whatsapp.com/your_invite" target="_blank">WhatsApp</a>
+          <a class="rounded-lg px-3 py-2 text-sm border border-slate-300 hover:border-slate-400" href="#newsletter">Newsletter</a>
+        </div>
+      </article>
+    </div>
+
+    <!-- Simple contact form (static-friendly) -->
+    <div class="mt-12 grid md:grid-cols-2 gap-6 items-start">
+      <div class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
+        <h3 class="font-semibold">Send us a message</h3>
+        <p class="text-slate-600 mt-1">This form works with static form services (Formspree / FormSubmit / Netlify Forms).</p>
+
+        <!-- 替换 action 为你的表单端点，例如：
+             https://formspree.io/f/xxxxxx 或 https://formsubmit.co/youremail -->
+        <form class="mt-4 space-y-3" method="POST" action="https://formsubmit.co/your@email.com">
+          <!-- 防垃圾：建议后续接 hCaptcha/Cloudflare Turnstile（可选） -->
+          <div>
+            <label class="block text-sm font-medium">Name</label>
+            <input class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" type="text" name="name" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Email</label>
+            <input class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" type="email" name="email" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Message</label>
+            <textarea class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" name="message" rows="5" required></textarea>
+          </div>
+          <!-- 成功跳转页（可选） -->
+          <input type="hidden" name="_next" value="/contact?success=1" />
+          <button class="rounded-xl px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700" type="submit">Send</button>
+          <noscript><p class="text-sm mt-2">JS 关闭时也能提交；如失败可邮件至 <a class="underline" href="mailto:robotics@university.edu">robotics@university.edu</a></p></noscript>
+        </form>
+      </div>
+
+      <!-- Newsletter（静态友好） -->
+      <div id="newsletter" class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
+        <h3 class="font-semibold">Newsletter</h3>
+        <p class="text-slate-600 mt-1">Get event reminders & project updates.</p>
+        <!-- 可替换为 Mailchimp/ConvertKit 的嵌入代码 -->
+        <form class="mt-4 flex gap-2" method="POST" action="https://formsubmit.co/your@email.com">
+          <input type="hidden" name="_subject" value="[Robotics] Newsletter subscription" />
+          <input class="flex-1 rounded-xl border border-slate-300 px-3 py-2" type="email" name="email" placeholder="you@example.com" required />
+          <button class="rounded-xl px-4 py-2 bg-slate-900 text-white hover:bg-slate-800" type="submit">Subscribe</button>
+        </form>
+
+        <!-- 小交互：复制社媒合集链接 -->
+        <div class="mt-4 text-sm">
+          <button id="copyLinks" class="underline">Copy all social links</button>
+          <span id="copyHint" class="ml-2 text-slate-500"></span>
+        </div>
+        <script>
+          const btn = document.getElementById('copyLinks');
+          const hint = document.getElementById('copyHint');
+          btn?.addEventListener('click', async () => {
+            const links = `Instagram: ${'https://instagram.com/your_handle'}\nLinkedIn: ${'https://www.linkedin.com/company/your_org'}\nGitHub: ${'https://github.com/your-org'}\nWhatsApp: ${'https://chat.whatsapp.com/your_invite'}`;
+            try { await navigator.clipboard.writeText(links); hint!.textContent = 'Copied!'; }
+            catch { hint!.textContent = 'Copy failed'; }
+            setTimeout(() => (hint!.textContent = ''), 1500);
+          });
+        </script>
+      </div>
+    </div>
+  </section>
+</Base>
