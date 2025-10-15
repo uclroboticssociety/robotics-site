@@ -23,21 +23,6 @@ Hosted on **Cloudflare Pages** and connected to our custom domain:
 
 ---
 
-## 🧭 Project Structure
-/
-├── src/
-│ ├── components/ # Reusable UI components
-│ ├── layouts/ # Base page layouts
-│ ├── pages/ # Each page route (/, /events, /projects, /join, /contact)
-│ └── styles/ # Global styles (Tailwind setup)
-├── public/ # Static assets (images, icons, etc.)
-├── package.json
-├── astro.config.mjs
-├── tailwind.config.mjs
-└── README.md
-
----
-
 ## 💻 Local Development
 
 ### 1. Clone this repository
