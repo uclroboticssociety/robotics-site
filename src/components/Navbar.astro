@@ -1,12 +1,17 @@
-<header class="sticky top-0 z-50 transition-colors">
-  <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-    <a href="/" class="font-bold text-xl">Robotics Society</a>
-    <nav class="hidden md:flex gap-6 text-sm">
-      <a href="/events" class="hover:text-indigo-600">Events</a>
-      <a href="/projects" class="hover:text-indigo-600">Projects</a>
-      <a href="/join" class="hover:text-indigo-600">Join</a>
-      <a href="/contact" class="hover:text-indigo-600">Contact</a>
-    </nav>
-    <a href="/join" class="rounded-xl px-4 py-2 text-sm bg-indigo-600 text-white hover:bg-indigo-700">Join us</a>
+---
+import Brand from "./nav/Brand.astro";
+import DesktopNav from "./nav/DesktopNav.astro";
+import MobileNav from "./nav/MobileNav.astro";
+import { menu, joinLink } from "../data/nav";
+
+const { pathname } = Astro.url;
+---
+<nav class="sticky top-0 z-50 bg-white/70 backdrop-blur border-b border-slate-200">
+  <div class="mx-auto max-w-screen-2xl px-6">
+    <div class="flex items-center justify-between h-16">
+      <Brand />
+      <DesktopNav items={menu} join={joinLink} pathname={pathname} />
+      <MobileNav items={menu} join={joinLink} pathname={pathname} />
+    </div>
   </div>
-</header>
+</nav>

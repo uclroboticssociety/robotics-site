@@ -1,0 +1,7 @@
+---
+const { name = "UCL Robotics Society" } = Astro.props as { name?: string };
+---
+<a href="/" class="flex items-center gap-3">
+  <img src="/logo.png" alt={name} class="h-9 w-9 object-contain" />
+  <span class="text-lg md:text-xl font-bold tracking-tight">{name}</span>
+</a>

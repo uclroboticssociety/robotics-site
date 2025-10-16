@@ -1,0 +1,77 @@
+---
+import type { Item } from "../../data/nav";
+const { items, join, pathname } = Astro.props as {
+  items: Item[];
+  join: { href: string; label: string };
+  pathname: string;
+};
+
+const isActive = (href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+const linkCls = (href: string) =>
+  `px-2 py-1 rounded-md transition ${
+    isActive(href) ? "text-slate-900 font-semibold" : "text-slate-600 hover:text-slate-900"
+  }`;
+---
+<!-- 按钮 -->
+<button
+  id="menuBtn"
+  class="md:hidden inline-flex items-center justify-center p-2 rounded-lg border border-slate-300"
+  aria-label="Toggle menu"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+
+<!-- 抽屉 -->
+<div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 bg-white">
+  <div class="px-6 py-4 flex flex-col gap-2">
+    {items.map((item, i) => (
+      item.children ? (
+        <div class="border border-slate-200 rounded-lg">
+          <button class="w-full text-left px-3 py-2 flex items-center justify-between"
+                  data-acc={`acc-${i}`} aria-expanded="false">
+            <span class={linkCls(item.href)}>{item.label}</span>
+            <span class="text-slate-500">▾</span>
+          </button>
+          <div id={`acc-${i}`} class="hidden px-2 pb-2">
+            {item.children.map((c) => (
+              <a href={c.href} class="block px-3 py-2 rounded-md text-slate-700 hover:bg-slate-50">{c.label}</a>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <a href={item.href} class={linkCls(item.href)}>{item.label}</a>
+      )
+    ))}
+    <a href={join.href} class="mt-2 rounded-xl px-4 py-2 text-sm font-medium bg-indigo-600 text-white text-center">
+      {join.label}
+    </a>
+  </div>
+</div>
+
+<script>
+  const btn = document.getElementById('menuBtn');
+  const menu = document.getElementById('mobileMenu');
+  btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+
+  // 为每个可折叠按钮绑定事件
+  document.querySelectorAll('[data-acc]').forEach((el) => {
+    const btnEl = el /** @type {HTMLElement} */;
+
+    btnEl.addEventListener('click', () => {
+      const id = btnEl.getAttribute('data-acc'); // string | null
+      if (!id) return;                           // ✅ 保护：避免 null
+
+      const panel = document.getElementById(id);
+      const expanded = btnEl.getAttribute('aria-expanded') === 'true';
+
+      panel?.classList.toggle('hidden');
+      btnEl.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    });
+  });
+</script>
+
+
