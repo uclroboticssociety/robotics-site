@@ -1,0 +1,127 @@
+---
+import Base from "../../layouts/Base.astro";
+
+const alumni = [
+  {
+    name: "TBD",
+    year: "2024",
+    role: "Former President",
+    current: "Robotics Engineer at [Company]",
+    bio: "Led the society through significant growth and innovation.",
+  },
+  {
+    name: "TBD",
+    year: "2023",
+    role: "Former Projects Lead",
+    current: "AI Researcher at [Institution]",
+    bio: "Spearheaded multiple successful robotics projects.",
+  },
+  {
+    name: "TBD",
+    year: "2023",
+    role: "Former Events Coordinator",
+    current: "Product Manager at [Company]",
+    bio: "Organized numerous workshops and hackathons.",
+  },
+  {
+    name: "TBD",
+    year: "2022",
+    role: "Former Treasurer",
+    current: "Startup Founder",
+    bio: "Managed finances and secured funding for key initiatives.",
+  },
+];
+---
+
+<Base title="Alumni — UCL Robotics Society">
+  <section class="mx-auto max-w-6xl px-4 py-12">
+    <h1 class="text-3xl font-semibold tracking-tight">Alumni</h1>
+    <p class="text-slate-600 mt-2">Celebrating our former members and their achievements.</p>
+
+    <!-- Alumni Introduction -->
+    <div class="mt-8">
+      <article class="rounded-2xl shadow-lg p-8 bg-white/70 border border-slate-200">
+        <h2 class="text-2xl font-semibold mb-4">Our Alumni Network</h2>
+        <p class="text-slate-700 leading-relaxed">
+          Our alumni are making significant contributions to the robotics and AI industry worldwide. 
+          From leading research institutions to innovative startups, our former members continue to 
+          push the boundaries of what's possible in robotics. We're proud of their achievements and 
+          grateful for the foundation they built for our society.
+        </p>
+      </article>
+    </div>
+
+    <!-- Featured Alumni -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-semibold mb-6">Featured Alumni</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        {alumni.map((alumnus) => (
+          <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200 hover:shadow-xl transition">
+            <div class="flex items-start gap-4">
+              <div class="aspect-square w-20 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <span class="text-slate-400 text-xs">[ photo ]</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-baseline justify-between mb-1">
+                  <h3 class="font-semibold text-lg">{alumnus.name}</h3>
+                  <span class="text-sm text-slate-500">{alumnus.year}</span>
+                </div>
+                <p class="text-indigo-600 font-medium text-sm">{alumnus.role}</p>
+                <p class="text-slate-600 text-sm mt-2 font-medium">{alumnus.current}</p>
+                <p class="text-slate-600 text-sm mt-2">{alumnus.bio}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <!-- Alumni Impact -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-semibold mb-6">Alumni Impact</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
+          <h3 class="font-semibold text-lg mb-3">Industry Leaders</h3>
+          <p class="text-slate-700">
+            Our alumni work at leading tech companies, research institutions, and innovative startups 
+            around the world.
+          </p>
+        </article>
+
+        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
+          <h3 class="font-semibold text-lg mb-3">Mentorship</h3>
+          <p class="text-slate-700">
+            Many alumni return to mentor current members, sharing their expertise and career insights.
+          </p>
+        </article>
+
+        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
+          <h3 class="font-semibold text-lg mb-3">Networking</h3>
+          <p class="text-slate-700">
+            Our alumni network provides valuable connections and opportunities for current members 
+            and recent graduates.
+          </p>
+        </article>
+      </div>
+    </div>
+
+    <!-- Stay Connected -->
+    <div class="mt-12">
+      <article class="rounded-2xl shadow-lg p-8 bg-gradient-to-br from-indigo-50 to-cyan-50 border border-indigo-200">
+        <h2 class="text-2xl font-semibold mb-4">Stay Connected</h2>
+        <p class="text-slate-700 mb-6">
+          Are you an alumnus? We'd love to hear from you! Stay connected with the society, 
+          share your achievements, and help mentor the next generation of roboticists.
+        </p>
+        <div class="flex gap-3">
+          <a href="/contact" class="rounded-xl px-5 py-3 bg-indigo-600 text-white hover:bg-indigo-700">
+            Contact Us
+          </a>
+          <a href="/join" class="rounded-xl px-5 py-3 border border-indigo-300 hover:border-indigo-400">
+            Join Alumni Network
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+</Base>

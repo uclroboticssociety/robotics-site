@@ -1,0 +1,65 @@
+---
+import type { Item } from "../../data/nav";
+const { items, join, pathname } = Astro.props as {
+  items: Item[];
+  join: { href: string; label: string };
+  pathname: string;
+};
+
+const isActive = (href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+const linkCls = (href: string) =>
+  `px-2 py-1 rounded-md transition ${
+    isActive(href) ? "text-slate-900 font-semibold" : "text-slate-600 hover:text-slate-900"
+  }`;
+---
+<div class="hidden md:flex items-center gap-6">
+  {items.map((item) => (
+    item.children ? (
+      <!-- 父容器：相对定位 + 分组名，便于组合选择器 -->
+      <div class="relative group/menu">
+        <a
+          href={item.href}
+          class={linkCls(item.href)}
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          {item.label}
+        </a>
+
+        <!-- 绝对定位：紧贴父元素底部，不留缝隙；加 before“桥接层”防止抖动 -->
+        <div
+          class="absolute left-0 top-full z-50
+                 invisible opacity-0 translate-y-2
+                 group-hover/menu:visible group-hover/menu:opacity-100 group-hover/menu:translate-y-0
+                 group-focus-within/menu:visible group-focus-within/menu:opacity-100 group-focus-within/menu:translate-y-0
+                 transition"
+          role="menu"
+        >
+          <!-- 真正的面板：pointer-events-auto；外层维持可见性控制 -->
+          <div
+            class="w-56 rounded-xl border border-slate-200 bg-white shadow-lg p-2
+                   before:content-[''] before:absolute before:left-0 before:right-0 before:top-0
+                   before:h-2 before:-translate-y-full"
+          >
+            {item.children.map((c) => (
+              <a
+                href={c.href}
+                class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                role="menuitem"
+              >
+                {c.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    ) : (
+      <a href={item.href} class={linkCls(item.href)}>{item.label}</a>
+    )
+  ))}
+  <a href={join.href} class="ml-2 rounded-xl px-4 py-2 text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700">
+    {join.label}
+  </a>
+</div>
