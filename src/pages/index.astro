@@ -1,15 +1,176 @@
 ---
 import Base from "../layouts/Base.astro";
+
+const filmImages = [
+  { src: "/film/1.png", alt: "Robotics lab" },
+  { src: "/film/2.png", alt: "Workshop session" },
+  { src: "/film/3.png", alt: "Team project" },
+  { src: "/film/4.png", alt: "Robotics demo" },
+  { src: "/film/5.png", alt: "Society team" },
+  { src: "/film/6.png", alt: "Event moment" },
+];
+const filmFrames = [...filmImages, ...filmImages];
 ---
 <Base title="UCL Robotics Society — Home">
-  <section class="mx-auto max-w-6xl px-4 py-20">
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
-      Build. Learn. Compete. <span class="text-indigo-600">Together</span>.
-    </h1>
-    <p class="mt-4 text-slate-600 md:text-lg">Student-led community for robotics, AI, and mechatronics.</p>
-    <div class="mt-6 flex gap-3">
-      <a href="/events" class="rounded-xl px-5 py-3 bg-slate-900 text-white hover:bg-slate-800">See events</a>
-      <a href="/projects" class="rounded-xl px-5 py-3 border border-slate-300 hover:border-slate-400">Explore projects</a>
+  <style is:global>
+    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,800;1,9..144,500&display=swap");
+  </style>
+  <style>
+    .hero-gradient {
+      background: linear-gradient(
+        -45deg,
+        #eef2ff 0%,
+        #e0f2fe 25%,
+        #f0f9ff 50%,
+        #e0e7ff 75%,
+        #cffafe 100%
+      );
+      background-size: 400% 400%;
+      animation: hero-gradient-shift 14s ease infinite;
+    }
+    @keyframes hero-gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .hero-title {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+    }
+    .film-mask {
+      -webkit-mask-image: linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent);
+      mask-image: linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent);
+      max-height: 520px;
+      overflow: hidden;
+      width: 270px;
+    }
+    .film-track {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      height: max-content;
+      animation: film-scroll 18s linear infinite;
+      will-change: transform;
+    }
+    .film-track.reverse {
+      animation-direction: reverse;
+    }
+    @keyframes film-scroll {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+    .film-frame {
+      position: relative;
+      background: #0b0b0f;
+      padding: 0.5rem;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
+      width: 250px;
+      display: flex;
+      justify-content: center;
+      padding-bottom: 0.7rem;
+    }
+    .film-frame::before,
+    .film-frame::after {
+      content: "";
+      position: absolute;
+      top: 0.6rem;
+      bottom: 0.6rem;
+      width: 6px;
+      background: repeating-linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.35) 0 6px,
+        rgba(255, 255, 255, 0) 6px 14px
+      );
+      border-radius: 999px;
+    }
+    .film-frame::before { left: 0.5rem; }
+    .film-frame::after { right: 0.5rem; }
+    .film-frame img {
+      width: 210px;
+      height: 135px;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 12px;
+      display: block;
+      background: #111827;
+    }
+    @media (max-width: 768px) {
+      .film-mask {
+        width: 210px;
+      }
+      .film-frame {
+        width: 200px;
+      }
+      .film-frame img {
+        width: 165px;
+        height: 110px;
+      }
+    }
+    .film-columns {
+      margin-right: 0;
+    }
+    @media (min-width: 1024px) {
+      .film-columns {
+        margin-right: calc((72rem - 100vw) / 2);
+      }
+    }
+  </style>
+
+  <section class="hero-gradient">
+    <div class="mx-auto max-w-6xl px-4 py-16 md:py-20">
+      <div class="grid md:grid-cols-[1.05fr_1.2fr] gap-10 md:items-center">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-500">UCL Robotics Society</p>
+          <h1 class="hero-title mt-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-slate-900">
+            Build the future.
+            <br />
+            Learn with the team.
+          </h1>
+          <p class="mt-6 text-slate-600 text-lg max-w-lg">
+            A student-led community for robotics, AI, and mechatronics. We prototype, compete,
+            and share the thrill of real-world engineering.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="/events" class="rounded-full px-6 py-3 bg-slate-900 text-white hover:bg-slate-800">
+              See events
+            </a>
+            <a href="/projects" class="rounded-full px-6 py-3 border border-slate-300 hover:border-slate-400">
+              Explore projects
+            </a>
+          </div>
+        </div>
+        <div class="film-columns ml-auto mr-0 flex w-fit items-center justify-end gap-6 md:ml-auto md:mr-0">
+          <div class="film-mask">
+            <div class="film-track">
+              {filmFrames.map((frame) => (
+                <div class="film-frame">
+                  <img src={frame.src} alt={frame.alt} loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="film-mask">
+            <div class="film-track reverse">
+              {filmFrames.map((frame) => (
+                <div class="film-frame">
+                  <img src={frame.src} alt={frame.alt} loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="film-mask">
+            <div class="film-track">
+              {filmFrames.map((frame) => (
+                <div class="film-frame">
+                  <img src={frame.src} alt={frame.alt} loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </Base>

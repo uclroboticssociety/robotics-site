@@ -1,127 +1,237 @@
 ---
 import Base from "../../layouts/Base.astro";
 
-const alumni = [
-  {
-    name: "TBD",
-    year: "2024",
-    role: "Former President",
-    current: "Robotics Engineer at [Company]",
-    bio: "Led the society through significant growth and innovation.",
+const heroImages = [
+  { src: "/advisor/1.png", alt: "Faculty advisor", x: "0", y: "0", w: "14rem", h: "18rem", rot: "-4", crop: "center" },
+  { src: "/advisor/2.png", alt: "Society", x: "10rem", y: "-1rem", w: "11rem", h: "14rem", rot: "6", crop: "top right" },
+  { src: "/advisor/3.png", alt: "Guidance", x: "5rem", y: "11rem", w: "12rem", h: "15rem", rot: "-2", crop: "60% 30%" },
+  { src: "/advisor/4.png", alt: "Community", x: "16rem", y: "9rem", w: "10rem", h: "13rem", rot: "5", crop: "left bottom" },
+];
+
+const professors = [
+    {
+    image: "/advisor/1.png",
+    name: "Wei Chen",
+    title: "Director",
+    department: "Department of Computer Science",
+    email: "wei.chen@ucl.ac.uk",
+    bio: "",
+    expertise: ["Information and computing sciences", "Control engineering, mechatronics and robotics", "Artificial intelligence","Machine learning"],
+    imageFirst: true,
+    gradient: "prof-gradient prof-1",
   },
   {
-    name: "TBD",
-    year: "2023",
-    role: "Former Projects Lead",
-    current: "AI Researcher at [Institution]",
-    bio: "Spearheaded multiple successful robotics projects.",
+    image: "/advisor/2.png",
+    name: "Zhibin (Alex) Li",
+    title: "Associate Professor in Swarm Robotics",
+    department: "Department of Computer Science",
+    email: "alex.li@ucl.ac.uk",
+    bio: "",
+    expertise: ["Artificial intelligence","Control engineering, mechatronics and robotics","Machine learning","Intelligent robotics","Optimisation"],
+    imageFirst: false,
+    gradient: "prof-gradient prof-2",
   },
   {
-    name: "TBD",
-    year: "2023",
-    role: "Former Events Coordinator",
-    current: "Product Manager at [Company]",
-    bio: "Organized numerous workshops and hackathons.",
+    image: "/advisor/3.png",
+    name: "TBD TBD",
+    title: "Professor",
+    department: "Department of Electronic & Electrical Engineering",
+    email: "tbd@ucl.ac.uk",
+    bio: "Focus on perception, planning, and human-robot interaction.",
+    expertise: ["Perception", "HRI", "Planning"],
+    imageFirst: true,
+    gradient: "prof-gradient prof-3",
   },
   {
-    name: "TBD",
-    year: "2022",
-    role: "Former Treasurer",
-    current: "Startup Founder",
-    bio: "Managed finances and secured funding for key initiatives.",
+    image: "/advisor/4.png",
+    name: "TBD TBD",
+    title: "Dr.",
+    department: "Department of Computer Science",
+    email: "tbd@ucl.ac.uk",
+    bio: "Research in reinforcement learning and robot control.",
+    expertise: ["Reinforcement Learning", "Control", "Simulation"],
+    imageFirst: false,
+    gradient: "prof-gradient prof-4",
   },
 ];
+
+function nameLines(name: string): [string, string] {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return [parts[0], parts.slice(1).join(" ")];
+  return [name, ""];
+}
 ---
 
-<Base title="Alumni — UCL Robotics Society">
-  <section class="mx-auto max-w-6xl px-4 py-12">
-    <h1 class="text-3xl font-semibold tracking-tight">Alumni</h1>
-    <p class="text-slate-600 mt-2">Celebrating our former members and their achievements.</p>
+<Base title="Faculty Advisor — UCL Robotics Society">
+  <style is:global>
+    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&display=swap");
+  </style>
+  <style>
+    .hero-gradient {
+      background: linear-gradient(
+        -45deg,
+        #eef2ff 0%,
+        #e0f2fe 25%,
+        #f0f9ff 50%,
+        #e0e7ff 75%,
+        #cffafe 100%
+      );
+      background-size: 400% 400%;
+      animation: hero-gradient-shift 14s ease infinite;
+    }
+    @keyframes hero-gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+  </style>
+  <style is:global>
+    .prof-gradient { width: 100%; }
+    .prof-1 { background: linear-gradient(to bottom, #eef2ff 0%, #e0f2fe 100%); }
+    .prof-2 { background: linear-gradient(to bottom, #e0f2fe 0%, #fef9c3 100%); }
+    .prof-3 { background: linear-gradient(to bottom, #fef9c3 0%, #ffe4e6 100%); }
+    .prof-4 { background: linear-gradient(to bottom, #ffe4e6 0%, #eef2ff 100%); }
+    .prof-name {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.92;
+      display: flex;
+      flex-direction: column;
+    }
+    .prof-name .prof-line { display: block; }
+    .prof-block .prof-inner {
+      opacity: 0;
+      transform: scale(0.96) translateY(18px);
+      transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+    }
+    .prof-block.prof-in-view .prof-inner {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+    }
+    .prof-block.prof-exit .prof-inner {
+      opacity: 0;
+      transform: scale(0.94) translateY(-12px);
+      transition: opacity 0.7s ease-in, transform 0.7s ease-in;
+    }
+    .prof-img-wrap { position: relative; overflow: hidden; }
+  </style>
 
-    <!-- Alumni Introduction -->
-    <div class="mt-8">
-      <article class="rounded-2xl shadow-lg p-8 bg-white/70 border border-slate-200">
-        <h2 class="text-2xl font-semibold mb-4">Our Alumni Network</h2>
-        <p class="text-slate-700 leading-relaxed">
-          Our alumni are making significant contributions to the robotics and AI industry worldwide. 
-          From leading research institutions to innovative startups, our former members continue to 
-          push the boundaries of what's possible in robotics. We're proud of their achievements and 
-          grateful for the foundation they built for our society.
-        </p>
-      </article>
-    </div>
-
-    <!-- Featured Alumni -->
-    <div class="mt-12">
-      <h2 class="text-2xl font-semibold mb-6">Featured Alumni</h2>
-      <div class="grid md:grid-cols-2 gap-6">
-        {alumni.map((alumnus) => (
-          <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200 hover:shadow-xl transition">
-            <div class="flex items-start gap-4">
-              <div class="aspect-square w-20 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
-                <span class="text-slate-400 text-xs">[ photo ]</span>
-              </div>
-              <div class="flex-1">
-                <div class="flex items-baseline justify-between mb-1">
-                  <h3 class="font-semibold text-lg">{alumnus.name}</h3>
-                  <span class="text-sm text-slate-500">{alumnus.year}</span>
-                </div>
-                <p class="text-indigo-600 font-medium text-sm">{alumnus.role}</p>
-                <p class="text-slate-600 text-sm mt-2 font-medium">{alumnus.current}</p>
-                <p class="text-slate-600 text-sm mt-2">{alumnus.bio}</p>
-              </div>
+  <!-- Hero: 2-line title only (larger); right = enlarged image stack filling header -->
+  <section class="relative hero-gradient min-h-[75vh] md:min-h-[85vh] flex flex-col md:flex-row md:items-center">
+    <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-12 md:py-16 flex flex-col md:flex-row md:items-center md:justify-between md:gap-8">
+      <div class="md:max-w-[45%]">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight text-slate-900 leading-[1.05]">
+          Faculty<br />Advisor
+        </h1>
+      </div>
+      <div class="mt-10 md:mt-0 flex md:justify-end md:flex-1 md:min-h-[min(70vh,420px)] md:items-center">
+        <div class="hero-stack relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] md:w-[420px] md:h-[380px] shrink-0">
+          {heroImages.map((img) => (
+            <div
+              class="hero-stack-item absolute rounded-2xl shadow-xl overflow-hidden bg-slate-200 ring-2 ring-white/60"
+              style={`left:${img.x};top:${img.y};width:${img.w};height:${img.h};transform:rotate(${img.rot}deg);`}
+            >
+              <img src={img.src} alt={img.alt} class="w-full h-full object-cover" style={`object-position: ${img.crop};`} />
             </div>
-          </article>
-        ))}
-      </div>
-    </div>
-
-    <!-- Alumni Impact -->
-    <div class="mt-12">
-      <h2 class="text-2xl font-semibold mb-6">Alumni Impact</h2>
-      <div class="grid md:grid-cols-3 gap-6">
-        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
-          <h3 class="font-semibold text-lg mb-3">Industry Leaders</h3>
-          <p class="text-slate-700">
-            Our alumni work at leading tech companies, research institutions, and innovative startups 
-            around the world.
-          </p>
-        </article>
-
-        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
-          <h3 class="font-semibold text-lg mb-3">Mentorship</h3>
-          <p class="text-slate-700">
-            Many alumni return to mentor current members, sharing their expertise and career insights.
-          </p>
-        </article>
-
-        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
-          <h3 class="font-semibold text-lg mb-3">Networking</h3>
-          <p class="text-slate-700">
-            Our alumni network provides valuable connections and opportunities for current members 
-            and recent graduates.
-          </p>
-        </article>
-      </div>
-    </div>
-
-    <!-- Stay Connected -->
-    <div class="mt-12">
-      <article class="rounded-2xl shadow-lg p-8 bg-gradient-to-br from-indigo-50 to-cyan-50 border border-indigo-200">
-        <h2 class="text-2xl font-semibold mb-4">Stay Connected</h2>
-        <p class="text-slate-700 mb-6">
-          Are you an alumnus? We'd love to hear from you! Stay connected with the society, 
-          share your achievements, and help mentor the next generation of roboticists.
-        </p>
-        <div class="flex gap-3">
-          <a href="/contact" class="rounded-xl px-5 py-3 bg-indigo-600 text-white hover:bg-indigo-700">
-            Contact Us
-          </a>
-          <a href="/join" class="rounded-xl px-5 py-3 border border-indigo-300 hover:border-indigo-400">
-            Join Alumni Network
-          </a>
+          ))}
         </div>
-      </article>
+      </div>
     </div>
   </section>
+
+  <!-- Professors: name 2-line + large; other text below name, start within lower 2/3 of image; enter=scale up, exit=shrink+fade -->
+  <section class="w-full">
+    {professors.map((p) => {
+      const [line1, line2] = nameLines(p.name);
+      return (
+        <div class={`${p.gradient} prof-block`}>
+          <div class="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20">
+            <div
+              class={`prof-inner prof-row flex flex-col gap-6 md:gap-10 md:flex-row md:items-end ${p.imageFirst ? "" : "md:flex-row-reverse"}`}
+            >
+              <div class="prof-img-wrap md:w-[21%] flex-shrink-0 aspect-[4/5] md:aspect-[3/4]">
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  class="prof-img absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
+              <div
+                class={`prof-txt md:w-[79%] md:self-stretch md:flex md:flex-col md:justify-end ${
+                  p.imageFirst ? "" : "md:items-end md:text-right"
+                }`}
+              >
+                <div
+                  class={`prof-txt-inner md:h-full md:max-h-none md:overflow-y-auto md:overflow-x-hidden flex flex-col ${
+                    p.imageFirst ? "" : "items-end"
+                  }`}
+                >
+                  <h2 class="prof-name text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-slate-900 leading-[0.9]">
+                    {line2 ? (
+                      <>
+                        <span class="prof-line">{line1}</span>
+                        <span class="prof-line">{line2}</span>
+                      </>
+                    ) : (
+                      <span class="prof-line">{line1}</span>
+                    )}
+                  </h2>
+                  <div class="mt-3 md:mt-4 space-y-1.5 md:space-y-2">
+                    <p class="text-indigo-600 font-medium text-sm md:text-base">{p.title}, {p.department}</p>
+                    <p class="text-slate-600 leading-relaxed text-sm md:text-base line-clamp-3 md:line-clamp-4">{p.bio}</p>
+                    <div class="flex flex-wrap gap-1.5 md:gap-2">
+                      {p.expertise.map((area) => (
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-white/80 text-slate-700 border border-slate-200/80">
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                    <a href={`mailto:${p.email}`} class="text-indigo-600 text-sm mt-1 inline-block hover:text-indigo-700 font-medium">
+                      {p.email}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </section>
+
+  <script>
+    const blocks = document.querySelectorAll(".prof-block");
+    const opts = { root: null, rootMargin: "0px", threshold: [0, 0.05, 0.2, 0.5, 1] };
+
+    const obs = new IntersectionObserver((entries) => {
+      const vh = window.innerHeight;
+      entries.forEach((e) => {
+        const rect = e.boundingClientRect;
+        const inView = e.isIntersecting;
+        const fadedInZone = rect.top < 0.55 * vh;
+        const exitedUp = rect.bottom <= 0.6 * vh;
+        const exitedDown = rect.top >= 0.45 * vh;
+
+        if (exitedUp) {
+          e.target.classList.remove("prof-in-view");
+          e.target.classList.add("prof-exit");
+          if (rect.bottom <= 0) {
+            e.target.classList.remove("prof-exit");
+          }
+        } else if (exitedDown) {
+          e.target.classList.remove("prof-in-view");
+          e.target.classList.add("prof-exit");
+          if (rect.top >= vh) {
+            e.target.classList.remove("prof-exit");
+          }
+        } else if (inView && fadedInZone) {
+          e.target.classList.add("prof-in-view");
+          e.target.classList.remove("prof-exit");
+        }
+      });
+    }, opts);
+
+    blocks.forEach((b) => obs.observe(b));
+  </script>
 </Base>

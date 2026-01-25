@@ -93,25 +93,46 @@ const committeeGroups = [
 ---
 
 <Base title="Committee — UCL Robotics Society">
-  <section class="mx-auto max-w-6xl px-4 py-12 text-center">
-    <h1 class="text-3xl font-semibold tracking-tight">Committee</h1>
-    <p class="text-slate-600 mt-2">Meet the team leading UCL Robotics Society.</p>
+  <style is:global>
+    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&display=swap");
+  </style>
+  <style>
+    .hero-gradient {
+      background: linear-gradient(
+        -45deg,
+        #eef2ff 0%,
+        #e0f2fe 25%,
+        #f0f9ff 50%,
+        #e0e7ff 75%,
+        #cffafe 100%
+      );
+      background-size: 400% 400%;
+      animation: hero-gradient-shift 14s ease infinite;
+    }
+    @keyframes hero-gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .hero-name {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.92;
+    }
+  </style>
 
-    <!-- Committee Introduction -->
-    <div class="mt-8">
-      <article class="rounded-2xl shadow-lg p-8 bg-white/70 border border-slate-200 text-center">
-        <h2 class="text-2xl font-semibold mb-4">Our Team</h2>
-        <p class="text-slate-700 leading-relaxed">
-          Our committee is composed of dedicated students who volunteer their time to organize 
-          events, manage projects, and build our community. Each member brings unique skills and 
-          perspectives to help the society grow and thrive.
-        </p>
-      </article>
+  <section class="relative hero-gradient min-h-[60vh] md:min-h-[70vh] flex items-center">
+    <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center">
+      <h1 class="hero-name text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-slate-900">
+        Committee
+      </h1>
     </div>
+  </section>
 
+  <section class="mx-auto max-w-6xl px-4 py-12">
     <!-- Committee Members -->
     <div class="mt-12">
-      <h2 class="text-2xl font-semibold mb-6">Committee Members</h2>
+      <h2 class="text-2xl font-semibold mb-6 text-center">Committee Members</h2>
       {committeeGroups.map((group) => (
         <section class="mt-10 rounded-3xl border border-slate-200 bg-gradient-to-br p-6" class:list={[group.accent]}>
           <div class="flex justify-center mb-6">
@@ -142,24 +163,5 @@ const committeeGroups = [
       ))}
     </div>
 
-    <!-- Join Committee -->
-    <div class="mt-12">
-      <article class="rounded-2xl shadow-lg p-8 bg-gradient-to-br from-indigo-50 to-cyan-50 border border-indigo-200 text-center">
-        <h2 class="text-2xl font-semibold mb-4">Interested in Joining the Committee?</h2>
-        <p class="text-slate-700 mb-6">
-          We're always looking for passionate members to join our committee. Whether you're 
-          interested in organizing events, managing projects, or building partnerships, 
-          there's a role for you.
-        </p>
-        <div class="flex gap-3 justify-center">
-          <a href="/join" class="rounded-xl px-5 py-3 bg-indigo-600 text-white hover:bg-indigo-700">
-            Get Involved
-          </a>
-          <a href="/contact" class="rounded-xl px-5 py-3 border border-indigo-300 hover:border-indigo-400">
-            Contact Us
-          </a>
-        </div>
-      </article>
-    </div>
   </section>
 </Base>

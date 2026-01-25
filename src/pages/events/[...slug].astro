@@ -1,0 +1,264 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import type { ImageMetadata } from "astro";
+import EventsLayout from "../../components/events/EventsLayout.astro";
+import { initiatives } from "../../data/events";
+
+export async function getStaticPaths() {
+  const allEvents = await getCollection("events");
+  const shortSlugFromEntry = (entry) =>
+    entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug;
+  return allEvents.map((event) => ({
+    params: { slug: shortSlugFromEntry(event) },
+  }));
+}
+
+const slugParam = Astro.params.slug;
+const slug = Array.isArray(slugParam) ? slugParam.join("/") : slugParam;
+
+const allEvents = await getCollection("events");
+const shortSlugFromEntry = (entry) =>
+  entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug;
+const event = allEvents.find(
+  (entry) => entry.slug === slug || shortSlugFromEntry(entry) === slug
+);
+
+if (!event) {
+  throw new Error(`Event not found: ${slug ?? "unknown"}`);
+}
+
+const sortByDate = (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+const workshops = allEvents.filter((e) => e.data.tags?.includes("workshop")).sort(sortByDate);
+const hackathons = allEvents.filter((e) => e.data.tags?.includes("hackathon")).sort(sortByDate);
+const challenges = allEvents.filter((e) => e.data.tags?.includes("challenge")).sort(sortByDate);
+const socials = allEvents.filter((e) => e.data.tags?.includes("social")).sort(sortByDate);
+
+const folderLabel = (item) => item.id.split("/").slice(-2, -1)[0] ?? item.data.title;
+const recentByInitiative = {
+  workshops: workshops.map((item) => ({
+    title: folderLabel(item),
+    href: `/events/${shortSlugFromEntry(item)}`,
+  })),
+  hackathons: hackathons.map((item) => ({
+    title: folderLabel(item),
+    href: `/events/${shortSlugFromEntry(item)}`,
+  })),
+  challenges: challenges.map((item) => ({
+    title: folderLabel(item),
+    href: `/events/${shortSlugFromEntry(item)}`,
+  })),
+  socials: socials.map((item) => ({
+    title: folderLabel(item),
+    href: `/events/${shortSlugFromEntry(item)}`,
+  })),
+};
+
+const tagLabels: Record<string, string> = {
+  workshop: "Workshop",
+  hackathon: "Hackathon",
+  challenge: "Challenge",
+  social: "Social",
+};
+
+const currentInitiative = initiatives.find((item) => event.data.tags?.includes(item.tag));
+const currentId = currentInitiative?.id;
+const currentEventHref = `/events/${shortSlugFromEntry(event)}`;
+
+const body = event.body ?? "";
+const pictureRegex = /\[picture\]\s*"([^"]+)"/g;
+const blocks: Array<
+  | { type: "text"; value: string }
+  | { type: "image"; value: string }
+> = [];
+
+let lastIndex = 0;
+for (const match of body.matchAll(pictureRegex)) {
+  const textChunk = body.slice(lastIndex, match.index).trim();
+  if (textChunk) blocks.push({ type: "text", value: textChunk });
+  blocks.push({ type: "image", value: match[1] });
+  lastIndex = (match.index ?? 0) + match[0].length;
+}
+const tail = body.slice(lastIndex).trim();
+if (tail) blocks.push({ type: "text", value: tail });
+
+const imageMap = import.meta.glob<ImageMetadata>(
+  "/src/content/events/**/*.{png,jpg,jpeg,webp,gif,svg}",
+  { eager: true, import: "default" }
+);
+const baseDir = event.id.split("/").slice(0, -1).join("/");
+const resolveImage = (file: string) => {
+  const directKey = `/src/content/events/${baseDir}/${file}`;
+  const fallbackKey = `/src/content/events/${file}`;
+  const image = imageMap[directKey] ?? imageMap[fallbackKey];
+  return image?.src ?? "";
+};
+const imageAlt = (file: string) =>
+  file
+    .replace(/\.[^/.]+$/, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
+
+const renderInline = (text: string) =>
+  text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
+const renderMarkdown = (text: string) => {
+  const lines = text.split("\n");
+  const html: string[] = [];
+  const listStack: number[] = [];
+  let paragraph: string[] = [];
+
+  const closeParagraph = () => {
+    if (!paragraph.length) return;
+    html.push(
+      `<p class="text-base md:text-lg leading-relaxed text-slate-700">${renderInline(
+        paragraph.join(" ")
+      )}</p>`
+    );
+    paragraph = [];
+  };
+
+  const closeLists = (targetLevel = 0) => {
+    while (listStack.length > targetLevel) {
+      html.push("</ul>");
+      listStack.pop();
+    }
+  };
+
+  const openList = () => {
+    html.push('<ul class="list-disc pl-6 space-y-1 text-slate-700">');
+    listStack.push(1);
+  };
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      closeParagraph();
+      return;
+    }
+
+    if (trimmed === "---") {
+      closeParagraph();
+      closeLists(0);
+      html.push('<hr class="my-6 border-slate-200" />');
+      return;
+    }
+
+    if (trimmed.startsWith("## ")) {
+      closeParagraph();
+      closeLists(0);
+      html.push(
+        `<h2 class="mt-6 text-xl md:text-2xl font-semibold text-slate-900">${renderInline(
+          trimmed.slice(3)
+        )}</h2>`
+      );
+      return;
+    }
+
+    if (trimmed.startsWith("### ")) {
+      closeParagraph();
+      closeLists(0);
+      html.push(
+        `<h3 class="mt-4 text-lg md:text-xl font-semibold text-slate-900">${renderInline(
+          trimmed.slice(4)
+        )}</h3>`
+      );
+      return;
+    }
+
+    const listMatch = line.match(/^(\s*)-\s+(.*)$/);
+    if (listMatch) {
+      const indent = listMatch[1].length;
+      const level = Math.floor(indent / 2);
+      closeParagraph();
+
+      if (listStack.length < level + 1) {
+        openList();
+      } else if (listStack.length > level + 1) {
+        closeLists(level + 1);
+      }
+
+      html.push(`<li>${renderInline(listMatch[2])}</li>`);
+      return;
+    }
+
+    paragraph.push(trimmed);
+  });
+
+  closeParagraph();
+  closeLists(0);
+  return html.join("");
+};
+
+const primaryTag = event.data.tags?.map((tag) => tagLabels[tag]).find(Boolean);
+
+const formatDate = (iso: string) => {
+  const date = new Date(iso);
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+---
+
+<Base title={`${event.data.title} — Robotics Society`}>
+  <EventsLayout
+    title={event.data.title}
+    initiatives={initiatives}
+    currentId={currentId}
+    recentByInitiative={recentByInitiative}
+    currentEventHref={currentEventHref}
+    showHeader={false}
+  >
+    <section>
+      <article class="mx-auto max-w-3xl">
+        <header class="border-b border-slate-200 pb-6">
+          <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
+            {event.data.title}
+          </h1>
+          <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+            <span>{formatDate(event.data.date)}</span>
+            {primaryTag && (
+              <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs uppercase tracking-wide text-slate-600">
+                {primaryTag}
+              </span>
+            )}
+          </div>
+          {event.data.location && (
+            <p class="mt-3 flex items-center gap-1 text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              {event.data.location}
+            </p>
+          )}
+        </header>
+        <div class="mt-8 space-y-6">
+          {blocks.map((block) => {
+            if (block.type === "image") {
+              const src = resolveImage(block.value);
+              return src ? (
+                <img
+                  src={src}
+                  alt={imageAlt(block.value)}
+                  class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                  Image not found: {block.value}
+                </div>
+              );
+            }
+            return <div set:html={renderMarkdown(block.value)} />;
+          })}
+        </div>
+      </article>
+    </section>
+  </EventsLayout>
+</Base>

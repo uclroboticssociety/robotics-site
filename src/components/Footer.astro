@@ -1,9 +1,42 @@
-<footer class="border-t border-slate-200">
-  <div class="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500 flex flex-wrap items-center justify-between gap-3">
-    <div>© {new Date().getFullYear()} Robotics Society</div>
-    <div class="flex gap-4">
-      <a href="#" class="underline">Code of Conduct</a>
-      <a href="#" class="underline">Privacy</a>
+---
+import { footerColumns, footerBottom } from "../data/footer";
+---
+
+<footer class="border-t border-slate-200 bg-white/50">
+  <div class="mx-auto max-w-6xl px-4 py-12 md:py-16">
+    <div class="flex items-center gap-2 mb-10">
+      <img src="/logo.png" alt="UCL Robotics Society" class="h-8 w-auto" />
+      <span class="text-slate-700 font-semibold">UCL Robotics Society</span>
+    </div>
+    <div class="grid grid-cols-2 gap-8 sm:grid-cols-4 md:gap-12">
+      {footerColumns.map((col) => (
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">
+            {col.title}
+          </h3>
+          <ul class="space-y-3">
+            {col.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm text-slate-600 hover:text-slate-900 transition"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div class="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <span class="text-sm text-slate-500">© {new Date().getFullYear()} {footerBottom.copy}</span>
+      <a
+        href={footerBottom.signIn.href}
+        class="text-sm text-slate-600 hover:text-slate-900 transition"
+      >
+        {footerBottom.signIn.label}
+      </a>
     </div>
   </div>
 </footer>
