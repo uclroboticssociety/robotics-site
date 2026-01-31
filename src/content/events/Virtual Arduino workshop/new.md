@@ -5,43 +5,35 @@ location: "UCL Main Campus — IOE"
 signup_url: "https://forms.gle/xxxx"
 tags: ["workshop","induction"]
 ---
+/!!!
+A beginner-friendly, hands-on introduction to Arduino programming and hardware control — fully virtual, no physical hardware required.
+!!!/
 
-## 📌 1. Event Info
+/!!!
+[picture]"1.png"[picture]"2.png"
+!!!/
 
-- **Date & Time:** 11/10/2025 16:00-18:00
-- **Location:** UCL Main Campus — IOE
-- **Responsible committee member:** Morgan, Xavier, Martin, Ming
+/!!!
+In this workshop, you’ll learn how Arduino interacts with real-world components using Wokwi, an online simulation platform that lets you write code, build circuits, and run experiments directly in your browser.
+!!!/
 
----
+/!!!
+[scroll]([picture]"3.png"[picture]"4.png")
+## What you’ll learn
+- Basic Arduino programming concepts
+- Digital output and LED control
+- PWM and motor control fundamentals
+- How to simulate hardware using Wokwi
+!!!/
 
-## 🗂️ 2. Session Structure
+/!!!
+## Who should attend
+- Beginners with little or no Arduino experience
+- Students interested in robotics or embedded systems
+- Anyone planning to join future Robotics Society projects
+[scroll]([picture]"5.png"[picture]"6.png")
+!!!/
 
-### Part 1 — Society Schedule Induction
-
-- **Workshops**
-  - Term 1: CAD & 3D printings; Arduino & Sensors
-  - Term 2: Control Basics (PID, Kinematics, Inverse Kinematics, Lagrangian Mechanics)
-  - Term 3: ROS for beginners; Integrated Projects
-- **Hackathons**
-  - Hackathon participation support (team formation, prep sessions, guidance)
-  - Plans for hosting our own hackathon next year with other universities
-- **Talks & Industry**
-  - Inviting industry experts and company leaders to share latest tech & experiences
-- **RoboCup**
-  - A small group of people will do the demo at first and then mass produce
-
-### Part 2 — Virtual Arduino Workshop
-
-- **Overview:** This workshop is designed to introduce beginners to Arduino programming and hardware interaction using an online simulation platform called Wokwi. Wokwi allows users to write Arduino code on the left side of the interface, while adding and connecting components (such as sensors, motors, LEDs, and microcontrollers) on the right side, enabling a fully virtual, hands-on experience without physical hardware.
-- **Introduction to Wokwi Platform**
-  - How to navigate the interface
-  - How to add and connect components
-  - How the simulation works
-- **Project 1: LED Control (Running Light Example)**
-  - Basics of digital output
-  - Writing simple Arduino code to turn LEDs on/off
-  - Implementing a "running light" (sequential LED blinking) program
-- **Project 2: PWM Control — Servo & DC Motor**
-  - Introduction to PWM (Pulse Width Modulation)
-  - Controlling a servo motor's angle
-  - Controlling a DC motor's speed
+/!!!
+No hardware required. All activities are completed using an online simulation platform. Just bring your laptop.
+!!!/

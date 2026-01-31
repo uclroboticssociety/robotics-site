@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
+import type { ImageMetadata } from "astro";
 import EventsLayout from "../components/events/EventsLayout.astro";
 
 type ProjectEntry = CollectionEntry<"projects">;
@@ -45,6 +46,18 @@ const recentByInitiative = {
     href: `/projects/${entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug}`,
   })),
 };
+
+const imageMap = import.meta.glob<ImageMetadata>(
+  "/src/content/projects/**/*.{png,jpg,jpeg,webp,gif,svg}",
+  { eager: true, import: "default" }
+);
+const resolveProjectImage = (entry: ProjectEntry) => {
+  const folder = entry.id.split("/").slice(-2, -1)[0];
+  if (!folder) return "";
+  const directKey = `/src/content/projects/${folder}/0.png`;
+  const image = imageMap[directKey];
+  return image?.src ?? "";
+};
 ---
 
 <Base title="Projects — Robotics Society">
@@ -71,8 +84,22 @@ const recentByInitiative = {
           const { data, Content } = entry;
           return (
             <article class="rounded-2xl shadow-lg p-6 bg-white/70 border border-slate-200 hover:shadow-xl transition rise-in" data-delay={`${index * 120}ms`}>
-              <div class="aspect-video rounded-xl bg-slate-100 flex items-center justify-center">
-                <span class="text-slate-400 text-sm">[ project image ]</span>
+              <div class="aspect-video rounded-xl bg-slate-100 overflow-hidden">
+                {(() => {
+                  const src = resolveProjectImage(entry);
+                  return src ? (
+                    <img
+                      src={src}
+                      alt={`${data.title} preview`}
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span class="flex h-full w-full items-center justify-center text-slate-400 text-sm">
+                      [ project image ]
+                    </span>
+                  );
+                })()}
               </div>
               <h3 class="font-semibold mt-3 text-xl">
                 <a
@@ -83,12 +110,6 @@ const recentByInitiative = {
                 </a>
               </h3>
               <p class="text-slate-600 mt-1 text-sm font-medium">{data.summary}</p>
-
-              {Content && (
-                <div class="mt-3 text-slate-700 text-sm leading-relaxed">
-                  <Content />
-                </div>
-              )}
 
               <div class="mt-3 text-sm text-slate-500 flex flex-col gap-1">
                 <div>Status: <span class="font-medium capitalize">{data.status}</span></div>

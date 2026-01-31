@@ -1,41 +1,43 @@
 ---
 title: "Maze Robot Challenge"
-date: "2025-10-25T14:00:00+01:00"
+date: "2025-11-03T14:00:00+00:00"
 location: "UCL East — Marshgate"
 signup_url: "https://forms.gle/xxxx"
 tags: ["challenge"]
 ---
 
-## 📅 1. Event Overview
+/!!!
+The Maze Robot Challenge is a hands-on robotics challenge where teams design, program, and test a mobile robot to autonomously navigate through a maze.\n
+!!!/
+/!!!
+Building on the skills introduced in earlier Arduino and motor control sessions, participants will apply sensor integration, basic navigation logic, and teamwork to solve a real-world robotics problem in a competitive but beginner-friendly environment.
+!!!/
 
-- **Date & Time:** 25 Oct 14:00–18:00
-- **Location / Platform:** UCL East — Marshgate
-- **Host / Lead Committee Member:** TBD
+/!!!
+[scroll]([picture]"1.png"[picture]"2.png"[picture]"3.png"[picture]"4.png"[picture]"5.png")
+## What you’ll do
+**Participants will work in small teams to:**
+- Assemble a basic maze-solving robot
+- Integrate sensors, motors, and an Arduino controller
+- Upload and test navigation code
+- Iteratively improve robot performance through testing
+!!!/
 
----
+/!!!
+## What you’ll learn
+- Fundamental robot navigation concepts
+- How sensors (IR / ultrasonic) are used for decision making
+- Basic control logic for mobile robots
+- Practical experience with hardware integration and debugging
+[scroll]([picture]"6.png"[picture]"7.png"[picture]"8.png"[picture]"9.png"[picture]"10.png")
+!!!/
 
-## 🎯 2. Session Objectives
-
-- Introduce participants to basic robot navigation and maze-solving concepts
-- Apply Arduino programming and motor control skills learned in Taster Session #2
-- Encourage teamwork and creative problem-solving in a hands-on challenge
-
----
-
-## 🧰 3. Workshop Structure
-
-### 1. Introduction to the Challenge
-
-- Brief explanation of maze-solving robots
-- Overview of sensors (IR / ultrasonic) and their use in navigation
-- Short explanation of basic control logic (e.g., line following, wall following, decision making)
-
-### 2. Building the Maze Robot (Team Task)
-
-- Step-by-step guidance on assembling a basic maze robot
-- Integrating sensors, motor driver, and Arduino
-- Uploading and testing navigation code
-
-### 3. Challenge Time
-
-- Teams compete to solve the maze as quickly and efficiently as possible
+/!!!
+[scroll]([picture]"11.png"[picture]"12.png"[picture]"13.png"[picture]"14.png"[picture]"15.png")
+## The Challenge
+**Once the robots are ready, teams will compete to:**
+- Navigate the maze as efficiently as possible
+- Optimise speed, stability, and decision-making
+- Collaborate under time constraints
+- The focus is on learning through experimentation, not just winning.
+!!!/

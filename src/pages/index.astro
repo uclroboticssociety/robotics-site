@@ -47,71 +47,12 @@ const filmFrames = [...filmImages, ...filmImages];
       opacity: 1;
       transform: translateY(0);
     }
-    .film-mask {
-      -webkit-mask-image: linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent);
-      mask-image: linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent);
-      overflow: hidden;
-      width: clamp(150px, 22vw, 270px);
-      max-height: clamp(320px, 55vh, 520px);
-    }
-    .film-track {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      height: max-content;
-      animation: film-scroll 18s linear infinite;
-      will-change: transform;
-    }
-    .film-track.reverse {
-      animation-direction: reverse;
-    }
-    @keyframes film-scroll {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-50%); }
-    }
-    .film-frame {
-      position: relative;
-      background: #0b0b0f;
-      padding: 0.5rem;
-      border-radius: 18px;
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
-      width: clamp(140px, 20vw, 250px);
-      display: flex;
-      justify-content: center;
-      padding-bottom: 0.7rem;
-    }
-    .film-frame::before,
-    .film-frame::after {
-      content: "";
-      position: absolute;
-      top: 0.6rem;
-      bottom: 0.6rem;
-      width: 6px;
-      background: repeating-linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.35) 0 6px,
-        rgba(255, 255, 255, 0) 6px 14px
-      );
-      border-radius: 999px;
-    }
-    .film-frame::before { left: 0.5rem; }
-    .film-frame::after { right: 0.5rem; }
-    .film-frame img {
-      width: clamp(115px, 16.5vw, 210px);
-      height: clamp(78px, 11vw, 135px);
+    .hero-photo {
+      width: clamp(240px, 36vw, 520px);
+      height: clamp(180px, 28vw, 390px);
       object-fit: cover;
-      object-position: center;
-      border-radius: 12px;
-      display: block;
-      background: #111827;
-    }
-    .film-columns {
-      margin-right: 0;
-    }
-    @media (min-width: 1024px) {
-      .film-columns {
-        margin-right: calc((72rem - 100vw) / 2);
-      }
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
     }
   </style>
 
@@ -119,11 +60,8 @@ const filmFrames = [...filmImages, ...filmImages];
     <div class="mx-auto max-w-6xl px-4 py-16 md:py-20">
       <div class="grid md:grid-cols-[1.05fr_1.2fr] gap-10 md:items-center">
         <div class="fade-in" data-delay="0ms">
-          <p class="text-xs uppercase tracking-[0.3em] text-slate-500">UCL Robotics Society</p>
           <h1 class="hero-title mt-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-slate-900">
-            <span class="fade-in" data-delay="0ms">Build the future.</span>
-            <br />
-            <span class="fade-in" data-delay="200ms">Learn with the team.</span>
+            <span class="fade-in" data-delay="0ms">Welcome to the UCL Robotics Society.</span>
           </h1>
           <p class="mt-6 text-slate-600 text-lg max-w-lg">
             A student-led community for robotics, AI, and mechatronics. We prototype, compete,
@@ -138,34 +76,8 @@ const filmFrames = [...filmImages, ...filmImages];
             </a>
           </div>
         </div>
-        <div class="film-columns ml-auto mr-0 flex w-fit items-center justify-end gap-6 md:ml-auto md:mr-0 fade-in" data-delay="600ms">
-          <div class="film-mask">
-            <div class="film-track">
-              {filmFrames.map((frame) => (
-                <div class="film-frame">
-                  <img src={frame.src} alt={frame.alt} loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div class="film-mask">
-            <div class="film-track reverse">
-              {filmFrames.map((frame) => (
-                <div class="film-frame">
-                  <img src={frame.src} alt={frame.alt} loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div class="film-mask">
-            <div class="film-track">
-              {filmFrames.map((frame) => (
-                <div class="film-frame">
-                  <img src={frame.src} alt={frame.alt} loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
+        <div class="ml-auto mr-0 flex w-fit items-center justify-end fade-in" data-delay="600ms">
+          <img src="/film/1.png" alt="Robotics lab" class="hero-photo" loading="lazy" />
         </div>
       </div>
     </div>

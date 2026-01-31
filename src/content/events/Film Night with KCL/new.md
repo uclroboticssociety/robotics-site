@@ -5,9 +5,4 @@ location: "UCL East - One Pool Street"
 signup_url: "https://forms.gle/xxxx"
 tags: ["social"]
 ---
-
-Movie Name: Wild Robot
-
-[picture]"1.png"
-
-[picture]"2.png"
+coming soon...

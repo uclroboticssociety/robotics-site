@@ -67,20 +67,105 @@ const currentEventHref = `/events/${shortSlugFromEntry(event)}`;
 
 const body = event.body ?? "";
 const pictureRegex = /\[picture\]\s*"([^"]+)"/g;
-const blocks: Array<
+const spaceRegex = /\[space\]\s*"([^"]+)"/g;
+const scrollRegex = /\[scroll\]\(([\s\S]*?)\)/g;
+type Block =
   | { type: "text"; value: string }
   | { type: "image"; value: string }
-> = [];
+  | { type: "scroll"; value: string[] }
+  | { type: "space"; value: string }
+  | { type: "split"; media: { type: "image" | "scroll"; value: string | string[] }; text: string; mediaSide: "left" | "right" };
 
-let lastIndex = 0;
-for (const match of body.matchAll(pictureRegex)) {
-  const textChunk = body.slice(lastIndex, match.index).trim();
-  if (textChunk) blocks.push({ type: "text", value: textChunk });
-  blocks.push({ type: "image", value: match[1] });
-  lastIndex = (match.index ?? 0) + match[0].length;
-}
-const tail = body.slice(lastIndex).trim();
-if (tail) blocks.push({ type: "text", value: tail });
+const parseScrollImages = (text: string) => {
+  const images: string[] = [];
+  for (const match of text.matchAll(pictureRegex)) {
+    images.push(match[1]);
+  }
+  return images;
+};
+
+const splitSegments = (input: string) =>
+  input
+    .split("/!!!")
+    .map((segment) => segment.replace("!!!/", "").trim())
+    .filter(Boolean);
+
+const parseSegment = (segment: string): Block[] => {
+  const blocks: Block[] = [];
+  let lastIndex = 0;
+  for (const match of segment.matchAll(scrollRegex)) {
+    const textChunk = segment.slice(lastIndex, match.index).trim();
+    if (textChunk) blocks.push({ type: "text", value: textChunk });
+    const images = parseScrollImages(match[1]);
+    if (images.length) {
+      blocks.push({ type: "scroll", value: images });
+    }
+    lastIndex = (match.index ?? 0) + match[0].length;
+  }
+  const tail = segment.slice(lastIndex).trim();
+  if (tail) blocks.push({ type: "text", value: tail });
+  return blocks;
+};
+
+const segments = splitSegments(body).map(parseSegment);
+
+const expandPictures = (input: Block[]) => {
+  const out: Block[] = [];
+  input.forEach((block) => {
+    if (block.type !== "text") {
+      out.push(block);
+      return;
+    }
+    const text = block.value;
+    const markers = [...text.matchAll(pictureRegex), ...text.matchAll(spaceRegex)]
+      .sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
+    let last = 0;
+    for (const match of markers) {
+      const chunk = text.slice(last, match.index).trim();
+      if (chunk) out.push({ type: "text", value: chunk });
+      if (match[0].startsWith("[picture]")) {
+        out.push({ type: "image", value: match[1] });
+      } else {
+        out.push({ type: "space", value: match[1] });
+      }
+      last = (match.index ?? 0) + match[0].length;
+    }
+    const tailText = text.slice(last).trim();
+    if (tailText) out.push({ type: "text", value: tailText });
+  });
+  return out;
+};
+
+const normalizeSegment = (segmentBlocks: Block[]) => {
+  const expanded = expandPictures(segmentBlocks);
+  const out: Block[] = [];
+  for (let i = 0; i < expanded.length; i += 1) {
+    const current = expanded[i];
+    const next = expanded[i + 1];
+    if (current.type === "scroll" && next?.type === "text") {
+      out.push({
+        type: "split",
+        media: { type: "scroll", value: current.value },
+        text: next.value,
+        mediaSide: "left",
+      });
+      i += 1;
+      continue;
+    }
+    if (current.type === "text" && next?.type === "scroll") {
+      out.push({
+        type: "split",
+        media: { type: "scroll", value: next.value },
+        text: current.value,
+        mediaSide: "right",
+      });
+      i += 1;
+      continue;
+    }
+    out.push(current);
+  }
+  return out;
+};
 
 const imageMap = import.meta.glob<ImageMetadata>(
   "/src/content/events/**/*.{png,jpg,jpeg,webp,gif,svg}",
@@ -102,8 +187,12 @@ const imageAlt = (file: string) =>
 const renderInline = (text: string) =>
   text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
 
+const renderInlineWithBreaks = (text: string) =>
+  renderInline(text.trim()).replace(/\\n|\n/g, "<br />");
+
 const renderMarkdown = (text: string) => {
-  const lines = text.split("\n");
+  const normalized = text.replace(/\\n/g, "\n");
+  const lines = normalized.split("\n");
   const html: string[] = [];
   const listStack: number[] = [];
   let paragraph: string[] = [];
@@ -148,7 +237,7 @@ const renderMarkdown = (text: string) => {
       closeParagraph();
       closeLists(0);
       html.push(
-        `<h2 class="mt-6 text-xl md:text-2xl font-semibold text-slate-900">${renderInline(
+        `<h2 class="mt-1 mb-2 text-xl md:text-2xl font-semibold text-slate-900">${renderInline(
           trimmed.slice(3)
         )}</h2>`
       );
@@ -216,6 +305,34 @@ const formatDate = (iso: string) => {
       opacity: 1;
       transform: translateY(0);
     }
+    .scroll-frame {
+      width: 100%;
+      border-radius: 16px;
+      overflow-x: auto;
+      border: 1px solid rgb(226 232 240);
+      background: #f8fafc;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .scroll-track {
+      display: flex;
+      gap: 12px;
+      padding: 10px;
+      min-width: 100%;
+    }
+    .scroll-track img {
+      flex: 0 0 100%;
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 12px;
+      scroll-snap-align: start;
+    }
+    .space-block {
+      height: var(--space-height);
+    }
   </style>
   <EventsLayout
     title={event.data.title}
@@ -250,23 +367,131 @@ const formatDate = (iso: string) => {
           )}
         </header>
         <div class="mt-8 space-y-6">
-          {blocks.map((block) => {
-            if (block.type === "image") {
-              const src = resolveImage(block.value);
-              return src ? (
-                <img
-                  src={src}
-                  alt={imageAlt(block.value)}
-                  class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
-                  loading="lazy"
-                />
-              ) : (
-                <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
-                  Image not found: {block.value}
-                </div>
-              );
-            }
-            return <div set:html={renderMarkdown(block.value)} />;
+          {segments.map((segment, segmentIndex) => {
+            const normalized = normalizeSegment(segment);
+            return (
+              <div class="space-y-6" data-segment={segmentIndex}>
+                {(() => {
+                  const rendered: any[] = [];
+                  for (let i = 0; i < normalized.length; i += 1) {
+                    const block = normalized[i];
+                    const next = normalized[i + 1];
+                    if (block.type === "image" && next?.type === "image") {
+                      const srcA = resolveImage(block.value);
+                      const srcB = resolveImage(next.value);
+                      rendered.push(
+                        <div class="grid gap-4 md:grid-cols-2">
+                          {srcA ? (
+                            <img
+                              src={srcA}
+                              alt={imageAlt(block.value)}
+                              class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                              Image not found: {block.value}
+                            </div>
+                          )}
+                          {srcB ? (
+                            <img
+                              src={srcB}
+                              alt={imageAlt(next.value)}
+                              class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                              Image not found: {next.value}
+                            </div>
+                          )}
+                        </div>
+                      );
+                      i += 1;
+                      continue;
+                    }
+
+                    if (block.type === "scroll") {
+                      const images = block.value.map((img) => resolveImage(img)).filter(Boolean);
+                      rendered.push(
+                        <div class="scroll-frame">
+                          <div class="scroll-track">
+                            {images.map((src, index) => (
+                              <img src={src} alt={imageAlt(block.value[index])} loading="lazy" />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                      continue;
+                    }
+
+                    if (block.type === "split") {
+                      const mediaLeft = block.mediaSide === "left";
+                      const mediaImages =
+                        block.media.type === "scroll"
+                          ? block.media.value.map((img) => resolveImage(img)).filter(Boolean)
+                          : [resolveImage(block.media.value as string)].filter(Boolean);
+                      const mediaNode =
+                        block.media.type === "scroll" ? (
+                          <div class="scroll-frame">
+                            <div class="scroll-track">
+                              {mediaImages.map((src, index) => (
+                                <img src={src} alt={imageAlt((block.media.value as string[])[index])} loading="lazy" />
+                              ))}
+                            </div>
+                          </div>
+                        ) : mediaImages[0] ? (
+                          <img
+                            src={mediaImages[0]}
+                            alt={imageAlt(block.media.value as string)}
+                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                            Image not found: {block.media.value as string}
+                          </div>
+                        );
+                      rendered.push(
+                        <div class="grid gap-6 md:grid-cols-2 items-start">
+                          {mediaLeft && mediaNode}
+                          <div set:html={renderMarkdown(block.text)} />
+                          {!mediaLeft && mediaNode}
+                        </div>
+                      );
+                      continue;
+                    }
+
+                    if (block.type === "image") {
+                      const src = resolveImage(block.value);
+                      rendered.push(
+                        src ? (
+                          <img
+                            src={src}
+                            alt={imageAlt(block.value)}
+                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                            Image not found: {block.value}
+                          </div>
+                        )
+                      );
+                      continue;
+                    }
+
+                    if (block.type === "space") {
+                      rendered.push(<div class="space-block" style={`--space-height:${block.value};`} />);
+                      continue;
+                    }
+
+                    rendered.push(<div set:html={renderMarkdown(block.value)} />);
+                  }
+                  return rendered;
+                })()}
+              </div>
+            );
           })}
         </div>
       </article>
