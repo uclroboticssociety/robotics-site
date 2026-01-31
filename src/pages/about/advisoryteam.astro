@@ -1,0 +1,269 @@
+---
+import Base from "../../layouts/Base.astro";
+
+
+const facultyAdvisors = [
+  {
+    image: "/advisor/1.png",
+    name: "Wei Chen",
+    title: "Director",
+    department: "UCL Centre for Sustainability and Realtech Innovation",
+    email: "wei.chen@ucl.ac.uk",
+    bio: "",
+    expertise: ["Information and computing sciences", "AI", "Machine Learning","Control engineering, mechatronics and robotics"],
+    imageFirst: true,
+    gradient: "prof-gradient prof-1",
+  },
+  {
+    image: "/advisor/2.png",
+    name: "Zhibin (Alex) Li",
+    title: "Associate Professor",
+    department: "Department of Computer Science",
+    email: "alex.li@ucl.ac.uk",
+    bio: "",
+    expertise: ["AI","Optimisation", "Control engineering, mechatronics and robotics", "Machine learning","Intelligent robotics"],
+    imageFirst: true,
+    gradient: "prof-gradient prof-1",
+  },
+  {
+    image: "/advisor/3.png",
+    name: "Chengxu Zhou",
+    title: "Associate Professor",
+    department: "Department of Computer Science",
+    email: "chengxu.zhou@ucl.ac.uk",
+    bio: "",
+    expertise: ["AI", "Intelligent mobility", "Intelligent robotics","Assistive robots and technology","Field robotics","Control engineering, mechatronics and robotics"],
+    imageFirst: true,
+    gradient: "prof-gradient prof-1",
+  },
+
+];
+
+const researchMentors = [
+  {
+    image: "/advisor/5.png",
+    name: "Diran Yu",
+    title: "Research Assistant",
+    department: "Department of Computer Science",
+    email: "diran.yu.22@ucl.ac.uk",
+    bio: "",
+    expertise: ["Evacuation", "Virtual Reality","Digital Twin","Building Emergency Management","Robot Application in Construction"],
+    imageFirst: true,
+    gradient: "prof-gradient prof-1",
+  },
+  {
+    image: "/advisor/6.png",
+    name: "Yunqi Huang",
+    title: "PhD Candidate",
+    department: "Department of Computer Science",
+    email: "yunqi.huang.23@ucl.ac.uk",
+    bio: "",
+    expertise: ["Tactile Sensing", "Soft Robotics","Machine Learning"],
+    imageFirst: true,
+    gradient: "prof-gradient prof-1",
+  },
+  {
+    image: "/advisor/7.png",
+    name: "Lingfan Bao",
+    title: "PhD Candidate",
+    department: "Department of Computer Science",
+    email: "lingfan.bao.24@ucl.ac.uk",
+    bio: "",
+    expertise: ["Legged robots","Diffusion model","Imitation learning","Reinforcement learning","Optimal control"],
+    imageFirst: true,
+    gradient: "prof-gradient prof-1",
+  },
+
+];
+
+function nameLines(name: string): [string, string] {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return [parts[0], parts.slice(1).join(" ")];
+  return [name, ""];
+}
+---
+
+<Base title="Advisory Team — UCL Robotics Society">
+  <style is:global>
+    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&display=swap");
+  </style>
+  <style>
+    .hero-gradient {
+      background: linear-gradient(
+        -45deg,
+        #eef2ff 0%,
+        #e0f2fe 25%,
+        #f0f9ff 50%,
+        #e0e7ff 75%,
+        #cffafe 100%
+      );
+      background-size: 400% 400%;
+      animation: hero-gradient-shift 14s ease infinite;
+    }
+    @keyframes hero-gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+  </style>
+  <style is:global>
+    .prof-gradient { width: 100%; }
+    .prof-1 { background: linear-gradient(to bottom, #eef2ff 0%, #e0f2fe 100%); }
+    .prof-2 { background: linear-gradient(to bottom, #e0f2fe 0%, #fef9c3 100%); }
+    .prof-3 { background: linear-gradient(to bottom, #fef9c3 0%, #ffe4e6 100%); }
+    .prof-4 { background: linear-gradient(to bottom, #ffe4e6 0%, #eef2ff 100%); }
+    .prof-name {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.92;
+      display: flex;
+      flex-direction: column;
+    }
+    .prof-name .prof-line { display: block; }
+    .prof-img-wrap { position: relative; overflow: hidden; }
+    .section-title {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-in.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+
+  <!-- Hero: 2-line title only (larger); right = enlarged image stack filling header -->
+  <section class="relative hero-gradient min-h-[60vh] md:min-h-[70vh] flex items-center fade-in">
+    <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-12 md:py-16 text-center">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight text-slate-900 leading-[1.05]">
+        Advisory Team
+      </h1>
+    </div>
+  </section>
+
+  <section class="w-full fade-in">
+    <div class="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20 fade-in">
+      <h2 class="section-title text-4xl md:text-5xl font-semibold text-slate-900 mb-8 text-center fade-in">
+        Faculty Advisors
+      </h2>
+      <div class="grid md:grid-cols-2 gap-10">
+        {facultyAdvisors.map((p, index) => {
+          const [line1, line2] = nameLines(p.name);
+          return (
+            <div class={`${p.gradient} rounded-3xl p-6 fade-in`} data-delay={`${index * 100}ms`}>
+              <div class={`prof-row flex flex-col gap-6 ${p.imageFirst ? "" : "md:flex-row-reverse"} md:flex-row md:items-start`}>
+                <div class="prof-img-wrap md:w-[30%] flex-shrink-0 aspect-[4/5] md:aspect-[3/4] self-start">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    class="prof-img absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+                <div
+                  class={`prof-txt md:w-[70%] md:self-stretch md:flex md:flex-col md:justify-start ${
+                    p.imageFirst ? "" : "md:items-end md:text-right"
+                  }`}
+                >
+                  <div class={`md:h-full flex flex-col ${p.imageFirst ? "" : "items-end"}`}>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-semibold text-slate-900 leading-[1.1]">
+                      {p.name}
+                    </h3>
+                    <div class="mt-3 space-y-1.5">
+                      <p class="text-indigo-600 font-medium text-sm md:text-base">{p.title}, {p.department}</p>
+                      <p class="text-slate-600 leading-relaxed text-sm md:text-base">{p.bio}</p>
+                      <div class="flex flex-wrap gap-1.5">
+                        {p.expertise.map((area) => (
+                          <span class="text-xs px-2.5 py-1 rounded-full bg-white/80 text-slate-700 border border-slate-200/80">
+                            {area}
+                          </span>
+                        ))}
+                      </div>
+                      <a href={`mailto:${p.email}`} class="text-indigo-600 text-sm mt-1 inline-block hover:text-indigo-700 font-medium">
+                        {p.email}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-12 md:pb-16 lg:pb-20">
+      <h2 class="section-title text-4xl md:text-5xl font-semibold text-slate-900 mb-8 text-center fade-in">
+        Research Mentors
+      </h2>
+      <div class="grid md:grid-cols-2 gap-10">
+        {researchMentors.map((p, index) => {
+          const [line1, line2] = nameLines(p.name);
+          return (
+            <div class={`${p.gradient} rounded-3xl p-6 fade-in`} data-delay={`${index * 100}ms`}>
+              <div class={`prof-row flex flex-col gap-6 ${p.imageFirst ? "" : "md:flex-row-reverse"} md:flex-row md:items-start`}>
+                <div class="prof-img-wrap md:w-[30%] flex-shrink-0 aspect-[4/5] md:aspect-[3/4] self-start">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    class="prof-img absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+                <div
+                  class={`prof-txt md:w-[70%] md:self-stretch md:flex md:flex-col md:justify-start ${
+                    p.imageFirst ? "" : "md:items-end md:text-right"
+                  }`}
+                >
+                  <div class={`md:h-full flex flex-col ${p.imageFirst ? "" : "items-end"}`}>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-semibold text-slate-900 leading-[1.1]">
+                      {p.name}
+                    </h3>
+                    <div class="mt-3 space-y-1.5">
+                      <p class="text-indigo-600 font-medium text-sm md:text-base">{p.title}, {p.department}</p>
+                      <p class="text-slate-600 leading-relaxed text-sm md:text-base">{p.bio}</p>
+                      <div class="flex flex-wrap gap-1.5">
+                        {p.expertise.map((area) => (
+                          <span class="text-xs px-2.5 py-1 rounded-full bg-white/80 text-slate-700 border border-slate-200/80">
+                            {area}
+                          </span>
+                        ))}
+                      </div>
+                      <a href={`mailto:${p.email}`} class="text-indigo-600 text-sm mt-1 inline-block hover:text-indigo-700 font-medium">
+                        {p.email}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const fadeEls = Array.from(document.querySelectorAll('.fade-in'));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el = entry.target as HTMLElement;
+      const delay = el.getAttribute('data-delay');
+      if (delay) {
+        el.style.transitionDelay = delay;
+      }
+      if (entry.isIntersecting) {
+        el.classList.add('is-visible');
+      } else {
+        el.classList.remove('is-visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  fadeEls.forEach((el) => observer.observe(el));
+</script>

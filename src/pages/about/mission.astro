@@ -5,6 +5,7 @@ import Base from "../../layouts/Base.astro";
 <Base title="Mission — UCL Robotics Society">
   <style is:global>
     @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&display=swap");
+    body { background: #ffffff; }
   </style>
   <style>
     .hero-gradient {
@@ -29,9 +30,42 @@ import Base from "../../layouts/Base.astro";
       letter-spacing: -0.04em;
       line-height: 0.92;
     }
+
+    .flip-card {
+      perspective: 1000px;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+    }
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 0.75rem;
+    }
+    .flip-back {
+      transform: rotateY(180deg);
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-in.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 
-  <section class="relative hero-gradient min-h-[60vh] md:min-h-[70vh] flex items-center">
+  <section class="relative hero-gradient min-h-[60vh] md:min-h-[70vh] flex items-center fade-in">
     <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center">
       <h1 class="hero-name text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-slate-900">
         Mission
@@ -39,12 +73,12 @@ import Base from "../../layouts/Base.astro";
     </div>
   </section>
 
-  <section class="mx-auto max-w-6xl px-4 py-12 text-center">
+  <section class="mx-auto max-w-6xl px-4 py-12 text-center fade-in">
 
     <!-- Mission Statement -->
-    <div class="mt-2">
-      <article class="rounded-2xl shadow-lg p-8 bg-white/70 border border-slate-200 text-center">
-        <h2 class="text-2xl font-semibold mb-4">Mission Statement</h2>
+    <div class="mt-2 px-6 md:px-10 lg:px-16 fade-in">
+      <article class="rounded-2xl p-8 bg-transparent text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Mission Statement</h2>
         <p class="text-slate-700 leading-relaxed text-lg">
           The UCL Robotics Society is a student-led community dedicated to fostering innovation, 
           collaboration, and learning in robotics, artificial intelligence, and mechatronics. 
@@ -54,85 +88,103 @@ import Base from "../../layouts/Base.astro";
       </article>
     </div>
 
-    <!-- Core Values -->
-    <div class="mt-12">
-      <h2 class="text-2xl font-semibold mb-6">Our Core Values</h2>
-      <div class="grid md:grid-cols-3 gap-6">
-        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200 text-center">
-          <h3 class="font-semibold text-lg mb-3">Build</h3>
-          <p class="text-slate-700">
-            Hands-on projects from beginner to advanced levels. We believe in learning by doing 
-            and building real-world solutions.
-          </p>
-        </article>
+    <!-- Image/Text Blocks -->
+    <div class="mt-12 space-y-10 rounded-3xl bg-sky-50 px-12 py-10 md:px-32 lg:px-48 w-screen relative left-1/2 -translate-x-1/2 fade-in">
+      <div class="grid gap-8 md:grid-cols-[1fr_1.7fr] items-start">
+        <div class="rounded-2xl bg-sky-200/70 overflow-hidden aspect-[2028/1365] fade-in">
+          <img src="/mission/1.png" alt="Mission image A" class="w-full h-full object-cover" />
+        </div>
+        <div class="rounded-2xl bg-sky-50 px-8 pr-2 py-0 md:px-10 md:pr-3 md:py-0 min-h-[240px] md:min-h-[280px] flex items-start justify-start text-left fade-in">
+          <div class="w-full max-w-none text-slate-900">
+            <div class="text-2xl md:text-3xl font-bold">Why Robotics Society Exists</div>
+            <div class="mt-3 text-base">
+              Robotics sits at the intersection of hardware, software, and intelligence, yet many students lack access to meaningful hands-on experience, interdisciplinary collaboration, and real-world problem solving.<br><br>
+              The Robotics Society bridges this gap by fostering an open, student-driven community where theory becomes practice. We lower the barrier to building and experimentation, empowering students from diverse backgrounds to explore robotics beyond the classroom.            
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200 text-center">
-          <h3 class="font-semibold text-lg mb-3">Learn</h3>
-          <p class="text-slate-700">
-            Workshops, tutorials, and mentorship programs. We create opportunities for continuous 
-            learning and skill development.
-          </p>
-        </article>
-
-        <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200 text-center">
-          <h3 class="font-semibold text-lg mb-3">Compete</h3>
-          <p class="text-slate-700">
-            Hackathons, challenges, and competitions. We encourage friendly competition to push 
-            boundaries and showcase talent.
-          </p>
-        </article>
+      <div class="grid gap-8 md:grid-cols-[1.7fr_1fr] items-start">
+        <div class="rounded-2xl bg-sky-50 px-8 pr-2 py-0 md:px-10 md:pr-3 md:py-0 min-h-[240px] md:min-h-[280px] flex items-start justify-start text-left fade-in">
+          <div class="w-full max-w-none text-slate-900">
+            <div class="text-2xl md:text-3xl font-bold">What we do</div>
+            <div class="mt-3 text-base">
+              We design hands-on projects and workshops spanning the full robotics stack — from mechanical design and electronics to perception, control, and AI. Through project-based learning, industry talks, hackathons, and cross-disciplinary collaboration, members gain practical skills, research exposure, and engineering confidence.<br><br>
+              Whether you’re new to robotics or building advanced systems, we provide the platform, resources, and community to support your growth.            
+            </div>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-sky-200/70 overflow-hidden aspect-[2028/1365] fade-in">
+          <img src="/mission/2.png" alt="Mission image B" class="w-full h-full object-cover" />
+        </div>
       </div>
     </div>
 
-    <!-- Goals -->
-    <div class="mt-12">
-      <h2 class="text-2xl font-semibold mb-6">Our Goals</h2>
-      <div class="space-y-4">
-        <article class="rounded-xl border border-slate-200 bg-white/70 p-6 text-center">
-          <h3 class="font-semibold mb-2">Accessibility</h3>
-          <p class="text-slate-700">
-            Make robotics accessible to students from all departments and experience levels. 
-            No prior knowledge required to get started.
-          </p>
-        </article>
-
-        <article class="rounded-xl border border-slate-200 bg-white/70 p-6 text-center">
-          <h3 class="font-semibold mb-2">Innovation</h3>
-          <p class="text-slate-700">
-            Foster a culture of innovation and experimentation. Encourage members to explore 
-            cutting-edge technologies and novel applications.
-          </p>
-        </article>
-
-        <article class="rounded-xl border border-slate-200 bg-white/70 p-6 text-center">
-          <h3 class="font-semibold mb-2">Community</h3>
-          <p class="text-slate-700">
-            Build a supportive and inclusive community where members can collaborate, share 
-            knowledge, and grow together.
-          </p>
-        </article>
-
-        <article class="rounded-xl border border-slate-200 bg-white/70 p-6 text-center">
-          <h3 class="font-semibold mb-2">Industry Connection</h3>
-          <p class="text-slate-700">
-            Connect students with industry professionals, research opportunities, and career 
-            pathways in robotics and AI.
-          </p>
-        </article>
-      </div>
-    </div>
-
-    <!-- Call to Action -->
-    <div class="mt-12 text-center">
-      <p class="text-slate-600 mb-4">Ready to join our mission?</p>
-      <div class="flex gap-3 justify-center">
-        <a href="/join" class="rounded-xl px-5 py-3 bg-indigo-600 text-white hover:bg-indigo-700">
-          Join Us
-        </a>
-        <a href="/events" class="rounded-xl px-5 py-3 border border-slate-300 hover:border-slate-400">
-          See Events
-        </a>
-      </div>
+    <!-- Who We Are For -->
+    <div class="mt-6 fade-in">
+      <section class="rounded-2xl bg-white p-10 text-center fade-in">
+        <div class="text-3xl md:text-4xl font-semibold text-slate-900">Who We Are For</div>
+        <p class="mt-4 text-slate-700 leading-relaxed text-lg w-full md:w-3/4 mx-auto">
+          The Robotics Society is open to anyone curious about building intelligent machines — regardless of background or experience.
+          Whether you’re just getting started or aiming for cutting-edge research and industry roles, there’s a place for you here.
+        </p>
+        <div class="mt-8 grid gap-6 md:grid-cols-3">
+          <div class="flip-card min-h-[180px] fade-in" data-delay="0ms">
+            <div class="flip-card-inner">
+              <div class="flip-face border-2 border-slate-300 bg-sky-50 flex items-center justify-center text-lg font-semibold text-slate-900">
+                Beginners<br>&<br>Explorers
+              </div>
+              <div class="flip-face flip-back border-2 border-slate-300 bg-white flex items-center justify-center text-base text-slate-700">
+                New to robotics or unsure where to start?<br>
+                We provide beginner-friendly workshops, guided projects, and a supportive environment to help you build confidence from the ground up.
+              </div>
+            </div>
+          </div>
+          <div class="flip-card min-h-[180px] fade-in" data-delay="300ms">
+            <div class="flip-card-inner">
+              <div class="flip-face border-2 border-slate-300 bg-sky-50 flex items-center justify-center text-lg font-semibold text-slate-900">
+                Builders<br>&<br>Engineers
+              </div>
+              <div class="flip-face flip-back border-2 border-slate-300 bg-white flex items-center justify-center text-base text-slate-700">
+                For students who want to get hands-on.<br>
+                Work on real robotic systems, team-based projects, and competitions that span hardware, control, perception, and AI.
+              </div>
+            </div>
+          </div>
+          <div class="flip-card min-h-[180px] fade-in" data-delay="600ms">
+            <div class="flip-card-inner">
+              <div class="flip-face border-2 border-slate-300 bg-sky-50 flex items-center justify-center text-lg font-semibold text-slate-900">
+                Researchers<br>&<br>Innovators
+              </div>
+              <div class="flip-face flip-back border-2 border-slate-300 bg-white flex items-center justify-center text-base text-slate-700">
+                Interested in advanced robotics, AI, or research-led projects?<br>
+                We support deeper exploration through research-oriented initiatives, collaborations, and industry exposure.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </section>
 </Base>
+
+<script>
+  const fadeEls = Array.from(document.querySelectorAll('.fade-in'));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el = entry.target as HTMLElement;
+      const delay = el.getAttribute('data-delay');
+      if (delay) {
+        el.style.transitionDelay = delay;
+      }
+      if (entry.isIntersecting) {
+        el.classList.add('is-visible');
+      } else {
+        el.classList.remove('is-visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  fadeEls.forEach((el) => observer.observe(el));
+</script>

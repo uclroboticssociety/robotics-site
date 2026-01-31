@@ -38,12 +38,21 @@ const filmFrames = [...filmImages, ...filmImages];
       letter-spacing: -0.04em;
       line-height: 0.95;
     }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-in.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
     .film-mask {
       -webkit-mask-image: linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent);
       mask-image: linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent);
-      max-height: 520px;
       overflow: hidden;
-      width: 270px;
+      width: clamp(150px, 22vw, 270px);
+      max-height: clamp(320px, 55vh, 520px);
     }
     .film-track {
       display: flex;
@@ -66,7 +75,7 @@ const filmFrames = [...filmImages, ...filmImages];
       padding: 0.5rem;
       border-radius: 18px;
       box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
-      width: 250px;
+      width: clamp(140px, 20vw, 250px);
       display: flex;
       justify-content: center;
       padding-bottom: 0.7rem;
@@ -88,25 +97,13 @@ const filmFrames = [...filmImages, ...filmImages];
     .film-frame::before { left: 0.5rem; }
     .film-frame::after { right: 0.5rem; }
     .film-frame img {
-      width: 210px;
-      height: 135px;
+      width: clamp(115px, 16.5vw, 210px);
+      height: clamp(78px, 11vw, 135px);
       object-fit: cover;
       object-position: center;
       border-radius: 12px;
       display: block;
       background: #111827;
-    }
-    @media (max-width: 768px) {
-      .film-mask {
-        width: 210px;
-      }
-      .film-frame {
-        width: 200px;
-      }
-      .film-frame img {
-        width: 165px;
-        height: 110px;
-      }
     }
     .film-columns {
       margin-right: 0;
@@ -118,15 +115,15 @@ const filmFrames = [...filmImages, ...filmImages];
     }
   </style>
 
-  <section class="hero-gradient">
+  <section class="hero-gradient fade-in" data-delay="0ms">
     <div class="mx-auto max-w-6xl px-4 py-16 md:py-20">
       <div class="grid md:grid-cols-[1.05fr_1.2fr] gap-10 md:items-center">
-        <div>
+        <div class="fade-in" data-delay="0ms">
           <p class="text-xs uppercase tracking-[0.3em] text-slate-500">UCL Robotics Society</p>
           <h1 class="hero-title mt-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-slate-900">
-            Build the future.
+            <span class="fade-in" data-delay="0ms">Build the future.</span>
             <br />
-            Learn with the team.
+            <span class="fade-in" data-delay="200ms">Learn with the team.</span>
           </h1>
           <p class="mt-6 text-slate-600 text-lg max-w-lg">
             A student-led community for robotics, AI, and mechatronics. We prototype, compete,
@@ -141,7 +138,7 @@ const filmFrames = [...filmImages, ...filmImages];
             </a>
           </div>
         </div>
-        <div class="film-columns ml-auto mr-0 flex w-fit items-center justify-end gap-6 md:ml-auto md:mr-0">
+        <div class="film-columns ml-auto mr-0 flex w-fit items-center justify-end gap-6 md:ml-auto md:mr-0 fade-in" data-delay="600ms">
           <div class="film-mask">
             <div class="film-track">
               {filmFrames.map((frame) => (
@@ -174,3 +171,23 @@ const filmFrames = [...filmImages, ...filmImages];
     </div>
   </section>
 </Base>
+
+<script>
+  const fadeEls = Array.from(document.querySelectorAll('.fade-in'));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el = entry.target;
+      const delay = el.getAttribute('data-delay');
+      if (delay) {
+        const el = entry.target as HTMLElement;
+      }
+      if (entry.isIntersecting) {
+        el.classList.add('is-visible');
+      } else {
+        el.classList.remove('is-visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px 20% 0px" });
+
+  fadeEls.forEach((el) => observer.observe(el));
+</script>

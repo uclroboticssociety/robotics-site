@@ -1,5 +1,5 @@
 ---
-title: "Induction of the society schedule & Virtual Arduino workshop"
+title: "Virtual Arduino workshop"
 date: "2025-11-10T16:00:00+00:00"
 location: "UCL Main Campus — IOE"
 signup_url: "https://forms.gle/xxxx"

@@ -4,12 +4,12 @@ export type Item = { href: string; label: string; children?: Child[] };
 export const menu: Item[] = [
   { href: "/", label: "Home" },
   {
-    href: "/about",
+    href: "/about/mission",
     label: "About",
     children: [
       { href: "/about/mission", label: "Mission" },
       { href: "/about/committee", label: "Committee" },
-      { href: "/about/alumni", label: "Faculty Advisor" },
+      { href: "/about/advisoryteam", label: "Advisory Team" },
       { href: "/about/sponsors", label: "Sponsors" },
     ],
   },

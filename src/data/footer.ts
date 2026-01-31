@@ -7,7 +7,7 @@ export const footerColumns: FooterColumn[] = [
     links: [
       { href: "/about/mission", label: "Mission" },
       { href: "/about/committee", label: "Committee" },
-      { href: "/about/alumni", label: "Faculty Advisor" },
+      { href: "/about/advisoryteam", label: "Advisory Team" },
       { href: "/about/sponsors", label: "Sponsors" },
     ],
   },

@@ -27,8 +27,14 @@ const committee = [
     photo: "/committee/4.png",
   },
   {
+    role: "Teching Officer",
+    name: "Ian Yin",
+    bio: "",
+    photo: "/committee/11.png",
+  },
+  {
     role: "Technical Officer",
-    name: "Ming Song",
+    name: "Mingxuan Song",
     bio: "",
     photo: "/committee/5.png",
   },
@@ -64,32 +70,6 @@ const committee = [
   },
 ];
 
-const committeeGroups = [
-  {
-    title: "Leadership & Operations",
-    roles: ["President", "Treasurer"],
-    accent: "from-amber-400/20 via-orange-200/20 to-rose-200/20",
-    chip: "bg-amber-500/10 text-amber-900 border-amber-200",
-  },
-  {
-    title: "Teaching Team",
-    roles: ["Teaching Officer"],
-    accent: "from-emerald-400/20 via-teal-200/20 to-cyan-200/20",
-    chip: "bg-emerald-500/10 text-emerald-900 border-emerald-200",
-  },
-  {
-    title: "Technical & Web",
-    roles: ["Technical Officer", "Web Officer","Industry Coordinator",],
-    accent: "from-sky-400/20 via-indigo-200/20 to-blue-200/20",
-    chip: "bg-sky-500/10 text-sky-900 border-sky-200",
-  },
-  {
-    title: "Events & Media",
-    roles: ["Head of Events", "Design & Social Media Officer","Head of Marketing"],
-    accent: "from-fuchsia-400/20 via-pink-200/20 to-rose-200/20",
-    chip: "bg-fuchsia-500/10 text-fuchsia-900 border-fuchsia-200",
-  },
-];
 ---
 
 <Base title="Committee — UCL Robotics Society">
@@ -119,49 +99,67 @@ const committeeGroups = [
       letter-spacing: -0.04em;
       line-height: 0.92;
     }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-in.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 
-  <section class="relative hero-gradient min-h-[60vh] md:min-h-[70vh] flex items-center">
+  <section class="relative hero-gradient min-h-[48vh] md:min-h-[56vh] flex items-center fade-in">
     <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center">
-      <h1 class="hero-name text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-slate-900">
+      <h1 class="hero-name text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-slate-900">
         Committee
       </h1>
     </div>
   </section>
 
-  <section class="mx-auto max-w-6xl px-4 py-12">
-    <!-- Committee Members -->
-    <div class="mt-12">
-      <h2 class="text-2xl font-semibold mb-6 text-center">Committee Members</h2>
-      {committeeGroups.map((group) => (
-        <section class="mt-10 rounded-3xl border border-slate-200 bg-gradient-to-br p-6" class:list={[group.accent]}>
-          <div class="flex justify-center mb-6">
-            <h3
-              class="text-3xl md:text-4xl font-semibold tracking-tight px-4 py-2 rounded-full border shadow-sm"
-              class:list={[group.chip]}
-            >
-              {group.title}
-            </h3>
-          </div>
-          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {committee
-              .filter((member) => group.roles.includes(member.role.trim()))
-              .map((member) => (
-                <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200 hover:shadow-xl transition text-center">
-                  <img
-                    src={member.photo}
-                    alt={`${member.role} photo`}
-                    class="aspect-square w-40 h-40 mx-auto rounded-xl object-cover mb-4 bg-slate-100"
-                  />
-                  <h4 class="font-semibold text-lg">{member.role}</h4>
-                  <p class="text-indigo-600 font-medium mt-1">{member.name}</p>
-                  <p class="text-slate-600 text-sm mt-2">{member.bio}</p>
-                </article>
-              ))}
-          </div>
-        </section>
-      ))}
+  <section class="mx-auto max-w-6xl px-4 py-12 fade-in">
+    <div class="text-center">
+      <h2 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 fade-in">Meet our Team</h2>
+      <p class="mt-2 text-2xl sm:text-3xl text-slate-500 font-medium fade-in">Curious. Practical. Collaborative.</p>
+      <p class="mt-4 text-slate-600 max-w-2xl mx-auto fade-in">
+        We build, learn, and compete together by designing robots, sharing skills, and growing a supportive community.
+      </p>
     </div>
 
+    <div class="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      {committee.map((member, index) => (
+        <article class="text-center fade-in" data-delay={`${index * 80}ms`}>
+          <img
+            src={member.photo}
+            alt={`${member.name} portrait`}
+            class="w-32 h-32 md:w-36 md:h-36 mx-auto rounded-full object-cover bg-slate-100"
+          />
+          <h3 class="mt-4 text-base font-semibold text-slate-900">{member.name}</h3>
+          <p class="mt-1 text-sm text-slate-500">{member.role}</p>
+        </article>
+      ))}
+    </div>
   </section>
 </Base>
+
+<script>
+  const fadeEls = Array.from(document.querySelectorAll('.fade-in'));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el = entry.target as HTMLElement;
+      const delay = el.getAttribute('data-delay');
+      if (delay) {
+        el.style.transitionDelay = delay;
+      }
+      if (entry.isIntersecting) {
+        el.classList.add('is-visible');
+      } else {
+        el.classList.remove('is-visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  fadeEls.forEach((el) => observer.observe(el));
+</script>
