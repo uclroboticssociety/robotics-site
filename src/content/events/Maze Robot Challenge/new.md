@@ -15,7 +15,7 @@ Building on the skills introduced in earlier Arduino and motor control sessions,
 /!!!
 [scroll]([picture]"1.png"[picture]"2.png"[picture]"3.png"[picture]"4.png"[picture]"5.png")
 ## What participant did
-**Participants workedin small teams to:**
+Participants workedin small teams to:
 - Assemble a basic maze-solving robot
 - Integrate sensors, motors, and an Arduino controller
 - Upload and test navigation code
@@ -34,7 +34,7 @@ Building on the skills introduced in earlier Arduino and motor control sessions,
 /!!!
 [scroll]([picture]"11.png"[picture]"12.png"[picture]"13.png"[picture]"14.png"[picture]"15.png")
 ## The Challenge
-**Once the robots were ready,teams competed to:**
+Once the robots were ready,teams competed to:
 - Navigate the maze as efficiently as possible
 - Optimise speed, stability, and decision-making
 - Collaborate under time constraints

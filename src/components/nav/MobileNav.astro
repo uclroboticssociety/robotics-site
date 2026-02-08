@@ -1,8 +1,7 @@
 ---
 import type { Item } from "../../data/nav";
-const { items, join, pathname } = Astro.props as {
+const { items, pathname } = Astro.props as {
   items: Item[];
-  join: { href: string; label: string };
   pathname: string;
 };
 
@@ -47,11 +46,8 @@ const linkCls = (href: string) =>
           <a href={item.href} class={linkCls(item.href)}>{item.label}</a>
         )
       ))}
-      <a href={join.href} class="mt-2 rounded-xl px-4 py-2 text-sm font-medium bg-indigo-600 text-white text-center">
-        {join.label}
-      </a>
-    </div>
   </div>
+</div>
 </div>
 
 <script>

@@ -55,12 +55,12 @@ const recentByInitiative = {
 };
 
 const body = project.body ?? "";
-const pictureRegex = /\[picture\]\s*"([^"]+)"/g;
+const pictureRegex = /\[picture\]\s*"([^"]+)"(?:\((\d+)%\))?/g;
 const spaceRegex = /\[space\]\s*"([^"]+)"/g;
 const scrollRegex = /\[scroll\]\(([\s\S]*?)\)/g;
 type Block =
   | { type: "text"; value: string }
-  | { type: "image"; value: string }
+  | { type: "image"; value: string; width?: number }
   | { type: "scroll"; value: string[] }
   | { type: "space"; value: string }
   | { type: "split"; media: { type: "image" | "scroll"; value: string | string[] }; text: string; mediaSide: "left" | "right" };
@@ -113,7 +113,8 @@ const expandPictures = (input: Block[]) => {
       const chunk = text.slice(last, match.index).trim();
       if (chunk) out.push({ type: "text", value: chunk });
       if (match[0].startsWith("[picture]")) {
-        out.push({ type: "image", value: match[1] });
+        const width = match[2] ? Number(match[2]) : undefined;
+        out.push({ type: "image", value: match[1], width });
       } else {
         out.push({ type: "space", value: match[1] });
       }
@@ -344,13 +345,18 @@ const renderMarkdown = (text: string) => {
                     if (block.type === "image" && next?.type === "image") {
                       const srcA = resolveImage(block.value);
                       const srcB = resolveImage(next.value);
+                      const widthA = block.width;
+                      const widthB = next.width;
+                      const useFlex = widthA || widthB;
+                      const rowClass = useFlex ? "flex flex-wrap gap-4 items-start justify-center" : "grid gap-4 md:grid-cols-2";
                       rendered.push(
-                        <div class="grid gap-4 md:grid-cols-2">
+                        <div class={rowClass}>
                           {srcA ? (
                             <img
                               src={srcA}
                               alt={imageAlt(block.value)}
                               class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                              style={widthA ? `width:${widthA}%; margin-left:auto; margin-right:auto;` : undefined}
                               loading="lazy"
                             />
                           ) : (
@@ -363,6 +369,7 @@ const renderMarkdown = (text: string) => {
                               src={srcB}
                               alt={imageAlt(next.value)}
                               class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                              style={widthB ? `width:${widthB}%; margin-left:auto; margin-right:auto;` : undefined}
                               loading="lazy"
                             />
                           ) : (
@@ -435,6 +442,7 @@ const renderMarkdown = (text: string) => {
                             src={src}
                             alt={imageAlt(block.value)}
                             class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            style={block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : undefined}
                             loading="lazy"
                           />
                         ) : (
