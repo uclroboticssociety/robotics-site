@@ -56,14 +56,18 @@ const recentByInitiative = {
 
 const body = project.body ?? "";
 const pictureRegex = /\[picture\]\s*"([^"]+)"(?:\((\d+)%\))?/g;
+const pdfRegex = /\[pdf\]\s*"([^"]+)"(?:\((\d+)%\))?/g;
 const spaceRegex = /\[space\]\s*"([^"]+)"/g;
 const scrollRegex = /\[scroll\]\(([\s\S]*?)\)/g;
+const scrollFolderRegex = /\[scroll_folder\]\s*"([^"]+)"(?:\((\d+)%\))?/g;
 type Block =
   | { type: "text"; value: string }
   | { type: "image"; value: string; width?: number }
+  | { type: "pdf"; value: string; width?: number }
+  | { type: "scroll_folder"; value: string; width?: number }
   | { type: "scroll"; value: string[] }
   | { type: "space"; value: string }
-  | { type: "split"; media: { type: "image" | "scroll"; value: string | string[] }; text: string; mediaSide: "left" | "right" };
+  | { type: "split"; media: { type: "image" | "scroll"; value: string | string[]; folder?: string; width?: number }; text: string; mediaSide: "left" | "right" };
 
 const parseScrollImages = (text: string) => {
   const images: string[] = [];
@@ -81,13 +85,22 @@ const splitSegments = (input: string) =>
 
 const parseSegment = (segment: string): Block[] => {
   const blocks: Block[] = [];
+  const matches = [
+    ...segment.matchAll(scrollRegex),
+    ...segment.matchAll(scrollFolderRegex),
+  ].sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
   let lastIndex = 0;
-  for (const match of segment.matchAll(scrollRegex)) {
+  for (const match of matches) {
     const textChunk = segment.slice(lastIndex, match.index).trim();
     if (textChunk) blocks.push({ type: "text", value: textChunk });
-    const images = parseScrollImages(match[1]);
-    if (images.length) {
-      blocks.push({ type: "scroll", value: images });
+    if (match[0].startsWith("[scroll_folder]")) {
+      const width = match[2] ? Number(match[2]) : undefined;
+      blocks.push({ type: "scroll_folder", value: match[1], width });
+    } else {
+      const images = parseScrollImages(match[1]);
+      if (images.length) {
+        blocks.push({ type: "scroll", value: images });
+      }
     }
     lastIndex = (match.index ?? 0) + match[0].length;
   }
@@ -106,7 +119,7 @@ const expandPictures = (input: Block[]) => {
       return;
     }
     const text = block.value;
-    const markers = [...text.matchAll(pictureRegex), ...text.matchAll(spaceRegex)]
+    const markers = [...text.matchAll(pictureRegex), ...text.matchAll(pdfRegex), ...text.matchAll(spaceRegex)]
       .sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
     let last = 0;
     for (const match of markers) {
@@ -115,6 +128,9 @@ const expandPictures = (input: Block[]) => {
       if (match[0].startsWith("[picture]")) {
         const width = match[2] ? Number(match[2]) : undefined;
         out.push({ type: "image", value: match[1], width });
+      } else if (match[0].startsWith("[pdf]")) {
+        const width = match[2] ? Number(match[2]) : undefined;
+        out.push({ type: "pdf", value: match[1], width });
       } else {
         out.push({ type: "space", value: match[1] });
       }
@@ -132,20 +148,20 @@ const normalizeSegment = (segmentBlocks: Block[]) => {
   for (let i = 0; i < expanded.length; i += 1) {
     const current = expanded[i];
     const next = expanded[i + 1];
-    if (current.type === "scroll" && next?.type === "text") {
+    if ((current.type === "scroll" || current.type === "scroll_folder") && next?.type === "text") {
       out.push({
         type: "split",
-        media: { type: "scroll", value: current.value },
+        media: { type: "scroll", value: current.type === "scroll" ? current.value : [], folder: current.type === "scroll_folder" ? current.value : undefined, width: current.type === "scroll_folder" ? current.width : undefined },
         text: next.value,
         mediaSide: "left",
       });
       i += 1;
       continue;
     }
-    if (current.type === "text" && next?.type === "scroll") {
+    if (current.type === "text" && (next?.type === "scroll" || next?.type === "scroll_folder")) {
       out.push({
         type: "split",
-        media: { type: "scroll", value: next.value },
+        media: { type: "scroll", value: next.type === "scroll" ? next.value : [], folder: next.type === "scroll_folder" ? next.value : undefined, width: next.type === "scroll_folder" ? next.width : undefined },
         text: current.value,
         mediaSide: "right",
       });
@@ -161,12 +177,29 @@ const imageMap = import.meta.glob<ImageMetadata>(
   "/src/content/projects/**/*.{png,jpg,jpeg,webp,gif,svg}",
   { eager: true, import: "default" }
 );
+const pdfMap = import.meta.glob<{ default: string }>(
+  "/src/content/projects/**/*.pdf",
+  { eager: true }
+);
 const baseDir = project.id.split("/").slice(0, -1).join("/");
 const resolveImage = (file: string) => {
   const directKey = `/src/content/projects/${baseDir}/${file}`;
   const fallbackKey = `/src/content/projects/${file}`;
   const image = imageMap[directKey] ?? imageMap[fallbackKey];
   return image?.src ?? "";
+};
+const resolveFolderImages = (folder: string) => {
+  const folderPrefix = `/src/content/projects/${baseDir}/${folder}/`;
+  return Object.entries(imageMap)
+    .filter(([key]) => key.startsWith(folderPrefix))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, value]) => value.src);
+};
+const resolvePdf = (file: string) => {
+  const directKey = `/src/content/projects/${baseDir}/${file}`;
+  const fallbackKey = `/src/content/projects/${file}`;
+  const pdf = pdfMap[directKey] ?? pdfMap[fallbackKey];
+  return (pdf as any)?.default ?? "";
 };
 const imageAlt = (file: string) =>
   file
@@ -325,12 +358,8 @@ const renderMarkdown = (text: string) => {
             {project.data.title}
           </h1>
           <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-            <span class="capitalize">{project.data.status}</span>
             {project.data.lead && <span>Lead: {project.data.lead}</span>}
           </div>
-          {project.data.summary && (
-            <p class="mt-3 text-slate-600">{project.data.summary}</p>
-          )}
         </header>
         <div class="mt-8 space-y-6">
           {segments.map((segment, segmentIndex) => {
@@ -383,13 +412,18 @@ const renderMarkdown = (text: string) => {
                       continue;
                     }
 
-                    if (block.type === "scroll") {
-                      const images = block.value.map((img) => resolveImage(img)).filter(Boolean);
+                    if (block.type === "scroll" || block.type === "scroll_folder") {
+                      const images = block.type === "scroll"
+                        ? block.value.map((img) => resolveImage(img)).filter(Boolean)
+                        : resolveFolderImages(block.value);
                       rendered.push(
-                        <div class="scroll-frame">
+                        <div
+                          class="scroll-frame"
+                          style={block.type === "scroll_folder" && block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : undefined}
+                        >
                           <div class="scroll-track">
                             {images.map((src, index) => (
-                              <img src={src} alt={imageAlt(block.value[index])} loading="lazy" />
+                              <img src={src} alt={`scroll image ${index + 1}`} loading="lazy" />
                             ))}
                           </div>
                         </div>
@@ -401,11 +435,17 @@ const renderMarkdown = (text: string) => {
                       const mediaLeft = block.mediaSide === "left";
                       const mediaImages =
                         block.media.type === "scroll"
-                          ? block.media.value.map((img) => resolveImage(img)).filter(Boolean)
+                          ? block.media.folder
+                            ? resolveFolderImages(block.media.folder)
+                            : block.media.value.map((img) => resolveImage(img)).filter(Boolean)
                           : [resolveImage(block.media.value as string)].filter(Boolean);
+                      const mediaStyle =
+                        block.media.type === "scroll" && block.media.width
+                          ? `width:${block.media.width}%; margin-left:auto; margin-right:auto;`
+                          : undefined;
                       const mediaNode =
                         block.media.type === "scroll" ? (
-                          <div class="scroll-frame">
+                          <div class="scroll-frame" style={mediaStyle}>
                             <div class="scroll-track">
                               {mediaImages.map((src, index) => (
                                 <img src={src} alt={imageAlt((block.media.value as string[])[index])} loading="lazy" />
@@ -448,6 +488,25 @@ const renderMarkdown = (text: string) => {
                         ) : (
                           <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
                             Image not found: {block.value}
+                          </div>
+                        )
+                      );
+                      continue;
+                    }
+
+                    if (block.type === "pdf") {
+                      const src = resolvePdf(block.value);
+                      rendered.push(
+                        src ? (
+                          <iframe
+                            src={src}
+                            title={block.value}
+                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            style={`${block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : ""} height: 70vh;`}
+                          ></iframe>
+                        ) : (
+                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                            PDF not found: {block.value}
                           </div>
                         )
                       );

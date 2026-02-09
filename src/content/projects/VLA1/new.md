@@ -1,5 +1,5 @@
 ---
-title: "VLA1"
+title: "Introduction of VLA"
 summary: "Introduction of VLA"
 status: "active"
 lead: "Martin Chen"
@@ -14,6 +14,10 @@ Join us this term as the Robotics Society launches a new Vision–Language–Act
 - 🗣 understand human instructions through language
 - 🦾 generate actions in the real world 
 using learning-based methods instead of hand-crafted rules.
+!!!/
+
+/!!!
+[picture]"1.png"[picture]"2.png"
 !!!/
 
 /!!!
@@ -36,4 +40,8 @@ The project is designed to be beginner-friendly. By the end of the term, members
 
 /!!!
 More details coming soon, feel free to ask if you’re curious or want to get involved 🤩
+!!!/
+
+/!!!
+[scroll_folder]"pdf_images"(80%)
 !!!/

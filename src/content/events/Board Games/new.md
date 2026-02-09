@@ -1,6 +1,6 @@
 ---
 title: "Board Games"
-date: "2025-09-25T17:00:00+01:00"
+date: "2025-10-29T13:00:00+00:00"
 location: "UCL East - One Pool Street"
 signup_url: "https://forms.gle/xxxx"
 tags: ["social"]

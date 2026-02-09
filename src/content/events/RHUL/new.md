@@ -1,7 +1,7 @@
 ---
 title: "RHUL"
-date: "2025-10-25T14:00:00+01:00"
-location: "UCL East — Marshgate"
+date: "2025-12-06T10:00:00+00:00"
+location: "University of London"
 tags: ["hackathon"]
 ---
 /!!!

@@ -11,6 +11,7 @@ export const menu: Item[] = [
       { href: "/about/committee", label: "Committee" },
       { href: "/about/advisoryteam", label: "Advisory Team" },
       { href: "/about/sponsors", label: "Sponsors" },
+      { href: "/join", label: "Join Us" },
     ],
   },
   {

@@ -1,6 +1,6 @@
 ---
 title: "CAD Workshop"
-date: "2025-10-25T14:00:00+01:00"
+date: "2026-01-24T12:00:00+00:00"
 location: "UCL East — Marshgate"
 signup_url: "https://forms.gle/xxxx"
 tags: ["workshop"]
