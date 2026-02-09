@@ -10,7 +10,7 @@ To kick off the new year, we hosted a relaxed board games social, giving member
 !!!/
 
 /!!!
-[picture]"1.png"[picture]"2.png"
+[picture]"1.png"
 !!!/
 
 /!!!
