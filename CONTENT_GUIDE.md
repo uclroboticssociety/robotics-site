@@ -591,7 +591,7 @@ Honest list of things declared but not wired up, in case you were counting on th
 
 - `signup_url` (events) and `repo` (projects) are validated and stored, but **never rendered**. Adding a "Sign up" button to the event page template would be a good first code contribution.
 - `summary` (projects) is required but not shown on the project cards.
-- The `/projects` empty state and a couple of code comments are in Chinese - cosmetic, safe to translate.
+- `src/pages/contact.astro` still posts to the placeholder endpoint `https://formsubmit.co/your@email.com`, and the `<noscript>` fallback lists `robotics@university.edu`. Both need the society's real addresses before the contact form does anything.
 
 ---
 

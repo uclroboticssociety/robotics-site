@@ -36,7 +36,7 @@ UCL Robotics Society website. Astro 7 static site, Tailwind 4, deployed on Cloud
 
 **Tailwind 4** is wired through the `@tailwindcss/vite` plugin in `astro.config.mjs`. There is no `tailwind.config.js` and no Astro Tailwind integration. Do not add either.
 
-**Some source comments are in Chinese.** They are from earlier maintainers and are safe to translate, but do not do it as a drive-by change in an unrelated commit.
+**English only.** All code, comments and user-facing text in this repository are in English. Earlier maintainers left Chinese comments and UI strings; these have all been translated. Do not reintroduce non-English text.
 
 ## Layout
 

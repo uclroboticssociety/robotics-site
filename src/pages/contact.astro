@@ -45,10 +45,10 @@ const socials = [
         <h3 class="font-semibold">Send us a message</h3>
         <p class="text-slate-600 mt-1">This form works with static form services (Formspree / FormSubmit / Netlify Forms).</p>
 
-        <!-- 替换 action 为你的表单端点，例如：
-             https://formspree.io/f/xxxxxx 或 https://formsubmit.co/youremail -->
+        <!-- Replace the action below with your own form endpoint, for example
+             https://formspree.io/f/xxxxxx or https://formsubmit.co/youremail -->
         <form class="mt-4 space-y-3" method="POST" action="https://formsubmit.co/your@email.com">
-          <!-- 防垃圾：建议后续接 hCaptcha/Cloudflare Turnstile（可选） -->
+          <!-- Anti-spam: consider adding hCaptcha or Cloudflare Turnstile here (optional) -->
           <div>
             <label class="block text-sm font-medium">Name</label>
             <input class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" type="text" name="name" required />
@@ -61,25 +61,25 @@ const socials = [
             <label class="block text-sm font-medium">Message</label>
             <textarea class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" name="message" rows="5" required></textarea>
           </div>
-          <!-- 成功跳转页（可选） -->
+          <!-- Page to redirect to on success (optional) -->
           <input type="hidden" name="_next" value="/contact?success=1" />
           <button class="rounded-xl px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700" type="submit">Send</button>
-          <noscript><p class="text-sm mt-2">JS 关闭时也能提交；如失败可邮件至 <a class="underline" href="mailto:robotics@university.edu">robotics@university.edu</a></p></noscript>
+          <noscript><p class="text-sm mt-2">This form still works with JavaScript disabled. If it fails, email us at <a class="underline" href="mailto:robotics@university.edu">robotics@university.edu</a></p></noscript>
         </form>
       </div>
 
-      <!-- Newsletter（静态友好） -->
+      <!-- Newsletter (static-friendly) -->
       <div id="newsletter" class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
         <h3 class="font-semibold">Newsletter</h3>
         <p class="text-slate-600 mt-1">Get event reminders & project updates.</p>
-        <!-- 可替换为 Mailchimp/ConvertKit 的嵌入代码 -->
+        <!-- Can be swapped for a Mailchimp or ConvertKit embed -->
         <form class="mt-4 flex gap-2" method="POST" action="https://formsubmit.co/your@email.com">
           <input type="hidden" name="_subject" value="[Robotics] Newsletter subscription" />
           <input class="flex-1 rounded-xl border border-slate-300 px-3 py-2" type="email" name="email" placeholder="you@example.com" required />
           <button class="rounded-xl px-4 py-2 bg-slate-900 text-white hover:bg-slate-800" type="submit">Subscribe</button>
         </form>
 
-        <!-- 小交互：复制社媒合集链接 -->
+        <!-- Small interaction: copy all social links to the clipboard -->
         <div class="mt-4 text-sm">
           <button id="copyLinks" class="underline">Copy all social links</button>
           <span id="copyHint" class="ml-2 text-slate-500"></span>

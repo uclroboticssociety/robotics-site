@@ -5,7 +5,7 @@ const events = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/events" }),
   schema: z.object({
     title: z.string(),
-    date: z.string(),          // ISO 字符串
+    date: z.string(),          // ISO 8601 string
     location: z.string().optional(),
     signup_url: z.string().url().optional(),
     tags: z.array(z.string()).optional(),

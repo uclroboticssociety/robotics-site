@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   vite: {
-    plugins: [tailwindcss()], // 关键
+    plugins: [tailwindcss()], // required: Tailwind 4 is wired in as a Vite plugin
   },
 });
 
