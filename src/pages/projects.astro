@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 import type { ImageMetadata } from "astro";
 import EventsLayout from "../components/events/EventsLayout.astro";
 
@@ -17,7 +17,7 @@ const projects: ProjectEntry[] = await getCollection("projects");
 const projectsWithContent = await Promise.all(
   projects.map(async (entry) => {
     try {
-      const rendered = await entry.render();
+      const rendered = await render(entry);
       return { ...entry, Content: rendered.Content };
     } catch (error) {
       return { ...entry, Content: null };
@@ -43,7 +43,7 @@ const projectSidebar = [
 const recentByInitiative = {
   vla: sorted.map((entry) => ({
     title: entry.data.title,
-    href: `/projects/${entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug}`,
+    href: `/projects/${entry.id}`,
   })),
 };
 
@@ -52,7 +52,7 @@ const imageMap = import.meta.glob<ImageMetadata>(
   { eager: true, import: "default" }
 );
 const resolveProjectImage = (entry: ProjectEntry) => {
-  const folder = entry.id.split("/").slice(-2, -1)[0];
+  const folder = entry.filePath?.split("/").slice(-2, -1)[0];
   if (!folder) return "";
   const directKey = `/src/content/projects/${folder}/0.png`;
   const image = imageMap[directKey];
@@ -103,7 +103,7 @@ const resolveProjectImage = (entry: ProjectEntry) => {
               </div>
               <h3 class="font-semibold mt-3 text-xl">
                 <a
-                  href={`/projects/${entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug}`}
+                  href={`/projects/${entry.id}`}
                   class="hover:text-indigo-600 transition"
                 >
                   {data.title}
@@ -115,7 +115,7 @@ const resolveProjectImage = (entry: ProjectEntry) => {
 
               <div class="mt-4 flex gap-3 flex-wrap">
                 <a
-                  href={`/projects/${entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug}`}
+                  href={`/projects/${entry.id}`}
                   class="rounded-lg px-3 py-2 text-sm bg-purple-500 text-white hover:bg-purple-600"
                 >
                   More info
@@ -127,8 +127,8 @@ const resolveProjectImage = (entry: ProjectEntry) => {
       </div>
     ) : (
       <div class="text-center py-12">
-        <p class="text-slate-600">暂无项目展示</p>
-        <p class="text-slate-500 text-sm mt-2">项目内容将在稍后添加</p>
+        <p class="text-slate-600">No projects to show yet.</p>
+        <p class="text-slate-500 text-sm mt-2">Project write-ups will be added soon.</p>
       </div>
     )}
   </EventsLayout>

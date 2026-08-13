@@ -6,29 +6,28 @@ import { initiatives } from "../data/events";
 
 const allEvents = await getCollection("events");
 const sortByDate = (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
-const shortSlug = (entry) => (entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug);
 const workshops = allEvents.filter((e) => e.data.tags?.includes("workshop")).sort(sortByDate);
 const hackathons = allEvents.filter((e) => e.data.tags?.includes("hackathon")).sort(sortByDate);
 const challenges = allEvents.filter((e) => e.data.tags?.includes("challenge")).sort(sortByDate);
 const socials = allEvents.filter((e) => e.data.tags?.includes("social")).sort(sortByDate);
 
-const folderLabel = (event) => event.id.split("/").slice(-2, -1)[0] ?? event.data.title;
+const folderLabel = (event) => event.filePath?.split("/").slice(-2, -1)[0] ?? event.data.title;
 const recentByInitiative = {
   workshops: workshops.map((event) => ({
     title: folderLabel(event),
-    href: `/events/${shortSlug(event)}`,
+    href: `/events/${event.id}`,
   })),
   hackathons: hackathons.map((event) => ({
     title: folderLabel(event),
-    href: `/events/${shortSlug(event)}`,
+    href: `/events/${event.id}`,
   })),
   challenges: challenges.map((event) => ({
     title: folderLabel(event),
-    href: `/events/${shortSlug(event)}`,
+    href: `/events/${event.id}`,
   })),
   socials: socials.map((event) => ({
     title: folderLabel(event),
-    href: `/events/${shortSlug(event)}`,
+    href: `/events/${event.id}`,
   })),
 };
 const latestThree = [...allEvents].sort(sortByDate).slice(0, 3);
@@ -101,7 +100,7 @@ const formatDate = (iso: string) => {
                   </p>
                 )}
                 <a
-                  href={`/events/${shortSlug(entry)}`}
+                  href={`/events/${entry.id}`}
                   class="mt-3 inline-flex items-center gap-1.5 text-indigo-600 font-medium hover:text-indigo-700 transition"
                 >
                   More info

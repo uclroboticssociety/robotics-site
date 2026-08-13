@@ -1,10 +1,11 @@
 import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 const events = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.md", base: "./src/content/events" }),
   schema: z.object({
     title: z.string(),
-    date: z.string(),          // ISO 字符串
+    date: z.string(),          // ISO 8601 string
     location: z.string().optional(),
     signup_url: z.string().url().optional(),
     tags: z.array(z.string()).optional(),
@@ -12,7 +13,7 @@ const events = defineCollection({
 });
 
 const projects = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.md", base: "./src/content/projects" }),
   schema: z.object({
     title: z.string(),
     summary: z.string(),
