@@ -8,7 +8,7 @@ import { initiatives } from "../../data/events";
 export async function getStaticPaths() {
   const allEvents = await getCollection("events");
   const shortSlugFromEntry = (entry) =>
-    entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug;
+    entry.id.includes("/") ? entry.id.split("/")[0] : entry.id;
   return allEvents.map((event) => ({
     params: { slug: shortSlugFromEntry(event) },
   }));
@@ -19,9 +19,9 @@ const slug = Array.isArray(slugParam) ? slugParam.join("/") : slugParam;
 
 const allEvents = await getCollection("events");
 const shortSlugFromEntry = (entry) =>
-  entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug;
+  entry.id.includes("/") ? entry.id.split("/")[0] : entry.id;
 const event = allEvents.find(
-  (entry) => entry.slug === slug || shortSlugFromEntry(entry) === slug
+  (entry) => entry.id === slug || shortSlugFromEntry(entry) === slug
 );
 
 if (!event) {
@@ -34,7 +34,7 @@ const hackathons = allEvents.filter((e) => e.data.tags?.includes("hackathon")).s
 const challenges = allEvents.filter((e) => e.data.tags?.includes("challenge")).sort(sortByDate);
 const socials = allEvents.filter((e) => e.data.tags?.includes("social")).sort(sortByDate);
 
-const folderLabel = (item) => item.id.split("/").slice(-2, -1)[0] ?? item.data.title;
+const folderLabel = (item) => item.filePath?.split("/").slice(-2, -1)[0] ?? item.data.title;
 const recentByInitiative = {
   workshops: workshops.map((item) => ({
     title: folderLabel(item),
@@ -192,7 +192,11 @@ const pdfMap = import.meta.glob<{ default: string }>(
   "/src/content/events/**/*.pdf",
   { eager: true }
 );
-const baseDir = event.id.split("/").slice(0, -1).join("/");
+const baseDir = (event.filePath ?? "")
+  .replace(/^src\/content\/events\//, "")
+  .split("/")
+  .slice(0, -1)
+  .join("/");
 const resolveImage = (file: string) => {
   const directKey = `/src/content/events/${baseDir}/${file}`;
   const fallbackKey = `/src/content/events/${file}`;

@@ -7,7 +7,7 @@ import EventsLayout from "../../components/events/EventsLayout.astro";
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
   const shortSlug = (entry) =>
-    entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug;
+    entry.id.includes("/") ? entry.id.split("/")[0] : entry.id;
   return projects.map((project) => ({
     params: { slug: shortSlug(project) },
   }));
@@ -18,9 +18,9 @@ const slug = Array.isArray(slugParam) ? slugParam.join("/") : slugParam;
 
 const projects = await getCollection("projects");
 const shortSlug = (entry) =>
-  entry.slug.includes("/") ? entry.slug.split("/")[0] : entry.slug;
+  entry.id.includes("/") ? entry.id.split("/")[0] : entry.id;
 const project = projects.find(
-  (entry) => entry.slug === slug || shortSlug(entry) === slug
+  (entry) => entry.id === slug || shortSlug(entry) === slug
 );
 
 if (!project) {
@@ -181,7 +181,11 @@ const pdfMap = import.meta.glob<{ default: string }>(
   "/src/content/projects/**/*.pdf",
   { eager: true }
 );
-const baseDir = project.id.split("/").slice(0, -1).join("/");
+const baseDir = (project.filePath ?? "")
+  .replace(/^src\/content\/projects\//, "")
+  .split("/")
+  .slice(0, -1)
+  .join("/");
 const resolveImage = (file: string) => {
   const directKey = `/src/content/projects/${baseDir}/${file}`;
   const fallbackKey = `/src/content/projects/${file}`;
