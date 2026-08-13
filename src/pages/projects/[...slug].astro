@@ -6,10 +6,8 @@ import EventsLayout from "../../components/events/EventsLayout.astro";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
-  const shortSlug = (entry) =>
-    entry.id.includes("/") ? entry.id.split("/")[0] : entry.id;
   return projects.map((project) => ({
-    params: { slug: shortSlug(project) },
+    params: { slug: project.id },
   }));
 }
 
@@ -17,11 +15,7 @@ const slugParam = Astro.params.slug;
 const slug = Array.isArray(slugParam) ? slugParam.join("/") : slugParam;
 
 const projects = await getCollection("projects");
-const shortSlug = (entry) =>
-  entry.id.includes("/") ? entry.id.split("/")[0] : entry.id;
-const project = projects.find(
-  (entry) => entry.id === slug || shortSlug(entry) === slug
-);
+const project = projects.find((entry) => entry.id === slug);
 
 if (!project) {
   throw new Error(`Project not found: ${slug ?? "unknown"}`);
@@ -50,7 +44,7 @@ const projectSidebar = [
 const recentByInitiative = {
   vla: sorted.map((entry) => ({
     title: entry.data.title,
-    href: `/projects/${shortSlug(entry)}`,
+    href: `/projects/${entry.id}`,
   })),
 };
 
@@ -352,7 +346,7 @@ const renderMarkdown = (text: string) => {
     initiatives={projectSidebar}
     currentId="vla"
     recentByInitiative={recentByInitiative}
-    currentEventHref={`/projects/${shortSlug(project)}`}
+    currentEventHref={`/projects/${project.id}`}
     showHeader={false}
   >
     <section>

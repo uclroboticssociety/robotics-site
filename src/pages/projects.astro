@@ -43,7 +43,7 @@ const projectSidebar = [
 const recentByInitiative = {
   vla: sorted.map((entry) => ({
     title: entry.data.title,
-    href: `/projects/${entry.id.includes("/") ? entry.id.split("/")[0] : entry.id}`,
+    href: `/projects/${entry.id}`,
   })),
 };
 
@@ -103,7 +103,7 @@ const resolveProjectImage = (entry: ProjectEntry) => {
               </div>
               <h3 class="font-semibold mt-3 text-xl">
                 <a
-                  href={`/projects/${entry.id.includes("/") ? entry.id.split("/")[0] : entry.id}`}
+                  href={`/projects/${entry.id}`}
                   class="hover:text-indigo-600 transition"
                 >
                   {data.title}
@@ -115,7 +115,7 @@ const resolveProjectImage = (entry: ProjectEntry) => {
 
               <div class="mt-4 flex gap-3 flex-wrap">
                 <a
-                  href={`/projects/${entry.id.includes("/") ? entry.id.split("/")[0] : entry.id}`}
+                  href={`/projects/${entry.id}`}
                   class="rounded-lg px-3 py-2 text-sm bg-purple-500 text-white hover:bg-purple-600"
                 >
                   More info
