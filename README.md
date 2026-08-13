@@ -149,15 +149,18 @@ One commit per finished thing: a page, a fix, a translated file. Several per ses
 
 ### Squash merging
 
-To land a branch's commits on `main` as one entry, use **Squash and merge** from the green button's dropdown. It is not the default, so pick it each time or set it under **Settings → General → Pull Requests**. Merging locally instead:
+Which merge type to use depends on the branch, and getting this wrong causes real pain:
 
-```bash
-git checkout main
-git merge --squash dev    # stages the combined change, does not commit
-git commit -m "Add Arduino Bootcamp event"
-```
+| Branch | Merge with | Why |
+|---|---|---|
+| Short-lived feature branch, deleted after merging | **Squash and merge** | Collapses `wip` / `fix typo` commits into one tidy entry |
+| Long-lived `dev` into `main` | **Create a merge commit** | Squashing here makes a commit with no shared ancestry, so `dev` keeps its originals and the next merge hits phantom conflicts |
 
-This repo's default is squash.
+Pick the type from the dropdown on the green merge button. Changing the repo default needs admin rights, which the web officer may not have, so check the dropdown every time.
+
+Do not squash a branch whose commits are each worth keeping. If one of them may need reverting on its own later, a merge commit preserves that.
+
+**Never delete `dev`.** It is permanent. Delete feature branches after merging; `dev` stays, and you resync it with `git checkout dev && git merge main && git push`.
 
 ---
 
