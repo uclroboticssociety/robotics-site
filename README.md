@@ -196,8 +196,4 @@ quincy.ns.cloudflare.com
 
 ---
 
-## License
-MIT License © UCL Robotics Society
-
-Built by UCL Robotics Society · 2026  
-Empowering the next generation of roboticists at UCL
+Built with ❤️ by UCL Robotics Society · 2026 | Empowering the next generation of roboticists at UCL
