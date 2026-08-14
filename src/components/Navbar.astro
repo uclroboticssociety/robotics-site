@@ -2,16 +2,16 @@
 import Brand from "./nav/Brand.astro";
 import DesktopNav from "./nav/DesktopNav.astro";
 import MobileNav from "./nav/MobileNav.astro";
+import Container from "./ui/Container.astro";
 import { menu } from "../data/nav";
 
 const { pathname } = Astro.url;
 ---
-<nav class="sticky top-0 z-50 bg-white/70 backdrop-blur border-b border-slate-200 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-0">
-  <div class="mx-auto max-w-screen-2xl px-4">
-    <div class="flex items-center justify-between h-16 gap-3 md:gap-6">
-      <Brand />
-      <DesktopNav items={menu} pathname={pathname} />
-      <MobileNav items={menu} pathname={pathname} />
-    </div>
-  </div>
+
+<nav class="site-nav">
+  <Container class="nav-in">
+    <Brand />
+    <DesktopNav items={menu} pathname={pathname} />
+    <MobileNav items={menu} pathname={pathname} />
+  </Container>
 </nav>

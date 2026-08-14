@@ -133,6 +133,240 @@
     padding: 92px 0 0;
   }
 
+  /* ---- nav ------------------------------------------------------------- */
+
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(12, 15, 18, 0.78);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .nav-in {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    height: 70px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.025em;
+    text-decoration: none;
+    color: var(--color-fg);
+    flex: none;
+  }
+
+  /* Simplified mark. The full RoboSoc logo carries its own wordmark, which is
+     illegible at 28px — this echoes its gradient and letterform instead.
+     Swap in a mark-only SVG here if one is ever produced. */
+  .brand-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    background: linear-gradient(140deg, var(--color-blue), var(--color-blue-deep));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-style: normal;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    flex: none;
+  }
+
+  .nav-links {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 26px;
+  }
+
+  .nav-links a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: 0.18s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a[aria-current="page"] {
+    color: var(--color-fg);
+  }
+
+  /* desktop dropdown */
+  .nav-menu {
+    position: relative;
+  }
+
+  .nav-menu > button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-muted);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.18s;
+  }
+
+  .nav-menu > button:hover,
+  .nav-menu > button[aria-expanded="true"],
+  .nav-menu[data-current] > button {
+    color: var(--color-fg);
+  }
+
+  .nav-menu > button svg {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.18s;
+  }
+
+  .nav-menu > button[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+
+  .nav-panel {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 14px);
+    min-width: 210px;
+    padding: 8px;
+    border-radius: var(--radius-chip);
+    border: 1px solid var(--color-rule);
+    background: var(--color-surface);
+    box-shadow: 0 26px 44px -28px rgba(0, 0, 0, 0.9);
+    display: none;
+  }
+
+  .nav-panel[data-open] {
+    display: block;
+  }
+
+  /* bridges the gap between trigger and panel so hover doesn't flicker */
+  .nav-panel::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -14px;
+    height: 14px;
+  }
+
+  .nav-panel a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--color-muted);
+    text-decoration: none;
+  }
+
+  .nav-panel a:hover,
+  .nav-panel a[aria-current="page"] {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-fg);
+  }
+
+  /* mobile */
+  .nav-toggle {
+    margin-left: auto;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-btn);
+    border: 1px solid var(--color-rule);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-fg);
+    cursor: pointer;
+  }
+
+  .nav-drawer {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 70px;
+    bottom: 0;
+    z-index: 49;
+    overflow-y: auto;
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-rule);
+    padding: 22px 0 40px;
+  }
+
+  .nav-drawer[data-open] {
+    display: block;
+  }
+
+  .nav-drawer a,
+  .nav-drawer .acc-toggle {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 14px 0;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--color-fg);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--color-rule);
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .nav-drawer .acc-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-drawer .acc-toggle svg {
+    width: 14px;
+    height: 14px;
+    color: var(--color-muted);
+    transition: transform 0.18s;
+  }
+
+  .nav-drawer .acc-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+
+  .nav-drawer .acc-panel {
+    display: none;
+    padding-left: 16px;
+  }
+
+  .nav-drawer .acc-panel[data-open] {
+    display: block;
+  }
+
+  .nav-drawer .acc-panel a {
+    font-size: 15px;
+    color: var(--color-muted);
+  }
+
+  .nav-drawer a[aria-current="page"] {
+    color: var(--color-blue);
+  }
+
+  .nav-drawer .acts {
+    margin-top: 26px;
+  }
+
   /* ---- type ------------------------------------------------------------ */
 
   /* Mono is for machine-ish information only: dates, counts, status flags,
@@ -898,6 +1132,31 @@
     color: var(--color-fg);
   }
 
+  .socials {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .socials a {
+    width: 38px;
+    height: 38px;
+    margin: 0;
+    border-radius: 50%;
+    border: 1px solid var(--color-rule);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-muted);
+    transition: 0.18s;
+  }
+
+  .socials a:hover {
+    color: var(--color-fg);
+    border-color: var(--color-rule-hover);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
   .copy {
     margin-top: 40px;
     font-family: var(--font-mono);
@@ -947,6 +1206,19 @@
    ========================================================================== */
 
 @media (max-width: 1000px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  /* stop the page scrolling behind an open drawer */
+  body:has(.nav-drawer[data-open]) {
+    overflow: hidden;
+  }
+
   .next-grid,
   .about,
   .g2 {

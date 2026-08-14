@@ -1,5 +1,7 @@
 ---
 import type { Item } from "../../data/nav";
+import { joinLink } from "../../data/nav";
+
 const { items, pathname } = Astro.props as {
   items: Item[];
   pathname: string;
@@ -8,54 +10,73 @@ const { items, pathname } = Astro.props as {
 const isActive = (href: string) =>
   href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-const linkCls = (href: string) =>
-  `px-2 py-1 rounded-md transition ${
-    isActive(href) ? "text-slate-900 font-semibold" : "text-slate-600 hover:text-slate-900"
-  }`;
+// A parent is "current" when it or any of its children matches the URL.
+const isCurrentBranch = (item: Item) =>
+  isActive(item.href) || (item.children ?? []).some((c) => isActive(c.href));
 ---
-<div class="hidden md:flex items-center gap-6">
-  {items.map((item) => (
-    item.children ? (
-      <div class="relative group/menu">
-        {/* Parent: relative positioning + a named group, so child selectors can key off hover */}
-        <a
-          href={item.href}
-          class={linkCls(item.href)}
-          aria-haspopup="true"
-          aria-expanded="false"
-        >
-          {item.label}
-        </a>
 
-        {/* Absolutely positioned flush to the parent's bottom edge, no gap. The before pseudo-element bridges the seam so the menu does not flicker as the cursor crosses it */}
-        <div
-          class="absolute left-0 top-full z-50
-                 invisible opacity-0 translate-y-2
-                 group-hover/menu:visible group-hover/menu:opacity-100 group-hover/menu:translate-y-0
-                 group-focus-within/menu:visible group-focus-within/menu:opacity-100 group-focus-within/menu:translate-y-0
-                 transition"
-          role="menu"
-        >
-          {/* The panel itself: pointer-events-auto. The wrapper above keeps control of visibility */}
-          <div
-            class="w-56 rounded-xl border border-slate-200 bg-white shadow-lg p-2
-                   before:content-[''] before:absolute before:left-0 before:right-0 before:top-0
-                   before:h-2 before:-translate-y-full"
-          >
+<div class="nav-links">
+  {
+    items.map((item, i) =>
+      item.children ? (
+        <div class="nav-menu" data-nav-menu data-current={isCurrentBranch(item) ? "" : null}>
+          <button type="button" aria-expanded="false" aria-controls={`nav-panel-${i}`}>
+            {item.label}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="nav-panel" id={`nav-panel-${i}`}>
             {item.children.map((c) => (
-              <a
-                href={c.href}
-                class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                role="menuitem"
-              >
+              <a href={c.href} aria-current={isActive(c.href) ? "page" : undefined}>
                 {c.label}
               </a>
             ))}
           </div>
         </div>
-      </div>
-    ) : (
-      <a href={item.href} class={linkCls(item.href)}>{item.label}</a>
+      ) : (
+        <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>
+          {item.label}
+        </a>
+      )
     )
-  ))}
+  }
+  <a class="btn" href={joinLink.href}>{joinLink.label}</a>
 </div>
+
+<script>
+  // Dropdowns open on hover and on click/keyboard, and aria-expanded always
+  // reflects the real state (the previous implementation hardcoded "false").
+  const menus = document.querySelectorAll<HTMLElement>("[data-nav-menu]");
+
+  menus.forEach((menu) => {
+    const trigger = menu.querySelector<HTMLButtonElement>("button");
+    const panel = menu.querySelector<HTMLElement>(".nav-panel");
+    if (!trigger || !panel) return;
+
+    const setOpen = (open: boolean) => {
+      trigger.setAttribute("aria-expanded", String(open));
+      if (open) panel.setAttribute("data-open", "");
+      else panel.removeAttribute("data-open");
+    };
+
+    menu.addEventListener("mouseenter", () => setOpen(true));
+    menu.addEventListener("mouseleave", () => setOpen(false));
+    trigger.addEventListener("click", () =>
+      setOpen(trigger.getAttribute("aria-expanded") !== "true")
+    );
+
+    // Close when focus leaves the menu entirely, so tabbing past it tidies up.
+    menu.addEventListener("focusout", (event) => {
+      const next = event.relatedTarget as Node | null;
+      if (!next || !menu.contains(next)) setOpen(false);
+    });
+
+    menu.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        trigger.focus();
+      }
+    });
+  });
+</script>
