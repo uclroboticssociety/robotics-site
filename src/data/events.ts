@@ -1,17 +1,25 @@
+export type EventCategoryId = "workshops" | "hackathons" | "challenges" | "socials";
+export type EventTag = "workshop" | "hackathon" | "challenge" | "social";
+
 export type EventInitiative = {
-  id: "workshops" | "hackathons" | "challenges" | "socials";
+  id: EventCategoryId;
+  /** Plural, used as the sidebar heading. */
   title: string;
-  emoji: string;
+  /** Singular, used on category tags and status rows. Set in mono uppercase by CSS. */
+  label: string;
   href: string;
+  /** The frontmatter tag in src/content/events/<folder>/index.md that maps here. */
+  tag: EventTag;
   description: string;
-  tag: "workshop" | "hackathon" | "challenge" | "social";
 };
 
+// Category icons were emoji; they clash with this palette, so categories are
+// identified by their mono uppercase label instead. Do not reintroduce emoji.
 export const initiatives: EventInitiative[] = [
   {
     id: "workshops",
-    emoji: "💻",
     title: "Workshops",
+    label: "Workshop",
     href: "/events",
     tag: "workshop",
     description:
@@ -19,8 +27,8 @@ export const initiatives: EventInitiative[] = [
   },
   {
     id: "hackathons",
-    emoji: "🚀",
     title: "Hackathons",
+    label: "Hackathon",
     href: "/events",
     tag: "hackathon",
     description:
@@ -28,8 +36,8 @@ export const initiatives: EventInitiative[] = [
   },
   {
     id: "challenges",
-    emoji: "🏆",
     title: "Challenges",
+    label: "Challenge",
     href: "/events",
     tag: "challenge",
     description:
@@ -37,8 +45,8 @@ export const initiatives: EventInitiative[] = [
   },
   {
     id: "socials",
-    emoji: "🎉",
     title: "Socials",
+    label: "Social",
     href: "/events",
     tag: "social",
     description:
