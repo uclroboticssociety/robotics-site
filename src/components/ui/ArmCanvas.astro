@@ -1,0 +1,335 @@
+---
+/**
+ * The two-link inverse-kinematics manipulator behind the home hero.
+ *
+ * Pure decoration: the canvas is aria-hidden, takes no pointer events and is
+ * not focusable, so it is invisible to assistive tech and to the keyboard. The
+ * hero must look complete without it — if the 2D context is unavailable the
+ * canvas simply stays blank and no layout depends on it.
+ *
+ * Home hero only. Do not put this on inner pages, and do not add a second
+ * animated background anywhere.
+ */
+---
+
+<canvas class="arm" data-arm aria-hidden="true"></canvas>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>("[data-arm]");
+  const ctx = canvas?.getContext("2d");
+
+  // No canvas support: leave it blank. The hero is designed to stand alone.
+  if (canvas && ctx) {
+    // Colours come from the token layer rather than being repeated here, so the
+    // arm follows the palette if the tokens ever change.
+    const css = getComputedStyle(document.documentElement);
+    const token = (name: string, fallback: string) =>
+      css.getPropertyValue(name).trim() || fallback;
+
+    const BG = token("--color-bg", "#0C0F12");
+    const FG = token("--color-fg", "#EDF0F2");
+    const BLUE = token("--color-blue", "#3E7BFA");
+    const ICE = token("--color-ice", "#8FD3E8");
+    const MUTED = token("--color-muted", "#8A97A3");
+
+    const rgba = (hex: string, alpha: number) => {
+      const value = hex.replace("#", "");
+      const full =
+        value.length === 3
+          ? value
+              .split("")
+              .map((c) => c + c)
+              .join("")
+          : value;
+      const int = parseInt(full, 16);
+      return `rgba(${(int >> 16) & 255},${(int >> 8) & 255},${int & 255},${alpha})`;
+    };
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // Touch devices have no cursor, so the arm sweeps on its own rather than
+    // binding to touchmove, which would fight with scrolling.
+    const coarsePointer = window.matchMedia("(pointer: coarse)");
+
+    let width = 0;
+    let height = 0;
+    let base = { x: 0, y: 0 };
+    let link1 = 0;
+    let link2 = 0;
+    let goal = { x: 0, y: 0 };
+    let current = { x: 0, y: 0 };
+    let trail: { x: number; y: number }[] = [];
+    let idleFor = 0;
+    let clock = 0;
+
+    let frame = 0;
+    let running = false;
+    let onScreen = true;
+
+    const measure = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return false;
+
+      // Cap DPR: past 2x the extra pixels cost more than they show.
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      width = rect.width;
+      height = rect.height;
+      base = { x: width * 0.82, y: height * 0.92 };
+
+      const reach = Math.min(width * 0.55, height * 0.82);
+      link1 = reach * 0.54;
+      link2 = reach * 0.46;
+
+      goal = { x: width * 0.66, y: height * 0.4 };
+      current = { ...goal };
+      trail = [];
+      return true;
+    };
+
+    const idleTarget = () => {
+      const radius = (link1 + link2) * 0.8;
+      return {
+        x: base.x - Math.abs(Math.sin(clock * 0.36)) * radius * 0.95,
+        y: base.y - Math.abs(Math.cos(clock * 0.27)) * radius * 0.8 - 20,
+      };
+    };
+
+    const draw = () => {
+      // Analytic two-link IK, with the target clamped into the reachable annulus.
+      let dx = current.x - base.x;
+      let dy = current.y - base.y;
+      let dist = Math.hypot(dx, dy);
+
+      const max = (link1 + link2) * 0.999;
+      const min = Math.abs(link1 - link2) + 1;
+      if (dist > max) {
+        dx *= max / dist;
+        dy *= max / dist;
+        dist = max;
+      }
+      if (dist < min) {
+        dx *= min / dist;
+        dy *= min / dist;
+        dist = min;
+      }
+
+      const a2 = Math.acos(
+        Math.min(1, Math.max(-1, (dist * dist - link1 * link1 - link2 * link2) / (2 * link1 * link2)))
+      );
+      const a1 = Math.atan2(dy, dx) - Math.atan2(link2 * Math.sin(a2), link1 + link2 * Math.cos(a2));
+
+      const joint = { x: base.x + link1 * Math.cos(a1), y: base.y + link1 * Math.sin(a1) };
+      const tool = {
+        x: joint.x + link2 * Math.cos(a1 + a2),
+        y: joint.y + link2 * Math.sin(a1 + a2),
+      };
+
+      trail.push({ x: tool.x, y: tool.y });
+      if (trail.length > 110) trail.shift();
+
+      ctx.clearRect(0, 0, width, height);
+
+      // glow pool at the base
+      const pool = ctx.createRadialGradient(base.x, base.y, 2, base.x, base.y, width * 0.5);
+      pool.addColorStop(0, rgba(BLUE, 0.16));
+      pool.addColorStop(1, rgba(BLUE, 0));
+      ctx.fillStyle = pool;
+      ctx.fillRect(0, 0, width, height);
+
+      // fading motion trace
+      ctx.lineWidth = 1.4;
+      trail.forEach((point, i) => {
+        if (!i) return;
+        ctx.strokeStyle = rgba(ICE, (i / trail.length) * 0.5);
+        ctx.beginPath();
+        ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
+        ctx.lineTo(point.x, point.y);
+        ctx.stroke();
+      });
+
+      // dashed reach envelope, upper half only
+      ctx.setLineDash([2, 9]);
+      ctx.strokeStyle = rgba(FG, 0.1);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(base.x, base.y, link1 + link2, Math.PI, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // links, lit from within
+      ctx.lineCap = "round";
+      ctx.shadowColor = rgba(BLUE, 0.55);
+      ctx.shadowBlur = 18;
+      ctx.strokeStyle = rgba(FG, 0.92);
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(base.x, base.y);
+      ctx.lineTo(joint.x, joint.y);
+      ctx.lineTo(tool.x, tool.y);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.strokeStyle = rgba(BG, 0.85);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(base.x, base.y);
+      ctx.lineTo(joint.x, joint.y);
+      ctx.lineTo(tool.x, tool.y);
+      ctx.stroke();
+
+      // joints
+      ([
+        [base, 10],
+        [joint, 8],
+      ] as const).forEach(([point, radius]) => {
+        ctx.fillStyle = BG;
+        ctx.strokeStyle = BLUE;
+        ctx.lineWidth = 2.6;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      // base plinth
+      ctx.fillStyle = rgba(FG, 0.9);
+      ctx.beginPath();
+      if (typeof ctx.roundRect === "function") {
+        ctx.roundRect(base.x - 40, base.y + 8, 80, 11, 5);
+      } else {
+        ctx.rect(base.x - 40, base.y + 8, 80, 11);
+      }
+      ctx.fill();
+
+      // end effector
+      ctx.strokeStyle = ICE;
+      ctx.lineWidth = 2.6;
+      ctx.shadowColor = rgba(ICE, 0.7);
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(tool.x, tool.y, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // joint angle readout
+      ctx.font = '10px "Spline Sans Mono", monospace';
+      ctx.fillStyle = rgba(MUTED, 0.9);
+      ctx.fillText(
+        `θ1 ${((a1 * 180) / Math.PI).toFixed(1)}°  θ2 ${((a2 * 180) / Math.PI).toFixed(1)}°`,
+        tool.x + 18,
+        tool.y - 8
+      );
+    };
+
+    const step = () => {
+      clock += 0.016;
+      idleFor += 0.016;
+
+      // After three seconds without the pointer, fall into the idle sweep.
+      if (idleFor > 3 || coarsePointer.matches) goal = idleTarget();
+
+      current.x += (goal.x - current.x) * 0.07;
+      current.y += (goal.y - current.y) * 0.07;
+
+      draw();
+      frame = requestAnimationFrame(step);
+    };
+
+    const start = () => {
+      if (running || reduceMotion.matches) return;
+      running = true;
+      frame = requestAnimationFrame(step);
+    };
+
+    const stop = () => {
+      running = false;
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+    };
+
+    /** One frame in a settled pose, for reduced motion. */
+    const staticFrame = () => {
+      clock = 1.4;
+      current = idleTarget();
+      // Seed a short trace so the frame still reads as a path, not a stick.
+      trail = [];
+      for (let i = 0; i < 40; i += 1) {
+        clock += 0.03;
+        const point = idleTarget();
+        trail.push(point);
+      }
+      current = trail[trail.length - 1];
+      draw();
+    };
+
+    const render = () => {
+      if (reduceMotion.matches) {
+        stop();
+        staticFrame();
+        return;
+      }
+      if (onScreen && !document.hidden) start();
+      else stop();
+    };
+
+    // --- wiring ---------------------------------------------------------
+
+    const onPointerMove = (event: MouseEvent) => {
+      if (coarsePointer.matches) return;
+      const rect = canvas.getBoundingClientRect();
+      if (event.clientY < rect.top || event.clientY > rect.bottom) return;
+      goal = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      idleFor = 0;
+    };
+
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (measure()) render();
+      }, 150);
+    };
+
+    const observer =
+      "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            (entries) => {
+              onScreen = entries.some((entry) => entry.isIntersecting);
+              render();
+            },
+            { threshold: 0 }
+          )
+        : null;
+
+    const resizeObserver =
+      "ResizeObserver" in window ? new ResizeObserver(onResize) : null;
+
+    const teardown = () => {
+      stop();
+      clearTimeout(resizeTimer);
+      window.removeEventListener("mousemove", onPointerMove);
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", render);
+      observer?.disconnect();
+      resizeObserver?.disconnect();
+    };
+
+    if (measure()) {
+      window.addEventListener("mousemove", onPointerMove, { passive: true });
+      window.addEventListener("resize", onResize, { passive: true });
+      document.addEventListener("visibilitychange", render);
+      reduceMotion.addEventListener("change", render);
+      observer?.observe(canvas);
+      resizeObserver?.observe(canvas);
+
+      // Never leave a loop running past this page.
+      window.addEventListener("pagehide", teardown);
+      document.addEventListener("astro:before-swap", teardown);
+
+      render();
+    }
+  }
+</script>
