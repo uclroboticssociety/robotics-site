@@ -907,6 +907,105 @@
     color: var(--status-on-text);
   }
 
+  /* ---- sidebar layout (events + projects) ------------------------------ */
+
+  .with-side {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 56px;
+    padding: 48px 0 0;
+  }
+
+  .side {
+    position: sticky;
+    top: 94px;
+    align-self: start;
+  }
+
+  .side > h2 {
+    margin-bottom: 14px;
+  }
+
+  .side-panel {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-chip);
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+
+  .side-panel details + details {
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .side-panel summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px 14px;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    transition: 0.18s;
+  }
+
+  .side-panel summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .side-panel summary:hover {
+    color: var(--color-fg);
+  }
+
+  .side-panel details[data-current] summary {
+    color: var(--color-blue);
+  }
+
+  .side-panel summary svg {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    transition: transform 0.18s;
+  }
+
+  .side-panel details[open] summary svg {
+    transform: rotate(180deg);
+  }
+
+  .side-links {
+    padding: 0 8px 10px;
+  }
+
+  .side-links a {
+    display: block;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: 0.16s;
+  }
+
+  .side-links a:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-fg);
+  }
+
+  .side-links a[aria-current="page"] {
+    color: var(--color-blue);
+    background: var(--blue-tint-bg);
+  }
+
+  .side-empty {
+    padding: 0 14px 12px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
   /* ---- cards ----------------------------------------------------------- */
 
   .g2 {
@@ -1087,6 +1186,143 @@
     color: var(--color-ice);
     text-decoration: underline;
     text-underline-offset: 5px;
+  }
+
+  /* ---- content blocks (the /!!! … !!!/ body syntax) -------------------- */
+  /* These style the output of the renderer in the [...slug] pages. The
+     renderer emits bare tags; everything visual is decided here. */
+
+  .segments {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .content-img {
+    width: 100%;
+    display: block;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-rule);
+    background: linear-gradient(150deg, #1b2836, #0f1519);
+    filter: saturate(0.8) brightness(0.88);
+  }
+
+  .content-pdf {
+    width: 100%;
+    height: 70vh;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-rule);
+    background: var(--color-surface);
+  }
+
+  /* Horizontal image carousel. The native scrollbar is styled rather than
+     hidden, so the control stays discoverable and keyboard-scrollable. */
+  .scroll-frame {
+    width: 100%;
+    border-radius: var(--radius-card);
+    overflow-x: auto;
+    border: 1px solid var(--color-rule);
+    background: var(--color-surface);
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-rule-hover) transparent;
+  }
+
+  .scroll-frame::-webkit-scrollbar {
+    height: 12px;
+  }
+
+  .scroll-frame::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-frame::-webkit-scrollbar-thumb {
+    background: var(--color-rule-hover);
+    border-radius: var(--radius-pill);
+    border: 4px solid var(--color-surface);
+  }
+
+  .scroll-track {
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+    min-width: 100%;
+  }
+
+  .scroll-track img {
+    flex: 0 0 100%;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: var(--radius-chip);
+    scroll-snap-align: start;
+    filter: saturate(0.8) brightness(0.88);
+  }
+
+  .space-block {
+    height: var(--space-height);
+  }
+
+  /* Two images side by side, or a media/text split. */
+  .pair {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .pair-loose {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .split {
+    display: grid;
+    gap: 28px;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  /* Shown when a [picture] or [pdf] marker names a file that isn't there.
+     Deliberately visible: a silent miss is how broken content hides. */
+  .missing {
+    border-radius: var(--radius-card);
+    border: 1px dashed var(--color-rule-hover);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 18px 20px;
+    font-size: 14px;
+    color: var(--color-muted);
+  }
+
+  /* Treated hero image at the top of an event or project page. */
+  .detail-hero {
+    position: relative;
+    margin-top: 34px;
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+    aspect-ratio: 21 / 9;
+    background: linear-gradient(150deg, #1b2836, #0f1519);
+  }
+
+  .detail-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.7) contrast(1.1) brightness(0.75);
+  }
+
+  .detail-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(200deg, rgba(62, 123, 250, 0.28), transparent 60%);
+    mix-blend-mode: screen;
   }
 
   /* A bordered list of values/pillars — the standard way to present a set of
@@ -1313,6 +1549,20 @@
 
   .fg {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .with-side {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .pair,
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
   }
 
   .join {
