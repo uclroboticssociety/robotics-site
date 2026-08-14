@@ -770,6 +770,11 @@
     gap: 18px;
   }
 
+  /* For groups of three, so the row fills rather than leaving a gap. */
+  .team-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
   .member {
     position: relative;
     border-radius: var(--radius-member);
@@ -828,6 +833,45 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-muted);
+  }
+
+  /* Extra detail inside an advisory tile. */
+  .member .dept {
+    margin: 8px 0 0;
+    font-size: 13.5px;
+    color: var(--color-muted);
+  }
+
+  .member .n a {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13.5px;
+    color: var(--color-ice);
+    text-decoration: none;
+    word-break: break-word;
+  }
+
+  .member .n a:hover {
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .chips span {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-pill);
+    padding: 4px 9px;
   }
 
   /* ---- event rows ------------------------------------------------------ */
@@ -1011,6 +1055,12 @@
   .g2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .g3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
   }
 
@@ -1336,6 +1386,26 @@
     padding: 24px 0;
   }
 
+  .about-link {
+    display: block;
+    text-decoration: none;
+    transition: 0.16s;
+  }
+
+  .about-link h2 {
+    font-size: 24px;
+  }
+
+  .about-link p {
+    margin: 8px 0 12px;
+    color: var(--color-muted);
+    max-width: 60ch;
+  }
+
+  .about-link:hover .mono {
+    color: var(--color-ice);
+  }
+
   /* ---- forms ----------------------------------------------------------- */
 
   .field {
@@ -1518,8 +1588,14 @@
 
   .next-grid,
   .about,
-  .g2 {
+  .g2,
+  .g3 {
     grid-template-columns: 1fr;
+  }
+
+  /* Keep the image above the text when the about split stacks. */
+  .about .duo {
+    order: -1;
   }
 
   .next-r {

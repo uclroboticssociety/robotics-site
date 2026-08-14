@@ -1,9 +1,41 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
+import Container from "../components/ui/Container.astro";
+import JoinCTA from "../components/ui/JoinCTA.astro";
+
+const sections = [
+  { href: "/about/mission", title: "Mission", body: "Why the society exists, what we do, and who we are for." },
+  { href: "/about/committee", title: "Committee", body: "The students running the society this session." },
+  { href: "/about/advisoryteam", title: "Advisory team", body: "Faculty advisors and research mentors who support our work." },
+  { href: "/about/sponsors", title: "Sponsors", body: "The organisations backing our workshops and events." },
+];
 ---
-<Base title="About — UCL Robotics Society">
-  <section class="mx-auto max-w-screen-2xl px-6 py-16">
-    <h1 class="text-3xl font-semibold">About</h1>
-    <p class="mt-3 text-slate-600">Mission, committee, partners & faculty advisors — coming soon.</p>
-  </section>
+
+<Base
+  title="About | UCL Robotics Society"
+  description="About the UCL Robotics Society: our mission, committee, advisory team and sponsors."
+>
+  <PageHeader
+    title="About"
+    lede="A student-led community for robotics, AI and mechatronics at UCL."
+  />
+
+  <Container>
+    <section class="section" style="padding-top:48px">
+      <div class="rule-list">
+        {
+          sections.map((section) => (
+            <a href={section.href} class="about-link">
+              <h2>{section.title}</h2>
+              <p>{section.body}</p>
+              <span class="mono">Read more →</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <JoinCTA />
+  </Container>
 </Base>

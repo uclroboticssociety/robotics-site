@@ -1,165 +1,29 @@
 ---
 import Base from "../../layouts/Base.astro";
-
-const committee = [
-  {
-    role: "President",
-    name: "Morgan Zhang",
-    bio: "",
-    photo: "/committee/1.png",
-  },
-  {
-    role: "Treasurer",
-    name: "Xavier Parker",
-    bio: "",
-    photo: "/committee/2.png",
-  },
-  {
-    role: "Teaching Officer",
-    name: "Martin Chan",
-    bio: "",
-    photo: "/committee/3.png",
-  },
-  {
-    role: "Teaching Officer",
-    name: "Taylan Arslan",
-    bio: "",
-    photo: "/committee/4.png",
-  },
-  {
-    role: "Teching Officer",
-    name: "Ian Qichen Yin",
-    bio: "",
-    photo: "/committee/11.png",
-  },
-  {
-    role: "Technical Officer",
-    name: "Mingxuan Song",
-    bio: "",
-    photo: "/committee/5.png",
-  },
-  {
-    role: "Industry Coordinator ",
-    name: "Akhilesh Pranav",
-    bio: "",
-    photo: "/committee/6.png",
-  },
-  {
-    role: "Head of Events",
-    name: "Tara Kasayapanand",
-    bio: "",
-    photo: "/committee/7.png",
-  },
-  {
-    role: "Design & Social Media Officer",
-    name: "Hailey Quek",
-    bio: "",
-    photo: "/committee/8.png",
-  },
-  {
-    role: "Head of Marketing ",
-    name: "Hamnah Javed",
-    bio: "",
-    photo: "/committee/9.png",
-  },
-  {
-    role: "Web Officer",
-    name: "Yizhong Yan",
-    bio: "",
-    photo: "/committee/10.png",
-  },
-];
-
+import PageHeader from "../../components/ui/PageHeader.astro";
+import Container from "../../components/ui/Container.astro";
+import MemberTile from "../../components/ui/MemberTile.astro";
+import JoinCTA from "../../components/ui/JoinCTA.astro";
+import { committee } from "../../data/committee";
 ---
 
-<Base title="Committee — UCL Robotics Society">
-  <style is:global>
-    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&display=swap");
-  </style>
-  <style>
-    .hero-gradient {
-      background: linear-gradient(
-        -45deg,
-        #eef2ff 0%,
-        #e0f2fe 25%,
-        #f0f9ff 50%,
-        #e0e7ff 75%,
-        #cffafe 100%
-      );
-      background-size: 400% 400%;
-      animation: hero-gradient-shift 14s ease infinite;
-    }
-    @keyframes hero-gradient-shift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    .hero-name {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      line-height: 0.92;
-    }
+<Base
+  title="Committee | UCL Robotics Society"
+  description="The committee running the UCL Robotics Society."
+>
+  <PageHeader
+    title="Committee"
+    eyebrow="About"
+    lede="We build, learn and compete together by designing robots, sharing skills, and growing a supportive community."
+  />
 
-    .fade-in {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .fade-in.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  </style>
+  <Container>
+    <section class="section" style="padding-top:48px">
+      <div class="team">
+        {committee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} />)}
+      </div>
+    </section>
 
-  <section class="relative hero-gradient min-h-[48vh] md:min-h-[56vh] flex items-center fade-in">
-    <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center">
-      <h1 class="hero-name text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-slate-900">
-        Committee
-      </h1>
-    </div>
-  </section>
-
-  <section class="mx-auto max-w-6xl px-4 py-12 fade-in">
-    <div class="text-center">
-      <h2 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 fade-in">Meet our Team</h2>
-      <p class="mt-2 text-2xl sm:text-3xl text-slate-500 font-medium fade-in">Curious. Practical. Collaborative.</p>
-      <p class="mt-4 text-slate-600 max-w-2xl mx-auto fade-in">
-        We build, learn, and compete together by designing robots, sharing skills, and growing a supportive community.
-      </p>
-    </div>
-
-    <div class="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-      {committee.map((member, index) => (
-        <article class="text-center fade-in" data-delay={`${index * 80}ms`}>
-          <img
-            src={member.photo}
-            alt={`${member.name} portrait`}
-            class="w-32 h-32 md:w-36 md:h-36 mx-auto rounded-full object-cover bg-slate-100"
-          />
-          <h3 class="mt-4 text-base font-semibold text-slate-900">{member.name}</h3>
-          <p class="mt-1 text-sm text-slate-500">{member.role}</p>
-        </article>
-      ))}
-    </div>
-  </section>
+    <JoinCTA />
+  </Container>
 </Base>
-
-<script>
-  const fadeEls = Array.from(document.querySelectorAll('.fade-in'));
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const el = entry.target as HTMLElement;
-      const delay = el.getAttribute('data-delay');
-      if (delay) {
-        el.style.transitionDelay = delay;
-      }
-      if (entry.isIntersecting) {
-        el.classList.add('is-visible');
-      } else {
-        el.classList.remove('is-visible');
-      }
-    });
-  }, { threshold: 0.15 });
-
-  fadeEls.forEach((el) => observer.observe(el));
-</script>
