@@ -1,0 +1,31 @@
+---
+/**
+ * Baseline-aligned section header: h2 on the left, and on the right either a
+ * mono meta label or an --ice link. Every section uses this; nothing else sets
+ * its own heading spacing.
+ */
+type Props = {
+  title: string;
+  /** Right-aligned mono label, e.g. "Founded 2019". */
+  meta?: string;
+  /** Right-aligned link. Takes precedence over `meta` if both are given. */
+  linkHref?: string;
+  linkLabel?: string;
+  id?: string;
+};
+
+const { title, meta, linkHref, linkLabel, id } = Astro.props;
+---
+
+<div class="sh">
+  <h2 id={id}>{title}</h2>
+  {
+    linkHref && linkLabel ? (
+      <a class="r" href={linkHref}>
+        {linkLabel}
+      </a>
+    ) : meta ? (
+      <span class="mono r">{meta}</span>
+    ) : null
+  }
+</div>

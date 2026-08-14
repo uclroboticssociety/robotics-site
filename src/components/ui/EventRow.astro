@@ -1,0 +1,40 @@
+---
+import { Image } from "astro:assets";
+import {
+  categoryOf,
+  shortDate,
+  statusOf,
+  statusLabel,
+  thumbnailOf,
+  type EventEntry,
+} from "../../lib/events";
+
+/**
+ * One line in a scannable, chronological list of events.
+ * Browsable, image-led lists use the card grid instead — do not add a third
+ * list pattern.
+ */
+type Props = { event: EventEntry };
+
+const { event } = Astro.props;
+
+const thumb = thumbnailOf(event);
+const status = statusOf(event);
+const category = categoryOf(event);
+// Status is never signalled by colour alone; the label always carries it.
+const highlight = status === "upcoming" || status === "today";
+---
+
+<a class="row" href={`/events/${event.id}`}>
+  {
+    thumb ? (
+      <Image class="thumb" src={thumb} alt="" width={140} height={92} loading="lazy" decoding="async" />
+    ) : (
+      <span class="thumb thumb-empty" aria-hidden="true" />
+    )
+  }
+  <span class="date">{shortDate(event.data.date)}</span>
+  <span class="t">{event.data.title}</span>
+  <span class="v">{event.data.location ?? category?.label ?? ""}</span>
+  <span class:list={["st", highlight && "st-on"]}>{statusLabel(status)}</span>
+</a>

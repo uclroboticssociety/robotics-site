@@ -1,105 +1,123 @@
 ---
+import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
+import Container from "../components/ui/Container.astro";
+import SectionHeader from "../components/ui/SectionHeader.astro";
+import NextEvent from "../components/ui/NextEvent.astro";
+import EventRow from "../components/ui/EventRow.astro";
+import ProjectCard from "../components/ui/ProjectCard.astro";
+import MemberTile from "../components/ui/MemberTile.astro";
+import JoinCTA from "../components/ui/JoinCTA.astro";
+import { committee } from "../data/committee";
+import { statusPillText } from "../data/site";
+import { byDateDesc, mostRecentEvent, nextEvent } from "../lib/events";
+import { coverOf } from "../lib/projects";
 
-const filmImages = [
-  { src: "/film/1.png", alt: "Robotics lab" },
-  { src: "/film/2.png", alt: "Workshop session" },
-  { src: "/film/3.png", alt: "Team project" },
-  { src: "/film/4.png", alt: "Robotics demo" },
-  { src: "/film/5.png", alt: "Society team" },
-  { src: "/film/6.png", alt: "Event moment" },
-];
-const filmFrames = [...filmImages, ...filmImages];
+const allEvents = await getCollection("events");
+const allProjects = await getCollection("projects");
+
+// Featured panel: the soonest future event if there is one, otherwise the most
+// recent past event as a recap. Adding a future-dated event switches this over
+// on the next build with no code change.
+const upcoming = nextEvent(allEvents);
+const featured = upcoming ?? mostRecentEvent(allEvents);
+
+const recentEvents = [...allEvents].sort(byDateDesc).slice(0, 5);
+const featuredCommittee = committee.slice(0, 8);
 ---
-<Base title="UCL Robotics Society — Home">
-  <style is:global>
-    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,800;1,9..144,500&display=swap");
-  </style>
-  <style>
-    .hero-gradient {
-      background: linear-gradient(
-        -45deg,
-        #eef2ff 0%,
-        #e0f2fe 25%,
-        #f0f9ff 50%,
-        #e0e7ff 75%,
-        #cffafe 100%
-      );
-      background-size: 400% 400%;
-      animation: hero-gradient-shift 14s ease infinite;
-    }
-    @keyframes hero-gradient-shift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    .hero-title {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 0.95;
-    }
-    .fade-in {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .fade-in.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .hero-photo {
-      width: clamp(240px, 36vw, 520px);
-      height: clamp(180px, 28vw, 390px);
-      object-fit: cover;
-      border-radius: 24px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
-    }
-  </style>
 
-  <section class="hero-gradient fade-in" data-delay="0ms">
-    <div class="mx-auto max-w-6xl px-4 py-16 md:py-20">
-      <div class="grid md:grid-cols-[1.05fr_1.2fr] gap-10 md:items-center">
-        <div class="fade-in" data-delay="0ms">
-          <h1 class="hero-title mt-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-slate-900">
-            <span class="fade-in" data-delay="0ms">Welcome to the UCL Robotics Society</span>
-          </h1>
-          <p class="mt-6 text-slate-600 text-lg max-w-lg">
-            A student-led community for robotics, AI, and mechatronics. We prototype, compete,
-            and share the thrill of real-world engineering.
-          </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href="/events" class="rounded-full px-6 py-3 bg-slate-900 text-white hover:bg-slate-800">
-              See events
-            </a>
-            <a href="/projects" class="rounded-full px-6 py-3 border border-slate-300 hover:border-slate-400">
-              Explore projects
-            </a>
-          </div>
-        </div>
-        <div class="ml-auto mr-0 flex w-fit items-center justify-end fade-in" data-delay="600ms">
-          <img src="/film/1.png" alt="Robotics lab" class="hero-photo" loading="lazy" />
+<Base
+  title="UCL Robotics Society"
+  description="A student-led community for robotics, AI and mechatronics at UCL. Workshops, hackathons, challenges and projects, open to every student."
+>
+  <div class="hero">
+    <Container>
+      <div class="hero-in">
+        <span class="pill rise d1"><i aria-hidden="true"></i> {statusPillText()}</span>
+        <h1 class="rise d2">Where UCL builds <em class="grad">things that move</em>.</h1>
+        <p class="lede rise d3">
+          A student-led community for robotics, AI and mechatronics. We prototype, compete, and
+          share the thrill of real-world engineering.
+        </p>
+        <div class="acts rise d4">
+          <a class="btn" href="/join">Join the society</a>
+          <a class="btn btn-o" href="/events">See what's on</a>
+          <a class="btn btn-quiet" href="/about/sponsors">Partner with us →</a>
         </div>
       </div>
-    </div>
-  </section>
+    </Container>
+  </div>
+
+  <Container>
+    {
+      featured && (
+        <section class="section" style="padding-top:44px">
+          <SectionHeader
+            title={upcoming ? "Next event" : "Most recent event"}
+            meta={upcoming ? undefined : "No upcoming events announced"}
+            linkHref={upcoming ? "/events" : undefined}
+            linkLabel={upcoming ? "All events →" : undefined}
+          />
+          <NextEvent event={featured} upcoming={Boolean(upcoming)} />
+        </section>
+      )
+    }
+
+    <section class="section">
+      <SectionHeader title="About the society" linkHref="/about/mission" linkLabel="Read our mission →" />
+      <div class="about">
+        <div>
+          <p class="big">
+            A student-led community dedicated to fostering innovation, collaboration and learning in
+            robotics, artificial intelligence and mechatronics.
+          </p>
+          <p>
+            We provide a platform for students of all backgrounds to explore, build and compete in
+            the exciting world of robotics.
+          </p>
+          <p>
+            Robotics sits at the intersection of hardware, software and intelligence, yet many
+            students lack access to meaningful hands-on experience, interdisciplinary collaboration
+            and real-world problem solving. We exist to bridge that gap.
+          </p>
+        </div>
+        <figure class="duo">
+          <img src="/mission/1.png" alt="Society members working together on a robotics build" width="2028" height="1365" loading="lazy" decoding="async" />
+        </figure>
+      </div>
+    </section>
+
+    <section class="section">
+      <SectionHeader title="Committee" linkHref="/about/committee" linkLabel="Meet the full team →" />
+      <div class="team">
+        {featuredCommittee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} />)}
+      </div>
+    </section>
+
+    <section class="section">
+      <SectionHeader title="What's on" linkHref="/events" linkLabel="All events →" />
+      <div class="rows">
+        {recentEvents.map((event) => <EventRow event={event} />)}
+      </div>
+    </section>
+
+    <section class="section">
+      <SectionHeader title="Projects" linkHref="/projects" linkLabel="All projects →" />
+      <div class="g2">
+        {
+          allProjects.map((project) => (
+            <ProjectCard
+              href={`/projects/${project.id}`}
+              title={project.data.title}
+              summary={project.data.summary}
+              attribution={project.data.lead ? `Lead — ${project.data.lead}` : undefined}
+              image={coverOf(project)}
+            />
+          ))
+        }
+      </div>
+    </section>
+
+    <JoinCTA />
+  </Container>
 </Base>
-
-<script>
-  const fadeEls = Array.from(document.querySelectorAll('.fade-in'));
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const el = entry.target;
-      const delay = el.getAttribute('data-delay');
-      if (delay) {
-        const el = entry.target as HTMLElement;
-      }
-      if (entry.isIntersecting) {
-        el.classList.add('is-visible');
-      } else {
-        el.classList.remove('is-visible');
-      }
-    });
-  }, { threshold: 0.1, rootMargin: "0px 0px 20% 0px" });
-
-  fadeEls.forEach((el) => observer.observe(el));
-</script>

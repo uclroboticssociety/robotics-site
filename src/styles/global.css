@@ -509,6 +509,38 @@
     text-underline-offset: 5px;
   }
 
+  /* ---- home hero ------------------------------------------------------- */
+  /* The only page with a hero. Every other page opens with .page-header. */
+
+  .hero {
+    position: relative;
+    padding: 76px 0 56px;
+    min-height: 620px;
+  }
+
+  .hero h1 {
+    font-size: clamp(44px, 6.2vw, 76px);
+    font-weight: 800;
+    margin: 26px 0 0;
+    max-width: 13ch;
+  }
+
+  .hero-in {
+    position: relative;
+    z-index: 2;
+    max-width: 640px;
+  }
+
+  /* Pure decoration behind the hero text. Must never take a click. */
+  .arm {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
   /* ---- page header (every page that isn't home) ------------------------ */
 
   .page-header {
@@ -646,6 +678,27 @@
     letter-spacing: 0.13em;
     text-transform: uppercase;
     color: var(--color-muted);
+  }
+
+  /* shown in place of the countdown once the start time has passed */
+  .happening {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 26px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--status-on-text);
+  }
+
+  .happening i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-ice);
+    box-shadow: 0 0 12px var(--color-ice);
   }
 
   /* ---- about / duotone feature ----------------------------------------- */
@@ -813,7 +866,14 @@
   .row .date {
     font-family: var(--font-mono);
     font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--color-muted);
+  }
+
+  /* shown when an event folder has no images */
+  .row .thumb-empty {
+    background: linear-gradient(150deg, #1b2836, #0f1519);
   }
 
   .row .t {
@@ -959,6 +1019,7 @@
       var(--color-surface);
   }
 
+  .join h2,
   .join h3 {
     font-size: clamp(24px, 3.4vw, 36px);
     max-width: 20ch;

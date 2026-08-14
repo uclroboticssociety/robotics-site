@@ -1,0 +1,27 @@
+---
+/**
+ * The closing call-to-action band. One primary button only.
+ * Copy defaults come from the membership page, so there is a single source of
+ * truth for what membership actually includes.
+ */
+type Props = {
+  title?: string;
+  body?: string;
+};
+
+const {
+  title = "Join the society",
+  body = "Membership is open to all UCL students and affiliates, and includes workshops, socials and projects throughout the year.",
+} = Astro.props;
+---
+
+<div class="join">
+  <div>
+    <h2>{title}</h2>
+    <p>{body}</p>
+  </div>
+  <div class="acts">
+    <a class="btn" href="/join">Join the society</a>
+    <a class="btn btn-o" href="/about/sponsors">Partner with us</a>
+  </div>
+</div>

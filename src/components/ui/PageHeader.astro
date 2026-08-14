@@ -1,0 +1,29 @@
+---
+import Container from "./Container.astro";
+
+/**
+ * Every page that isn't home opens with this, not a hero. The fixed background
+ * gradient plus the rule beneath carries the identity — the animated arm
+ * belongs to the home hero only and never appears here.
+ */
+type Props = {
+  title: string;
+  /** Short mono label above the title, e.g. "Workshop" or "About". */
+  eyebrow?: string;
+  lede?: string;
+  /** Set false on pages that immediately draw their own divider. */
+  rule?: boolean;
+};
+
+const { title, eyebrow, lede, rule = true } = Astro.props;
+---
+
+<header class="page-header">
+  <Container>
+    {eyebrow && <span class="mono eyebrow">{eyebrow}</span>}
+    <h1>{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+    <slot />
+    {rule && <hr class="rule" />}
+  </Container>
+</header>
