@@ -29,10 +29,10 @@ export const footerColumns: FooterColumn[] = [
     ],
   },
   {
-    title: "Company",
+    title: "Legal",
     links: [
-      { href: "#", label: "Code of Conduct" },
-      { href: "#", label: "Privacy" },
+      { href: "/code-of-conduct", label: "Code of Conduct" },
+      { href: "/privacy", label: "Privacy" },
     ],
   },
 ];

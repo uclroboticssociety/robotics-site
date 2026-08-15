@@ -1,0 +1,70 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
+import Container from "../components/ui/Container.astro";
+
+/**
+ * What this page states about the site itself is factual and verifiable from
+ * this repository: it is a static build, it sets no cookies of its own, it
+ * loads no analytics, and its fonts are self-hosted so no request goes to
+ * Google on page load.
+ *
+ * TODO (committee): the parts that are a policy rather than a fact — how long
+ * you keep form submissions, who inside the society can see them, and your
+ * lawful basis under UK GDPR — are marked below and must be completed by you.
+ * Check what your form provider and the Students' Union already commit to.
+ */
+---
+
+<Base
+  title="Privacy | UCL Robotics Society"
+  description="How the UCL Robotics Society website handles your data."
+>
+  <PageHeader title="Privacy" eyebrow="Legal" />
+
+  <Container>
+    <section class="section" style="padding-top:48px">
+      <div class="prose-body">
+        <h2>What this site collects</h2>
+        <p>
+          This website is a static site. It sets no cookies of its own, runs no analytics or
+          tracking scripts, and builds no profile of visitors. Fonts are served from this domain
+          rather than a third party, so simply reading a page sends your details to nobody.
+        </p>
+
+        <hr />
+
+        <h2>When you contact us</h2>
+        <p>
+          If you use a form on the contact page, what you type is sent to a third-party form service
+          which forwards it to the committee's inbox. If you would rather not use a third party,
+          email us directly at <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a>.
+        </p>
+
+        <div class="notice">
+          <p>
+            <strong>To be completed by the committee.</strong> How long form submissions are kept,
+            who can read them, and the lawful basis for holding them are not yet documented here.
+          </p>
+        </div>
+
+        <hr />
+
+        <h2>Hosting</h2>
+        <p>
+          The site is hosted on Cloudflare Pages. Like any web host, Cloudflare processes the
+          requests needed to serve pages to you, which is governed by their own privacy terms.
+        </p>
+
+        <hr />
+
+        <h2>Your rights and how to reach us</h2>
+        <p>
+          You can ask what we hold about you, ask for it to be corrected, or ask for it to be
+          deleted. Email the committee at
+          <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a>.
+        </p>
+      </div>
+    </section>
+  </Container>
+</Base>

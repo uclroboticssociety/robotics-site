@@ -1,100 +1,178 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
+import Container from "../components/ui/Container.astro";
+import SectionHeader from "../components/ui/SectionHeader.astro";
+
+// These were placeholders (your_handle, your-org, your_invite). They are now
+// the society's real accounts, taken from the footer. GitHub is omitted
+// because there is no known society organisation to point at.
 const socials = [
-  { name: "Instagram", href: "https://instagram.com/your_handle" },
-  { name: "LinkedIn",  href: "https://www.linkedin.com/company/your_org" },
-  { name: "GitHub",    href: "https://github.com/your-org" },
-  { name: "WhatsApp",  href: "https://chat.whatsapp.com/your_invite" },
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/ucl.robotics?igsh=MWNneW8wZWh1ZzZkaA%3D%3D&utm_source=qr",
+  },
+  { name: "LinkedIn", href: "https://www.linkedin.com/company/robotics-society-ucl/" },
+  { name: "WhatsApp", href: "https://chat.whatsapp.com/EH3n4x6V9UbAE2nXjzz1IT" },
 ];
+
+const email = "robosoc@ucl.ac.uk";
+
+// TODO (committee): both forms still post to the placeholder endpoint that
+// shipped with the original page, so submissions go nowhere. Replace it with
+// your own FormSubmit or Formspree endpoint (e.g. https://formsubmit.co/<your
+// address>) and delete this note. Until then the email link below is the only
+// route that actually reaches you, which is why it is shown next to the form.
+const FORM_ENDPOINT = "https://formsubmit.co/your@email.com";
 ---
-<Base title="Contact — Robotics Society" description="Contact Robotics Society: email, socials, and community links.">
-  <section class="mx-auto max-w-6xl px-4 py-12">
-    <h1 class="text-3xl font-semibold tracking-tight">Contact</h1>
-    <p class="text-slate-600 mt-2">Reach out for collaborations, sponsorships, or general inquiries.</p>
 
-    <!-- Contact cards -->
-    <div class="grid md:grid-cols-3 gap-6 mt-8">
-      <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
-        <h3 class="font-semibold">Email</h3>
-        <p class="text-slate-600 mt-1">Official inbox</p>
-        <a class="mt-3 inline-block underline" href="mailto:robotics@university.edu">robotics@university.edu</a>
-      </article>
+<Base
+  title="Contact | UCL Robotics Society"
+  description="Get in touch with the UCL Robotics Society about collaborations, sponsorship or general enquiries."
+>
+  <PageHeader
+    title="Contact"
+    eyebrow="Get in touch"
+    lede="For collaborations, sponsorship or general enquiries."
+  />
 
-      <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
-        <h3 class="font-semibold">Socials</h3>
-        <ul class="mt-2 space-y-1 text-slate-700">
-          {socials.map((s) => (
-            <li><a class="underline" href={s.href} target="_blank" rel="noopener">{s.name}</a></li>
-          ))}
-        </ul>
-      </article>
+  <Container>
+    <section class="section" style="padding-top:48px">
+      <div class="g3">
+        <article class="panel">
+          <h2 class="mono">Email</h2>
+          <p>Our official inbox, monitored by the committee.</p>
+          <a class="quiet-link" href={`mailto:${email}`}>{email}</a>
+        </article>
 
-      <article class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
-        <h3 class="font-semibold">Community</h3>
-        <p class="text-slate-600 mt-1">Join our WhatsApp & newsletter.</p>
-        <div class="mt-3 flex gap-3">
-          <a class="rounded-lg px-3 py-2 text-sm bg-indigo-600 text-white hover:bg-indigo-700" href="https://chat.whatsapp.com/your_invite" target="_blank">WhatsApp</a>
-          <a class="rounded-lg px-3 py-2 text-sm border border-slate-300 hover:border-slate-400" href="#newsletter">Newsletter</a>
-        </div>
-      </article>
-    </div>
+        <article class="panel">
+          <h2 class="mono">Socials</h2>
+          <ul class="plain">
+            {
+              socials.map((social) => (
+                <li>
+                  <a class="quiet-link" href={social.href} target="_blank" rel="noopener">
+                    {social.name}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </article>
 
-    <!-- Simple contact form (static-friendly) -->
-    <div class="mt-12 grid md:grid-cols-2 gap-6 items-start">
-      <div class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
-        <h3 class="font-semibold">Send us a message</h3>
-        <p class="text-slate-600 mt-1">This form works with static form services (Formspree / FormSubmit / Netlify Forms).</p>
-
-        <!-- Replace the action below with your own form endpoint, for example
-             https://formspree.io/f/xxxxxx or https://formsubmit.co/youremail -->
-        <form class="mt-4 space-y-3" method="POST" action="https://formsubmit.co/your@email.com">
-          <!-- Anti-spam: consider adding hCaptcha or Cloudflare Turnstile here (optional) -->
-          <div>
-            <label class="block text-sm font-medium">Name</label>
-            <input class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" type="text" name="name" required />
+        <article class="panel">
+          <h2 class="mono">Community</h2>
+          <p>Join the group chat to hear about sessions first.</p>
+          <div class="acts" style="margin-top:16px">
+            <a
+              class="btn btn-o"
+              href="https://chat.whatsapp.com/EH3n4x6V9UbAE2nXjzz1IT"
+              target="_blank"
+              rel="noopener">WhatsApp group</a
+            >
           </div>
-          <div>
-            <label class="block text-sm font-medium">Email</label>
-            <input class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" type="email" name="email" required />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Message</label>
-            <textarea class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" name="message" rows="5" required></textarea>
-          </div>
-          <!-- Page to redirect to on success (optional) -->
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <SectionHeader title="Send us a message" />
+      <div class="g2">
+        <form class="panel" method="POST" action={FORM_ENDPOINT} novalidate data-validate>
+          <label class="field">
+            <span class="label">Name</span>
+            <input class="input" type="text" name="name" required autocomplete="name" />
+            <span class="error" data-error hidden>Please tell us your name.</span>
+          </label>
+
+          <label class="field">
+            <span class="label">Email</span>
+            <input class="input" type="email" name="email" required autocomplete="email" />
+            <span class="error" data-error hidden>Please enter an email address we can reply to.</span>
+          </label>
+
+          <label class="field">
+            <span class="label">Message</span>
+            <textarea class="input" name="message" rows="5" required></textarea>
+            <span class="error" data-error hidden>Please include a message.</span>
+          </label>
+
           <input type="hidden" name="_next" value="/contact?success=1" />
-          <button class="rounded-xl px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700" type="submit">Send</button>
-          <noscript><p class="text-sm mt-2">This form still works with JavaScript disabled. If it fails, email us at <a class="underline" href="mailto:robotics@university.edu">robotics@university.edu</a></p></noscript>
-        </form>
-      </div>
-
-      <!-- Newsletter (static-friendly) -->
-      <div id="newsletter" class="rounded-2xl shadow p-6 bg-white/70 border border-slate-200">
-        <h3 class="font-semibold">Newsletter</h3>
-        <p class="text-slate-600 mt-1">Get event reminders & project updates.</p>
-        <!-- Can be swapped for a Mailchimp or ConvertKit embed -->
-        <form class="mt-4 flex gap-2" method="POST" action="https://formsubmit.co/your@email.com">
-          <input type="hidden" name="_subject" value="[Robotics] Newsletter subscription" />
-          <input class="flex-1 rounded-xl border border-slate-300 px-3 py-2" type="email" name="email" placeholder="you@example.com" required />
-          <button class="rounded-xl px-4 py-2 bg-slate-900 text-white hover:bg-slate-800" type="submit">Subscribe</button>
+          <button class="btn" type="submit">Send message</button>
+          <p class="help">
+            Prefer email? Write to <a href={`mailto:${email}`}>{email}</a>.
+          </p>
         </form>
 
-        <!-- Small interaction: copy all social links to the clipboard -->
-        <div class="mt-4 text-sm">
-          <button id="copyLinks" class="underline">Copy all social links</button>
-          <span id="copyHint" class="ml-2 text-slate-500"></span>
+        <div class="panel" id="newsletter">
+          <h2 class="mono">Newsletter</h2>
+          <p>Event reminders and project updates, a few times a term.</p>
+          <form method="POST" action={FORM_ENDPOINT} style="margin-top:18px" data-validate novalidate>
+            <input type="hidden" name="_subject" value="[Robotics] Newsletter subscription" />
+            <label class="field">
+              <span class="label">Email</span>
+              <input class="input" type="email" name="email" placeholder="you@ucl.ac.uk" required autocomplete="email" />
+              <span class="error" data-error hidden>Please enter a valid email address.</span>
+            </label>
+            <button class="btn btn-o" type="submit">Subscribe</button>
+          </form>
         </div>
-        <script>
-          const btn = document.getElementById('copyLinks');
-          const hint = document.getElementById('copyHint');
-          btn?.addEventListener('click', async () => {
-            const links = `Instagram: ${'https://instagram.com/your_handle'}\nLinkedIn: ${'https://www.linkedin.com/company/your_org'}\nGitHub: ${'https://github.com/your-org'}\nWhatsApp: ${'https://chat.whatsapp.com/your_invite'}`;
-            try { await navigator.clipboard.writeText(links); hint!.textContent = 'Copied!'; }
-            catch { hint!.textContent = 'Copy failed'; }
-            setTimeout(() => (hint!.textContent = ''), 1500);
-          });
-        </script>
       </div>
-    </div>
-  </section>
+    </section>
+  </Container>
 </Base>
+
+<script>
+  // Inline, per-field error messages in the warn tone. Native validation still
+  // does the checking; this only decides where the message appears, so the
+  // form keeps working with JavaScript disabled.
+  document.querySelectorAll<HTMLFormElement>("form[data-validate]").forEach((form) => {
+    const fieldOf = (control: Element) => control.closest(".field");
+
+    const showError = (control: HTMLInputElement | HTMLTextAreaElement) => {
+      const field = fieldOf(control);
+      const error = field?.querySelector<HTMLElement>("[data-error]");
+      if (!field || !error) return;
+      field.classList.add("field-error");
+      error.hidden = false;
+      control.setAttribute("aria-invalid", "true");
+    };
+
+    const clearError = (control: HTMLInputElement | HTMLTextAreaElement) => {
+      const field = fieldOf(control);
+      const error = field?.querySelector<HTMLElement>("[data-error]");
+      if (!field || !error) return;
+      field.classList.remove("field-error");
+      error.hidden = true;
+      control.removeAttribute("aria-invalid");
+    };
+
+    const controls = Array.from(
+      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea")
+    );
+
+    controls.forEach((control) => {
+      control.addEventListener("input", () => {
+        if (control.checkValidity()) clearError(control);
+      });
+    });
+
+    form.addEventListener("submit", (event) => {
+      let firstInvalid: HTMLInputElement | HTMLTextAreaElement | undefined;
+
+      controls.forEach((control) => {
+        if (control.checkValidity()) {
+          clearError(control);
+        } else {
+          showError(control);
+          firstInvalid = firstInvalid ?? control;
+        }
+      });
+
+      if (firstInvalid) {
+        event.preventDefault();
+        firstInvalid.focus();
+      }
+    });
+  });
+</script>
