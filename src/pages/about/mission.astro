@@ -1,9 +1,11 @@
 ---
+import { Image } from "astro:assets";
 import Base from "../../layouts/Base.astro";
 import PageHeader from "../../components/ui/PageHeader.astro";
 import Container from "../../components/ui/Container.astro";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
 import JoinCTA from "../../components/ui/JoinCTA.astro";
+import { asset } from "../../lib/assets";
 
 /**
  * "Who we are for" was previously three CSS flip cards. The content on the back
@@ -12,17 +14,17 @@ import JoinCTA from "../../components/ui/JoinCTA.astro";
  */
 const audiences = [
   {
-    image: "/mission/3.png",
+    image: "mission/3.png",
     title: "Beginners and explorers",
     body: "New to robotics or unsure where to start? We provide beginner-friendly workshops, guided projects, and a supportive environment to help you build confidence from the ground up.",
   },
   {
-    image: "/mission/4.png",
+    image: "mission/4.png",
     title: "Builders and engineers",
     body: "For students who want to get hands-on. Work on real robotic systems, team-based projects, and competitions that span hardware, control, perception, and AI.",
   },
   {
-    image: "/mission/5.png",
+    image: "mission/5.png",
     title: "Researchers and innovators",
     body: "Interested in advanced robotics, AI, or research-led projects? We support deeper exploration through research-oriented initiatives, collaborations, and industry exposure.",
   },
@@ -59,14 +61,18 @@ const audiences = [
           </p>
         </div>
         <figure class="duo">
-          <img
-            src="/mission/1.png"
-            alt="Members building a robot together at a society workshop"
-            width="2028"
-            height="1365"
-            loading="lazy"
-            decoding="async"
-          />
+          {
+            asset("mission/1.png") && (
+              <Image
+                src={asset("mission/1.png")!}
+                alt="Members building a robot together at a society workshop"
+                widths={[480, 720, 960]}
+                sizes="(max-width: 1000px) 100vw, 45vw"
+                loading="lazy"
+                decoding="async"
+              />
+            )
+          }
         </figure>
       </div>
     </section>
@@ -75,14 +81,18 @@ const audiences = [
       <SectionHeader title="What we do" />
       <div class="about">
         <figure class="duo">
-          <img
-            src="/mission/2.png"
-            alt="Students testing a robot during a society session"
-            width="2028"
-            height="1365"
-            loading="lazy"
-            decoding="async"
-          />
+          {
+            asset("mission/2.png") && (
+              <Image
+                src={asset("mission/2.png")!}
+                alt="Students testing a robot during a society session"
+                widths={[480, 720, 960]}
+                sizes="(max-width: 1000px) 100vw, 45vw"
+                loading="lazy"
+                decoding="async"
+              />
+            )
+          }
         </figure>
         <div>
           <p>
@@ -110,12 +120,12 @@ const audiences = [
         {
           audiences.map((audience) => (
             <article class="card">
-              <img
+              <Image
                 class="shot"
-                src={audience.image}
+                src={asset(audience.image)!}
                 alt=""
-                width="800"
-                height="400"
+                widths={[400, 600, 800]}
+                sizes="(max-width: 1000px) 100vw, 33vw"
                 loading="lazy"
                 decoding="async"
               />

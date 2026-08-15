@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { getCollection } from "astro:content";
+import { Image, getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import EventsLayout from "../../components/events/EventsLayout.astro";
 import PageHeader from "../../components/ui/PageHeader.astro";
@@ -182,18 +183,37 @@ const baseDir = (event.filePath ?? "")
   .split("/")
   .slice(0, -1)
   .join("/");
+/**
+ * Body images are optimised up front rather than served as-is.
+ *
+ * ImageMetadata.src points at the *original* file, so using it directly shipped
+ * multi-megabyte PNGs straight to the reader (one source image here is 9.6 MB).
+ * getImage() converts each to webp at a sensible cap; the map is built once per
+ * page and resolveImage then works exactly as before.
+ */
+const optimised = new Map<string, string>();
+for (const [key, image] of Object.entries(imageMap)) {
+  if (!key.startsWith(`/src/content/events/${baseDir}/`)) continue;
+  const result = await getImage({
+    src: image,
+    width: Math.min(image.width, 1200),
+    format: "webp",
+  });
+  optimised.set(key, result.src);
+}
+
 const resolveImage = (file: string) => {
   const directKey = `/src/content/events/${baseDir}/${file}`;
   const fallbackKey = `/src/content/events/${file}`;
   const image = imageMap[directKey] ?? imageMap[fallbackKey];
-  return image?.src ?? "";
+  return optimised.get(directKey) ?? optimised.get(fallbackKey) ?? image?.src ?? "";
 };
 const resolveFolderImages = (folder: string) => {
   const folderPrefix = `/src/content/events/${baseDir}/${folder}/`;
   return Object.entries(imageMap)
     .filter(([key]) => key.startsWith(folderPrefix))
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([, value]) => value.src);
+    .map(([key, value]) => optimised.get(key) ?? value.src);
 };
 const resolvePdf = (file: string) => {
   const directKey = `/src/content/events/${baseDir}/${file}`;
@@ -317,7 +337,7 @@ const heroImage = thumbnailOf(event);
     {
       heroImage && (
         <div class="detail-hero">
-          <img src={heroImage.src} alt="" width={heroImage.width} height={heroImage.height} />
+          <Image src={heroImage} alt="" widths={[720, 1080, 1440]} sizes="100vw" loading="eager" />
         </div>
       )
     }

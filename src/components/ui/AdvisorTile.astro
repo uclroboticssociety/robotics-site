@@ -1,5 +1,7 @@
 ---
+import { Image } from "astro:assets";
 import { initialsOf } from "../../data/committee";
+import { asset } from "../../lib/assets";
 import type { Advisor } from "../../data/advisors";
 
 /**
@@ -10,14 +12,22 @@ import type { Advisor } from "../../data/advisors";
 type Props = { advisor: Advisor };
 
 const { advisor } = Astro.props;
+const image = asset(advisor.image);
 ---
 
 <div class="member">
   <div class="face">
     <span aria-hidden="true">{initialsOf(advisor.name)}</span>
     {
-      advisor.image && (
-        <img src={advisor.image} alt="" width="320" height="400" loading="lazy" decoding="async" />
+      image && (
+        <Image
+          src={image}
+          alt=""
+          widths={[240, 360]}
+          sizes="(max-width: 1000px) 50vw, 33vw"
+          loading="lazy"
+          decoding="async"
+        />
       )
     }
   </div>

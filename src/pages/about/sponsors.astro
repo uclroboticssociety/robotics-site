@@ -1,5 +1,7 @@
 ---
+import { Image } from "astro:assets";
 import Base from "../../layouts/Base.astro";
+import { asset } from "../../lib/assets";
 import PageHeader from "../../components/ui/PageHeader.astro";
 import Container from "../../components/ui/Container.astro";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
@@ -21,16 +23,18 @@ import { sponsors } from "../../data/sponsors";
       {
         sponsors.length ? (
           <div class="sponsors">
-            {sponsors.map((sponsor) =>
-              sponsor.url ? (
-                <a href={sponsor.url}>
-                  <img class="logo-img" src={sponsor.logo} alt={sponsor.name} loading="lazy" />
-                </a>
-              ) : (
-                /* alt="" until the committee supplies real names — see data/sponsors.ts */
-                <img class="logo-img" src={sponsor.logo} alt={sponsor.name} loading="lazy" />
-              )
-            )}
+            {
+              sponsors.map((sponsor) => {
+                const logo = asset(sponsor.logo);
+                if (!logo) return null;
+                /* alt is empty until the committee supplies real names — an
+                   invented name would be worse than none. See data/sponsors.ts */
+                const img = (
+                  <Image class="logo-img" src={logo} alt={sponsor.name} widths={[180, 280]} loading="lazy" />
+                );
+                return sponsor.url ? <a href={sponsor.url}>{img}</a> : img;
+              })
+            }
           </div>
         ) : (
           <p class="lede">We're looking for our first partners.</p>

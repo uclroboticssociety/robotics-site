@@ -1,5 +1,7 @@
 ---
+import { Image } from "astro:assets";
 import { initialsOf } from "../../data/committee";
+import { asset } from "../../lib/assets";
 
 /**
  * Committee / advisory portrait tile. When there is no photo the tile shows the
@@ -9,10 +11,12 @@ import { initialsOf } from "../../data/committee";
 type Props = {
   name: string;
   role: string;
+  /** Path relative to src/assets, e.g. "committee/1.png". */
   photo?: string;
 };
 
 const { name, role, photo } = Astro.props;
+const image = asset(photo);
 ---
 
 <div class="member">
@@ -21,7 +25,18 @@ const { name, role, photo } = Astro.props;
         designed fallback rather than a gap. The portrait itself is decorative:
         the member's name is already adjacent text, so alt is empty. */}
     <span aria-hidden="true">{initialsOf(name)}</span>
-    {photo && <img src={photo} alt="" width="320" height="400" loading="lazy" decoding="async" />}
+    {
+      image && (
+        <Image
+          src={image}
+          alt=""
+          widths={[240, 360]}
+          sizes="(max-width: 1000px) 50vw, 25vw"
+          loading="lazy"
+          decoding="async"
+        />
+      )
+    }
   </div>
   <div class="n">
     <b>{name}</b>

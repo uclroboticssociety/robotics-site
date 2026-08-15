@@ -25,7 +25,9 @@ const category = categoryOf(event);
 ---
 
 <div class="next">
-  <div class="next-grid">
+  {/* With no image the panel goes full width rather than reserving a large
+      empty pane — the gradient fallback is for a slow image, not for none. */}
+  <div class:list={["next-grid", !image && "next-grid-solo"]}>
     <div class="next-l">
       {category && <span class="tag">{category.label}</span>}
       <h3>{event.data.title}</h3>
@@ -45,9 +47,9 @@ const category = categoryOf(event);
       </div>
     </div>
 
-    <div class="next-r">
-      {
-        image && (
+    {
+      image && (
+        <div class="next-r">
           <Image
             src={image}
             alt={`${event.data.title} at ${event.data.location ?? "UCL"}`}
@@ -56,8 +58,8 @@ const category = categoryOf(event);
             loading="lazy"
             decoding="async"
           />
-        )
-      }
-    </div>
+        </div>
+      )
+    }
   </div>
 </div>

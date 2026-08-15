@@ -602,6 +602,10 @@
     grid-template-columns: 1.15fr 0.85fr;
   }
 
+  .next-grid-solo {
+    grid-template-columns: 1fr;
+  }
+
   .next-l {
     padding: 40px 40px 38px;
   }
@@ -1685,16 +1689,33 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  /* The thumbnail keeps its own column and everything else stacks beside it.
+     (The prototype only moved date and venue, which left the title wrapping
+     underneath the image.) */
   .row {
     grid-template-columns: 70px 1fr;
-    gap: 12px;
-    row-gap: 4px;
+    gap: 0 14px;
+    align-items: start;
+  }
+
+  .row .thumb {
+    grid-column: 1;
+    grid-row: 1 / -1;
   }
 
   .row .date,
+  .row .t,
   .row .v,
   .row .st {
     grid-column: 2;
+  }
+
+  .row .t {
+    margin: 4px 0 2px;
+  }
+
+  .row .st {
+    margin-top: 10px;
   }
 
   .fg {
@@ -1724,9 +1745,32 @@
   }
 }
 
+/* The arm needs room beside the hero text. Below this it starts drawing over
+   the buttons, so the decoration steps aside rather than fighting the content. */
+@media (max-width: 900px) {
+  .arm {
+    display: none;
+  }
+
+  .hero {
+    min-height: 0;
+    padding: 56px 0 40px;
+  }
+}
+
 @media (max-width: 640px) {
   .wrap {
     padding: 0 20px;
+  }
+
+  /* Section headers stack instead of squeezing the heading against its meta. */
+  .sh {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sh .r {
+    margin-left: 0;
   }
 
   .section,

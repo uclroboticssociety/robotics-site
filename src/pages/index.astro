@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import Container from "../components/ui/Container.astro";
 import ArmCanvas from "../components/ui/ArmCanvas.astro";
@@ -13,6 +14,7 @@ import { committee } from "../data/committee";
 import { statusPillText } from "../data/site";
 import { byDateDesc, mostRecentEvent, nextEvent } from "../lib/events";
 import { coverOf } from "../lib/projects";
+import { asset } from "../lib/assets";
 
 const allEvents = await getCollection("events");
 const allProjects = await getCollection("projects");
@@ -25,6 +27,7 @@ const featured = upcoming ?? mostRecentEvent(allEvents);
 
 const recentEvents = [...allEvents].sort(byDateDesc).slice(0, 5);
 const featuredCommittee = committee.slice(0, 8);
+const missionPhoto = asset("mission/1.png");
 ---
 
 <Base
@@ -84,7 +87,18 @@ const featuredCommittee = committee.slice(0, 8);
           </p>
         </div>
         <figure class="duo">
-          <img src="/mission/1.png" alt="Society members working together on a robotics build" width="2028" height="1365" loading="lazy" decoding="async" />
+          {
+            missionPhoto && (
+              <Image
+                src={missionPhoto}
+                alt="Society members working together on a robotics build"
+                widths={[480, 720, 960]}
+                sizes="(max-width: 1000px) 100vw, 45vw"
+                loading="lazy"
+                decoding="async"
+              />
+            )
+          }
         </figure>
       </div>
     </section>

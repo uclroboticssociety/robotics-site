@@ -20,7 +20,7 @@ export const facultyAdvisors: Advisor[] = [
       "Machine Learning",
       "Control engineering, mechatronics and robotics",
     ],
-    image: "/advisor/1.png",
+    image: "advisor/1.png",
   },
   {
     name: "Zhibin (Alex) Li",
@@ -34,7 +34,7 @@ export const facultyAdvisors: Advisor[] = [
       "Machine learning",
       "Intelligent robotics",
     ],
-    image: "/advisor/2.png",
+    image: "advisor/2.png",
   },
   {
     name: "Chengxu Zhou",
@@ -49,7 +49,7 @@ export const facultyAdvisors: Advisor[] = [
       "Field robotics",
       "Control engineering, mechatronics and robotics",
     ],
-    image: "/advisor/3.png",
+    image: "advisor/3.png",
   },
 ];
 
@@ -66,7 +66,7 @@ export const researchMentors: Advisor[] = [
       "Building Emergency Management",
       "Robot Application in Construction",
     ],
-    image: "/advisor/5.png",
+    image: "advisor/5.png",
   },
   {
     name: "Yunqi Huang",
@@ -74,7 +74,7 @@ export const researchMentors: Advisor[] = [
     department: "Department of Computer Science",
     email: "yunqi.huang.23@ucl.ac.uk",
     expertise: ["Tactile Sensing", "Soft Robotics", "Machine Learning"],
-    image: "/advisor/6.png",
+    image: "advisor/6.png",
   },
   {
     name: "Lingfan Bao",
@@ -88,6 +88,6 @@ export const researchMentors: Advisor[] = [
       "Reinforcement learning",
       "Optimal control",
     ],
-    image: "/advisor/7.png",
+    image: "advisor/7.png",
   },
 ];
