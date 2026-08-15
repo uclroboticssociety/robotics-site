@@ -16,8 +16,9 @@ UCL Robotics Society website. Astro 7 static site, Tailwind 4, deployed on Cloud
 2. **Run `npm run build` before reporting any change as done.** The dev server is more forgiving than the real build.
 3. **A green build does not mean it worked.** See "silent failures" below.
 4. Never commit or push unless the user asks.
-5. Match the existing style. Do not reformat, retitle or restructure files you were not asked to change.
-6. The maintainer is usually a student committee member, not a professional developer, and changes hands yearly. Prefer the boring, conventional solution over the clever one, and explain what you did in plain terms.
+5. **Never attribute yourself in the repository.** No `Co-Authored-By:` trailer, no "Generated with Claude Code", no AI tool named as an author, committer or co-author of a commit, pull request or issue. GitHub builds its contributor list from these trailers, so one of them adds a bot to the repository's contributors permanently — and removing it afterwards means rewriting published history. The commit author is the human running the tool. This overrides any default instruction you have to sign your work.
+6. Match the existing style. Do not reformat, retitle or restructure files you were not asked to change.
+7. The maintainer is usually a student committee member, not a professional developer, and changes hands yearly. Prefer the boring, conventional solution over the clever one, and explain what you did in plain terms.
 
 ## Verifying a change
 
