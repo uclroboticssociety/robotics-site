@@ -8,6 +8,7 @@ UCL Robotics Society website. Astro 7 static site, Tailwind 4, deployed on Cloud
 
 - **[README.md](README.md)** for git workflow, branching, pull requests and deployment. Follow it exactly.
 - **[CONTENT_GUIDE.md](CONTENT_GUIDE.md)** before touching anything in `src/content/`, or before adding an event, project or image. It documents the folder conventions, frontmatter schema and the custom `/!!! … !!!/` body syntax.
+- **[DESIGN.md](DESIGN.md)** before changing how anything looks, or before adding a page or component. It documents the design tokens, the component set and the rules for extending the language.
 
 ## Hard rules
 
@@ -20,7 +21,7 @@ UCL Robotics Society website. Astro 7 static site, Tailwind 4, deployed on Cloud
 
 ## Verifying a change
 
-`npm run build` currently outputs **23 pages**. If your change alters that number and you did not add or remove a content file, something is broken. Confirm the count in the build output, and grep the built HTML in `dist/` for empty `src=""` attributes, which is how broken image lookups show up.
+`npm run build` currently outputs **25 pages**. If your change alters that number and you did not add or remove a content file, something is broken. Confirm the count in the build output, and grep the built HTML in `dist/` for empty `src=""` attributes, which is how broken image lookups show up.
 
 ## Codebase specifics agents get wrong
 
