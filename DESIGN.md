@@ -41,7 +41,7 @@ component classes reference them directly.
 |---|---|---|
 | `--color-blue` | `#3E7BFA` | Primary action, active state, focus ring |
 | `--color-blue-hover` | `#5590FF` | Primary button hover |
-| `--color-blue-deep` | `#2B5BD0` | Logo mark gradient end |
+| `--color-blue-deep` | `#2B5BD0` | Darker end of a blue gradient |
 | `--color-ice` | `#8FD3E8` | Secondary links, highlights, motion trace |
 | `--color-warn` | `#F0876A` | Form errors only — the one warm tone |
 
@@ -171,7 +171,7 @@ component classes; you only need them if you build something new.
 | Duotone feature (`.duo`) | `grayscale(1) contrast(1.15) brightness(.8)` + blue/ice `mix-blend-mode: color` |
 | Card thumbnail | `saturate(.8) brightness(.88)` |
 | Row thumbnail | `grayscale(.6) brightness(.85)`, 70×46 |
-| Portrait | `grayscale(1) brightness(.85)` |
+| Portrait | **None — committee and advisory photos stay in full colour.** |
 
 **Where images live matters.**
 
