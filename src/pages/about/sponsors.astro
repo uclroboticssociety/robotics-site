@@ -1,94 +1,63 @@
 ---
+import { Image } from "astro:assets";
 import Base from "../../layouts/Base.astro";
-
-const goldSponsors = [
-  { name: " ", logo: "/sponsors/1.png" },
-  { name: " ", logo: "/sponsors/2.png" },
-];
+import { asset } from "../../lib/assets";
+import PageHeader from "../../components/ui/PageHeader.astro";
+import Container from "../../components/ui/Container.astro";
+import SectionHeader from "../../components/ui/SectionHeader.astro";
+import { sponsors } from "../../data/sponsors";
 ---
 
-<Base title="Sponsors — UCL Robotics Society">
-  <style is:global>
-    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&display=swap");
-  </style>
-  <style>
-    .hero-gradient {
-      background: linear-gradient(
-        -45deg,
-        #eef2ff 0%,
-        #e0f2fe 25%,
-        #f0f9ff 50%,
-        #e0e7ff 75%,
-        #cffafe 100%
-      );
-      background-size: 400% 400%;
-      animation: hero-gradient-shift 14s ease infinite;
-    }
-    @keyframes hero-gradient-shift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    .hero-name {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      line-height: 0.92;
-    }
+<Base
+  title="Sponsors | UCL Robotics Society"
+  description="Organisations supporting the UCL Robotics Society."
+>
+  <PageHeader
+    title="Our sponsors"
+    eyebrow="Partners"
+    lede="Our partners help us keep workshops, hardware and events open to every UCL student."
+  />
 
-    .fade-in {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .fade-in.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  </style>
+  <Container>
+    <section class="section" style="padding-top:48px">
+      {
+        sponsors.length ? (
+          <div class="sponsors">
+            {
+              sponsors.map((sponsor) => {
+                const logo = asset(sponsor.logo);
+                if (!logo) return null;
+                /* alt is empty until the committee supplies real names — an
+                   invented name would be worse than none. See data/sponsors.ts */
+                const img = (
+                  <Image class="logo-img" src={logo} alt={sponsor.name} widths={[180, 280]} loading="lazy" />
+                );
+                return sponsor.url ? <a href={sponsor.url}>{img}</a> : img;
+              })
+            }
+          </div>
+        ) : (
+          <p class="lede">We're looking for our first partners.</p>
+        )
+      }
+    </section>
 
-  <section class="relative hero-gradient min-h-[60vh] md:min-h-[70vh] flex items-center fade-in">
-    <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center">
-      <h1 class="hero-name text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-slate-900">
-        Sponsors
-      </h1>
-    </div>
-  </section>
-
-  <section class="mx-auto max-w-6xl px-4 py-12 fade-in">
-    <div class="text-center fade-in">
-      <p class="text-3xl md:text-4xl font-bold tracking-wide text-purple-600 fade-in">OUR SPONSORS</p>
-    </div>
-
-    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {goldSponsors.map((sponsor, index) => (
-        <div class="rounded-2xl border border-slate-200 bg-white p-3 flex items-center justify-center h-40 fade-in" data-delay={`${index * 120}ms`}>
-          <img
-            src={sponsor.logo}
-            alt={sponsor.name}
-            class="w-full h-full rounded-full object-contain bg-white"
-          />
-        </div>
-      ))}
-    </div>
-  </section>
+    <section class="section">
+      <SectionHeader title="Partner with us" />
+      <div class="prose-body">
+        <p>
+          Sponsoring the society puts your organisation in front of students building real robotic
+          systems — through workshops, hardware, event branding and direct recruitment.
+        </p>
+        <p>
+          To talk about sponsorship, email us at
+          <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a>.
+        </p>
+      </div>
+      <div class="acts">
+        <a class="btn" href="mailto:robosoc@ucl.ac.uk">Get in touch</a>
+        <a class="btn btn-o" href="/contact">Contact page</a>
+      </div>
+    </section>
+  </Container>
 </Base>
-
-<script>
-  const fadeEls = Array.from(document.querySelectorAll('.fade-in'));
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const el = entry.target as HTMLElement;
-      const delay = el.getAttribute('data-delay');
-      if (delay) {
-        el.style.transitionDelay = delay;
-      }
-      if (entry.isIntersecting) {
-        el.classList.add('is-visible');
-      } else {
-        el.classList.remove('is-visible');
-      }
-    });
-  }, { threshold: 0.15 });
-
-  fadeEls.forEach((el) => observer.observe(el));
-</script>

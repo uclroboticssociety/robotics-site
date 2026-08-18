@@ -1,93 +1,75 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
+import Container from "../components/ui/Container.astro";
+import SectionHeader from "../components/ui/SectionHeader.astro";
+
+const membershipUrl = "https://studentsunionucl.org/clubs-societies/robotics-society";
+
+const included = [
+  {
+    title: "Workshops and taster sessions",
+    body: "Hands-on sessions across the robotics stack, from electronics and CAD to control and AI. No prior experience needed.",
+  },
+  {
+    title: "Projects",
+    body: "Team-based builds you can join at any level, running through the year.",
+  },
+  {
+    title: "Socials",
+    body: "Film nights, board games and bowling — the society is a community, not just a lab.",
+  },
+  {
+    title: "Equipment, space and training",
+    body: "Your membership fee supports the hardware, space and training sessions that keep activities affordable for everyone.",
+  },
+];
 ---
-<Base title="Join — Robotics Society" description="Join Robotics Society membership.">
-  <style is:global>
-    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&display=swap");
-  </style>
-  <style>
-    .hero-gradient {
-      background: linear-gradient(
-        -45deg,
-        #eef2ff 0%,
-        #e0f2fe 25%,
-        #f0f9ff 50%,
-        #e0e7ff 75%,
-        #cffafe 100%
-      );
-      background-size: 400% 400%;
-      animation: hero-gradient-shift 14s ease infinite;
-    }
-    @keyframes hero-gradient-shift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    .hero-name {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      line-height: 0.92;
-    }
-    .fade-in {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .fade-in.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  </style>
 
-  <section class="relative hero-gradient min-h-[60vh] md:min-h-[70vh] flex items-center fade-in">
-    <div class="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center">
-      <h1 class="hero-name text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-slate-900">
-        Membership
-      </h1>
-      <p class="hero-name mt-6 text-xl md:text-2xl text-slate-600 fade-in" style="margin-top: 50pt;">
-        Our annual membership fee starts at just £10!
-      </p>
-    </div>
-  </section>
+<Base
+  title="Join Us | UCL Robotics Society"
+  description="Membership of the UCL Robotics Society is open to all UCL students and affiliates."
+>
+  <PageHeader
+    title="Membership"
+    eyebrow="Join us"
+    lede="Open to all UCL students and affiliates, whatever your background or experience."
+  />
 
-  <section class="mx-auto max-w-6xl px-4 py-12 md:py-16 fade-in">
-    <div class="mx-auto max-w-3xl text-center">
-      <div class="mt-0 text-left space-y-6 text-slate-700 leading-relaxed fade-in">
+  <Container>
+    <section class="section" style="padding-top:48px">
+      <div class="prose-body">
         <p>
-          Our membership is available to all UCL students and affiliates. It includes access to workshops,
-          socials, and projects throughout the year, plus opportunities to learn new tools and collaborate
-          with peers across disciplines. Your membership fee supports equipment, space, and training sessions,
-          while keeping activities affordable for everyone.
+          Our membership is available to all UCL students and affiliates. It includes access to
+          workshops, socials, and projects throughout the year, plus opportunities to learn new tools
+          and collaborate with peers across disciplines. Your membership fee supports equipment,
+          space, and training sessions, while keeping activities affordable for everyone.
         </p>
         <p>
-          New to robotics? Try our taster sessions first and join when you’re ready. Membership can be
-          obtained via the Students' Union website. Email us at robosoc@ucl.ac.uk if you have any questions.
+          New to robotics? Try our taster sessions first and join when you're ready. Membership can
+          be obtained via the Students' Union website. Email us at
+          <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a> if you have any questions.
         </p>
       </div>
-      <a
-        href="https://studentsunionucl.org/clubs-societies/robotics-society"
-        class="mt-10 inline-flex items-center justify-center rounded-full bg-indigo-600 px-8 py-3 text-sm font-semibold tracking-wide text-white hover:bg-indigo-700 fade-in"
-        target="_blank"
-        rel="noreferrer"
-      >
-        BUY MEMBERSHIP
-      </a>
-    </div>
-  </section>
+
+      <div class="acts">
+        <a class="btn" href={membershipUrl} target="_blank" rel="noreferrer">Buy membership</a>
+        <a class="btn btn-o" href="/events">See what's on</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <SectionHeader title="What's included" />
+      <div class="rule-list">
+        {
+          included.map((item) => (
+            <div>
+              <h3>{item.title}</h3>
+              <p style="color:var(--color-muted);margin:8px 0 0;max-width:60ch">{item.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </Container>
 </Base>
-
-<script>
-  const fadeEls = Array.from(document.querySelectorAll('.fade-in'));
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const el = entry.target;
-      if (entry.isIntersecting) {
-        el.classList.add('is-visible');
-      } else {
-        el.classList.remove('is-visible');
-      }
-    });
-  }, { threshold: 0.15 });
-
-  fadeEls.forEach((el) => observer.observe(el));
-</script>

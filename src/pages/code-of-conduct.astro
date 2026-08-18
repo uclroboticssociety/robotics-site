@@ -1,0 +1,42 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
+import Container from "../components/ui/Container.astro";
+
+/**
+ * TODO (committee): this page is a scaffold. The footer has always linked to a
+ * code of conduct, but no text for one exists anywhere in this repository, and
+ * a code of conduct is a real commitment about how the society handles
+ * behaviour and complaints — so it is not something to draft on your behalf.
+ *
+ * Replace the notice block below with your actual policy. Keep the structure:
+ * page header, prose at 70ch, h2 per section, rule dividers between sections.
+ * UCL's Students' Union may already have a template you are required to adopt.
+ */
+---
+
+<Base
+  title="Code of Conduct | UCL Robotics Society"
+  description="The UCL Robotics Society code of conduct."
+>
+  <PageHeader title="Code of conduct" eyebrow="Legal" />
+
+  <Container>
+    <section class="section" style="padding-top:48px">
+      <div class="prose-body">
+        <div class="notice">
+          <p>
+            <strong>This page is being finalised.</strong> The society's written code of conduct is
+            not yet published here.
+          </p>
+          <p>
+            In the meantime, all society activities are covered by the UCL Students' Union rules for
+            clubs and societies. If you need to raise a concern about someone's behaviour at one of
+            our events, email the committee at
+            <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a> and we will deal with it.
+          </p>
+        </div>
+      </div>
+    </section>
+  </Container>
+</Base>

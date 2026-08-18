@@ -1,8 +1,15 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { getCollection } from "astro:content";
+import { Image, getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import EventsLayout from "../../components/events/EventsLayout.astro";
+import PageHeader from "../../components/ui/PageHeader.astro";
+import SectionHeader from "../../components/ui/SectionHeader.astro";
+import ProjectCard from "../../components/ui/ProjectCard.astro";
+import JoinCTA from "../../components/ui/JoinCTA.astro";
+import Container from "../../components/ui/Container.astro";
+import { coverOf } from "../../lib/projects";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
@@ -32,14 +39,17 @@ const sorted = projects
 
 const projectSidebar = [
   {
-    id: "vla",
-    emoji: "🤖",
+    id: "vla" as const,
     title: "VLA",
+    label: "VLA",
     href: "/projects",
     description: "Vision-Language-Action research and build track.",
-    tag: "vla",
+    tag: "vla" as never,
   },
 ];
+
+const cover = coverOf(project);
+const otherProjects = sorted.filter((entry) => entry.id !== project.id);
 
 const recentByInitiative = {
   vla: sorted.map((entry) => ({
@@ -180,18 +190,34 @@ const baseDir = (project.filePath ?? "")
   .split("/")
   .slice(0, -1)
   .join("/");
+/**
+ * See the note in events/[...slug].astro: ImageMetadata.src is the original
+ * file, so body images are converted to webp up front instead of shipping
+ * full-size PNGs. VLA2 alone carries 25 of them.
+ */
+const optimised = new Map<string, string>();
+for (const [key, image] of Object.entries(imageMap)) {
+  if (!key.startsWith(`/src/content/projects/${baseDir}/`)) continue;
+  const result = await getImage({
+    src: image,
+    width: Math.min(image.width, 1200),
+    format: "webp",
+  });
+  optimised.set(key, result.src);
+}
+
 const resolveImage = (file: string) => {
   const directKey = `/src/content/projects/${baseDir}/${file}`;
   const fallbackKey = `/src/content/projects/${file}`;
   const image = imageMap[directKey] ?? imageMap[fallbackKey];
-  return image?.src ?? "";
+  return optimised.get(directKey) ?? optimised.get(fallbackKey) ?? image?.src ?? "";
 };
 const resolveFolderImages = (folder: string) => {
   const folderPrefix = `/src/content/projects/${baseDir}/${folder}/`;
   return Object.entries(imageMap)
     .filter(([key]) => key.startsWith(folderPrefix))
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([, value]) => value.src);
+    .map(([key, value]) => optimised.get(key) ?? value.src);
 };
 const resolvePdf = (file: string) => {
   const directKey = `/src/content/projects/${baseDir}/${file}`;
@@ -220,11 +246,7 @@ const renderMarkdown = (text: string) => {
 
   const closeParagraph = () => {
     if (!paragraph.length) return;
-    html.push(
-      `<p class="text-base md:text-lg leading-relaxed text-slate-700">${renderInline(
-        paragraph.join(" ")
-      )}</p>`
-    );
+    html.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
     paragraph = [];
   };
 
@@ -236,7 +258,7 @@ const renderMarkdown = (text: string) => {
   };
 
   const openList = () => {
-    html.push('<ul class="list-disc pl-6 space-y-1 text-slate-700">');
+    html.push("<ul>");
     listStack.push(1);
   };
 
@@ -250,29 +272,21 @@ const renderMarkdown = (text: string) => {
     if (trimmed === "---") {
       closeParagraph();
       closeLists(0);
-      html.push('<hr class="my-6 border-slate-200" />');
+      html.push("<hr />");
       return;
     }
 
     if (trimmed.startsWith("## ")) {
       closeParagraph();
       closeLists(0);
-      html.push(
-        `<h2 class="mt-6 mb-2 text-xl md:text-2xl font-semibold text-slate-900">${renderInline(
-          trimmed.slice(3)
-        )}</h2>`
-      );
+      html.push(`<h2>${renderInline(trimmed.slice(3))}</h2>`);
       return;
     }
 
     if (trimmed.startsWith("### ")) {
       closeParagraph();
       closeLists(0);
-      html.push(
-        `<h3 class="mt-4 text-lg md:text-xl font-semibold text-slate-900">${renderInline(
-          trimmed.slice(4)
-        )}</h3>`
-      );
+      html.push(`<h3>${renderInline(trimmed.slice(4))}</h3>`);
       return;
     }
 
@@ -301,69 +315,38 @@ const renderMarkdown = (text: string) => {
 };
 ---
 
-<Base title={`${project.data.title} — Robotics Society`}>
-  <style>
-    .fade-once {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
+<Base
+  title={`${project.data.title} | UCL Robotics Society`}
+  description={project.data.summary}
+>
+  <PageHeader title={project.data.title} eyebrow="Project" rule={false}>
+    <div class="meta" style="margin-top:18px">
+      {project.data.lead && <>Lead — {project.data.lead}<br /></>}
+      Status — {project.data.status}
+      {project.data.repo && <><br />Repository — {project.data.repo}</>}
+    </div>
+    {
+      cover && (
+        <div class="detail-hero">
+          <Image src={cover} alt="" widths={[720, 1080, 1440]} sizes="100vw" loading="eager" />
+        </div>
+      )
     }
-    .fade-once.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .scroll-frame {
-      width: 100%;
-      border-radius: 16px;
-      overflow-x: auto;
-      border: 1px solid rgb(226 232 240);
-      background: #f8fafc;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-    }
-    .scroll-track {
-      display: flex;
-      gap: 12px;
-      padding: 10px;
-      min-width: 100%;
-    }
-    .scroll-track img {
-      flex: 0 0 100%;
-      aspect-ratio: 16 / 9;
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-      border-radius: 12px;
-      scroll-snap-align: start;
-    }
-    .space-block {
-      height: var(--space-height);
-    }
-  </style>
+  </PageHeader>
+
   <EventsLayout
-    title={project.data.title}
     initiatives={projectSidebar}
+    sidebarTitle="Explore projects"
     currentId="vla"
     recentByInitiative={recentByInitiative}
     currentEventHref={`/projects/${project.id}`}
-    showHeader={false}
   >
-    <section>
-      <article class="mx-auto max-w-3xl fade-once">
-        <header class="border-b border-slate-200 pb-6">
-          <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
-            {project.data.title}
-          </h1>
-          <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-            {project.data.lead && <span>Lead: {project.data.lead}</span>}
-          </div>
-        </header>
-        <div class="mt-8 space-y-6">
+    <article class="prose-body">
+        <div class="segments">
           {segments.map((segment, segmentIndex) => {
             const normalized = normalizeSegment(segment);
             return (
-              <div class="space-y-6" data-segment={segmentIndex}>
+              <div class="segments" data-segment={segmentIndex}>
                 {(() => {
                   const rendered: any[] = [];
                   for (let i = 0; i < normalized.length; i += 1) {
@@ -375,19 +358,19 @@ const renderMarkdown = (text: string) => {
                       const widthA = block.width;
                       const widthB = next.width;
                       const useFlex = widthA || widthB;
-                      const rowClass = useFlex ? "flex flex-wrap gap-4 items-start justify-center" : "grid gap-4 md:grid-cols-2";
+                      const rowClass = useFlex ? "pair-loose" : "pair";
                       rendered.push(
                         <div class={rowClass}>
                           {srcA ? (
                             <img
                               src={srcA}
                               alt={imageAlt(block.value)}
-                              class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                              class="content-img"
                               style={widthA ? `width:${widthA}%; margin-left:auto; margin-right:auto;` : undefined}
                               loading="lazy"
                             />
                           ) : (
-                            <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                            <div class="missing">
                               Image not found: {block.value}
                             </div>
                           )}
@@ -395,12 +378,12 @@ const renderMarkdown = (text: string) => {
                             <img
                               src={srcB}
                               alt={imageAlt(next.value)}
-                              class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                              class="content-img"
                               style={widthB ? `width:${widthB}%; margin-left:auto; margin-right:auto;` : undefined}
                               loading="lazy"
                             />
                           ) : (
-                            <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                            <div class="missing">
                               Image not found: {next.value}
                             </div>
                           )}
@@ -454,16 +437,16 @@ const renderMarkdown = (text: string) => {
                           <img
                             src={mediaImages[0]}
                             alt={imageAlt(block.media.value as string)}
-                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            class="content-img"
                             loading="lazy"
                           />
                         ) : (
-                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                          <div class="missing">
                             Image not found: {block.media.value as string}
                           </div>
                         );
                       rendered.push(
-                        <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <div class="split">
                           {mediaLeft && mediaNode}
                           <div set:html={renderMarkdown(block.text)} />
                           {!mediaLeft && mediaNode}
@@ -479,12 +462,12 @@ const renderMarkdown = (text: string) => {
                           <img
                             src={src}
                             alt={imageAlt(block.value)}
-                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            class="content-img"
                             style={block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : undefined}
                             loading="lazy"
                           />
                         ) : (
-                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                          <div class="missing">
                             Image not found: {block.value}
                           </div>
                         )
@@ -499,11 +482,11 @@ const renderMarkdown = (text: string) => {
                           <iframe
                             src={src}
                             title={block.value}
-                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            class="content-img"
                             style={`${block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : ""} height: 70vh;`}
                           ></iframe>
                         ) : (
-                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                          <div class="missing">
                             PDF not found: {block.value}
                           </div>
                         )
@@ -524,22 +507,32 @@ const renderMarkdown = (text: string) => {
             );
           })}
         </div>
-      </article>
-    </section>
+    </article>
+
+    {
+      otherProjects.length > 0 && (
+        <section class="section">
+          <SectionHeader title="Other projects" linkHref="/projects" linkLabel="All projects →" />
+          <div class="g2">
+            {otherProjects.map((entry) => (
+              <ProjectCard
+                href={`/projects/${entry.id}`}
+                title={entry.data.title}
+                summary={entry.data.summary}
+                attribution={entry.data.lead ? `Lead — ${entry.data.lead}` : undefined}
+                image={coverOf(entry)}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
   </EventsLayout>
+
+  <Container>
+    <JoinCTA
+      title="Join this project"
+      body="Projects are open to members at any level. Join the society and come to a session."
+    />
+  </Container>
 </Base>
-
-<script>
-  const content = document.querySelector('.fade-once');
-  if (content) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: 0.2 });
-
-    observer.observe(content);
-  }
-</script>

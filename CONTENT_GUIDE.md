@@ -111,9 +111,21 @@ src/
 ├─ layouts/Base.astro        ← <html> shell: head, navbar, footer
 └─ styles/global.css
 
+├─ assets/                   ← page photos (committee, advisors, mission, sponsors)
+└─ data/                     ← committee, advisors, sponsors, nav, footer, site config
+
 public/                      ← static files served as-is (logo.png → /logo.png)
 scripts/pdf_to_images.py     ← helper: turn a PDF/slide deck into page images
 ```
+
+**Where photos go.** Anything in `public/` is copied to the site byte-for-byte
+and is **never compressed or resized**, so a 4 MB phone photo stays 4 MB for
+every visitor. Only genuinely static files belong there — the favicon and the
+logo. Photos belong in one of two places, both of which Astro optimises to webp:
+
+- an event or project photo → that entry's own folder in `src/content/`
+- a committee/advisor/mission/sponsor photo → `src/assets/`, listed in the
+  matching file in `src/data/`
 
 **Rule of thumb:** if you are adding *content*, you work in `src/content/`. If you are changing *how content looks*, you work in `src/pages/` or `src/components/`.
 
@@ -517,7 +529,7 @@ Content images live in Git, and the repo already carries roughly 56 MB of them. 
 
 ### Where images can live
 
-Images must sit **in the entry's own folder** (or a subfolder of it, for `[scroll_folder]`). An image in a different event's folder won't resolve - you'll see a dashed *"Image not found: x.png"* box on the page. Site-wide assets such as the logo and favicon go in `public/`, referenced with a leading slash: `/logo.png`.
+Images must sit **in the entry's own folder** (or a subfolder of it, for `[scroll_folder]`). An image in a different event's folder won't resolve - you'll see a dashed *"Image not found: x.png"* box on the page. Committee, advisor, mission and sponsor photos go in `src/assets/` and are listed in `src/data/`. Only the logo and favicon belong in `public/`, referenced with a leading slash: `/logo.png`.
 
 ### Turning a PDF or slide deck into images
 

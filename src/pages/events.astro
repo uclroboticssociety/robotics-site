@@ -1,140 +1,57 @@
 ---
-import Base from "../layouts/Base.astro";
 import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
 import EventsLayout from "../components/events/EventsLayout.astro";
+import SectionHeader from "../components/ui/SectionHeader.astro";
+import EventRow from "../components/ui/EventRow.astro";
+import JoinCTA from "../components/ui/JoinCTA.astro";
+import Container from "../components/ui/Container.astro";
 import { initiatives } from "../data/events";
+import { byDateDesc, folderOf } from "../lib/events";
 
 const allEvents = await getCollection("events");
-const sortByDate = (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
-const workshops = allEvents.filter((e) => e.data.tags?.includes("workshop")).sort(sortByDate);
-const hackathons = allEvents.filter((e) => e.data.tags?.includes("hackathon")).sort(sortByDate);
-const challenges = allEvents.filter((e) => e.data.tags?.includes("challenge")).sort(sortByDate);
-const socials = allEvents.filter((e) => e.data.tags?.includes("social")).sort(sortByDate);
+const sorted = [...allEvents].sort(byDateDesc);
 
-const folderLabel = (event) => event.filePath?.split("/").slice(-2, -1)[0] ?? event.data.title;
-const recentByInitiative = {
-  workshops: workshops.map((event) => ({
-    title: folderLabel(event),
-    href: `/events/${event.id}`,
-  })),
-  hackathons: hackathons.map((event) => ({
-    title: folderLabel(event),
-    href: `/events/${event.id}`,
-  })),
-  challenges: challenges.map((event) => ({
-    title: folderLabel(event),
-    href: `/events/${event.id}`,
-  })),
-  socials: socials.map((event) => ({
-    title: folderLabel(event),
-    href: `/events/${event.id}`,
-  })),
-};
-const latestThree = [...allEvents].sort(sortByDate).slice(0, 3);
+// The sidebar label uses the folder name, which is also the URL, so the two
+// always agree. See CONTENT_GUIDE.md.
+const listFor = (tag: string) =>
+  sorted
+    .filter((event) => event.data.tags?.includes(tag))
+    .map((event) => ({ title: folderOf(event), href: `/events/${event.id}` }));
 
-const tagLabels: Record<string, string> = {
-  workshop: "Workshop",
-  hackathon: "Hackathon",
-  challenge: "Challenge",
-  social: "Social",
-};
-
-const latestTag = (entry) =>
-  entry?.data.tags?.map((tag) => tagLabels[tag]).find(Boolean);
-
-const formatDate = (iso: string) => {
-  const date = new Date(iso);
-  return date.toLocaleDateString("en-US", {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
+const recentByInitiative = Object.fromEntries(
+  initiatives.map((initiative) => [initiative.id, listFor(initiative.tag)])
+);
 ---
 
-<Base title="Events — UCL Robotics Society">
-  <style>
-    .slide-in {
-      opacity: 0;
-      transform: translateX(36px);
-      transition: opacity 1.1s ease, transform 1.1s ease;
-    }
-    .slide-in.is-visible {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  </style>
-  <EventsLayout
+<Base
+  title="Events | UCL Robotics Society"
+  description="Workshops, hackathons, challenges and socials run by the UCL Robotics Society."
+>
+  <PageHeader
     title="Events"
-    intro="Latest updates from our workshops, hackathons, challenges, and socials."
-    initiatives={initiatives}
-    recentByInitiative={recentByInitiative}
-  >
-    <section>
-      <h2 class="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900">Latest Events</h2>
-      {latestThree.length > 0 ? (
-        <div class="mt-6 grid gap-4">
-          {latestThree.map((entry, index) => {
-            const typeLabel = latestTag(entry);
-            return (
-              <article class="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-sm slide-in" data-delay={`${index * 120}ms`}>
-                <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-                  <span>{formatDate(entry.data.date)}</span>
-                  {typeLabel && (
-                    <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs uppercase tracking-wide text-slate-600">
-                      {typeLabel}
-                    </span>
-                  )}
-                </div>
-                <h3 class="mt-3 text-lg font-semibold text-slate-900">{entry.data.title}</h3>
-                {entry.data.location && (
-                  <p class="mt-2 flex items-center gap-1 text-slate-600">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    {entry.data.location}
-                  </p>
-                )}
-                <a
-                  href={`/events/${entry.id}`}
-                  class="mt-3 inline-flex items-center gap-1.5 text-indigo-600 font-medium hover:text-indigo-700 transition"
-                >
-                  More info
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </a>
-              </article>
-            );
-          })}
+    eyebrow="What's on"
+    lede="Workshops, hackathons, challenges and socials, open to every UCL student."
+    rule={false}
+  />
+
+  <EventsLayout initiatives={initiatives} recentByInitiative={recentByInitiative}>
+    <SectionHeader title="All events" meta={`${sorted.length} events`} />
+    {
+      sorted.length ? (
+        <div class="rows">
+          {sorted.map((event) => (
+            <EventRow event={event} />
+          ))}
         </div>
       ) : (
-        <p class="mt-6 text-slate-600">No events announced yet.</p>
-      )}
-    </section>
+        <p class="lede">No events announced yet.</p>
+      )
+    }
   </EventsLayout>
+
+  <Container>
+    <JoinCTA />
+  </Container>
 </Base>
-
-<script>
-  const cards = Array.from(document.querySelectorAll('.slide-in'));
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const el = entry.target;
-      const delay = el.getAttribute('data-delay');
-      if (delay) {
-        el.style.transitionDelay = delay;
-      }
-      if (entry.isIntersecting) {
-        el.classList.add('is-visible');
-      } else {
-        el.classList.remove('is-visible');
-      }
-    });
-  }, { threshold: 0.2 });
-
-  cards.forEach((el) => observer.observe(el));
-</script>

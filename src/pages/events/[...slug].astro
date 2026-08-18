@@ -1,9 +1,16 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { getCollection } from "astro:content";
+import { Image, getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import EventsLayout from "../../components/events/EventsLayout.astro";
+import PageHeader from "../../components/ui/PageHeader.astro";
+import SectionHeader from "../../components/ui/SectionHeader.astro";
+import EventRow from "../../components/ui/EventRow.astro";
+import JoinCTA from "../../components/ui/JoinCTA.astro";
+import Container from "../../components/ui/Container.astro";
 import { initiatives } from "../../data/events";
+import { byDateDesc, folderOf, longDate, thumbnailOf } from "../../lib/events";
 
 export async function getStaticPaths() {
   const allEvents = await getCollection("events");
@@ -22,31 +29,16 @@ if (!event) {
   throw new Error(`Event not found: ${slug ?? "unknown"}`);
 }
 
-const sortByDate = (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
-const workshops = allEvents.filter((e) => e.data.tags?.includes("workshop")).sort(sortByDate);
-const hackathons = allEvents.filter((e) => e.data.tags?.includes("hackathon")).sort(sortByDate);
-const challenges = allEvents.filter((e) => e.data.tags?.includes("challenge")).sort(sortByDate);
-const socials = allEvents.filter((e) => e.data.tags?.includes("social")).sort(sortByDate);
+const sorted = [...allEvents].sort(byDateDesc);
 
-const folderLabel = (item) => item.filePath?.split("/").slice(-2, -1)[0] ?? item.data.title;
-const recentByInitiative = {
-  workshops: workshops.map((item) => ({
-    title: folderLabel(item),
-    href: `/events/${item.id}`,
-  })),
-  hackathons: hackathons.map((item) => ({
-    title: folderLabel(item),
-    href: `/events/${item.id}`,
-  })),
-  challenges: challenges.map((item) => ({
-    title: folderLabel(item),
-    href: `/events/${item.id}`,
-  })),
-  socials: socials.map((item) => ({
-    title: folderLabel(item),
-    href: `/events/${item.id}`,
-  })),
-};
+const listFor = (tag: string) =>
+  sorted
+    .filter((entry) => entry.data.tags?.includes(tag))
+    .map((entry) => ({ title: folderOf(entry), href: `/events/${entry.id}` }));
+
+const recentByInitiative = Object.fromEntries(
+  initiatives.map((initiative) => [initiative.id, listFor(initiative.tag)])
+);
 
 const tagLabels: Record<string, string> = {
   workshop: "Workshop",
@@ -191,18 +183,37 @@ const baseDir = (event.filePath ?? "")
   .split("/")
   .slice(0, -1)
   .join("/");
+/**
+ * Body images are optimised up front rather than served as-is.
+ *
+ * ImageMetadata.src points at the *original* file, so using it directly shipped
+ * multi-megabyte PNGs straight to the reader (one source image here is 9.6 MB).
+ * getImage() converts each to webp at a sensible cap; the map is built once per
+ * page and resolveImage then works exactly as before.
+ */
+const optimised = new Map<string, string>();
+for (const [key, image] of Object.entries(imageMap)) {
+  if (!key.startsWith(`/src/content/events/${baseDir}/`)) continue;
+  const result = await getImage({
+    src: image,
+    width: Math.min(image.width, 1200),
+    format: "webp",
+  });
+  optimised.set(key, result.src);
+}
+
 const resolveImage = (file: string) => {
   const directKey = `/src/content/events/${baseDir}/${file}`;
   const fallbackKey = `/src/content/events/${file}`;
   const image = imageMap[directKey] ?? imageMap[fallbackKey];
-  return image?.src ?? "";
+  return optimised.get(directKey) ?? optimised.get(fallbackKey) ?? image?.src ?? "";
 };
 const resolveFolderImages = (folder: string) => {
   const folderPrefix = `/src/content/events/${baseDir}/${folder}/`;
   return Object.entries(imageMap)
     .filter(([key]) => key.startsWith(folderPrefix))
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([, value]) => value.src);
+    .map(([key, value]) => optimised.get(key) ?? value.src);
 };
 const resolvePdf = (file: string) => {
   const directKey = `/src/content/events/${baseDir}/${file}`;
@@ -231,11 +242,7 @@ const renderMarkdown = (text: string) => {
 
   const closeParagraph = () => {
     if (!paragraph.length) return;
-    html.push(
-      `<p class="text-base md:text-lg leading-relaxed text-slate-700">${renderInline(
-        paragraph.join(" ")
-      )}</p>`
-    );
+    html.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
     paragraph = [];
   };
 
@@ -247,7 +254,7 @@ const renderMarkdown = (text: string) => {
   };
 
   const openList = () => {
-    html.push('<ul class="list-disc pl-6 space-y-1 text-slate-700">');
+    html.push("<ul>");
     listStack.push(1);
   };
 
@@ -261,29 +268,21 @@ const renderMarkdown = (text: string) => {
     if (trimmed === "---") {
       closeParagraph();
       closeLists(0);
-      html.push('<hr class="my-6 border-slate-200" />');
+      html.push("<hr />");
       return;
     }
 
     if (trimmed.startsWith("## ")) {
       closeParagraph();
       closeLists(0);
-      html.push(
-        `<h2 class="mt-1 mb-2 text-xl md:text-2xl font-semibold text-slate-900">${renderInline(
-          trimmed.slice(3)
-        )}</h2>`
-      );
+      html.push(`<h2>${renderInline(trimmed.slice(3))}</h2>`);
       return;
     }
 
     if (trimmed.startsWith("### ")) {
       closeParagraph();
       closeLists(0);
-      html.push(
-        `<h3 class="mt-4 text-lg md:text-xl font-semibold text-slate-900">${renderInline(
-          trimmed.slice(4)
-        )}</h3>`
-      );
+      html.push(`<h3>${renderInline(trimmed.slice(4))}</h3>`);
       return;
     }
 
@@ -313,96 +312,49 @@ const renderMarkdown = (text: string) => {
 
 const primaryTag = event.data.tags?.map((tag) => tagLabels[tag]).find(Boolean);
 
-const formatDate = (iso: string) => {
-  const date = new Date(iso);
-  return date.toLocaleDateString("en-US", {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
+// Related events: same category, most recent first, excluding this one.
+const related = allEvents
+  .filter(
+    (entry) =>
+      entry.id !== event.id &&
+      entry.data.tags?.some((tag) => event.data.tags?.includes(tag))
+  )
+  .sort(byDateDesc)
+  .slice(0, 3);
+
+const heroImage = thumbnailOf(event);
 ---
 
-<Base title={`${event.data.title} — Robotics Society`}>
-  <style>
-    .fade-once {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
+<Base
+  title={`${event.data.title} | UCL Robotics Society`}
+  description={`${event.data.title}${event.data.location ? ` at ${event.data.location}` : ""} — UCL Robotics Society.`}
+>
+  <PageHeader title={event.data.title} eyebrow={primaryTag} rule={false}>
+    <div class="meta" style="margin-top:18px">
+      {longDate(event.data.date)}
+      {event.data.location && <><br />{event.data.location}</>}
+    </div>
+    {
+      heroImage && (
+        <div class="detail-hero">
+          <Image src={heroImage} alt="" widths={[720, 1080, 1440]} sizes="100vw" loading="eager" />
+        </div>
+      )
     }
-    .fade-once.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .scroll-frame {
-      width: 100%;
-      border-radius: 16px;
-      overflow-x: auto;
-      border: 1px solid rgb(226 232 240);
-      background: #f8fafc;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-    }
-    .scroll-track {
-      display: flex;
-      gap: 12px;
-      padding: 10px;
-      min-width: 100%;
-    }
-    .scroll-track img {
-      flex: 0 0 100%;
-      aspect-ratio: 16 / 9;
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-      border-radius: 12px;
-      scroll-snap-align: start;
-    }
-    .space-block {
-      height: var(--space-height);
-    }
-  </style>
+  </PageHeader>
+
   <EventsLayout
-    title={event.data.title}
     initiatives={initiatives}
     currentId={currentId}
     recentByInitiative={recentByInitiative}
     currentEventHref={currentEventHref}
-    showHeader={false}
   >
-    <section>
-      <article class="mx-auto max-w-3xl fade-once">
-        <header class="border-b border-slate-200 pb-6">
-          <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
-            {event.data.title}
-          </h1>
-          <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-            <span>{formatDate(event.data.date)}</span>
-            {primaryTag && (
-              <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs uppercase tracking-wide text-slate-600">
-                {primaryTag}
-              </span>
-            )}
-          </div>
-          {event.data.location && (
-            <p class="mt-3 flex items-center gap-1 text-slate-600">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
-              {event.data.location}
-            </p>
-          )}
-        </header>
-        <div class="mt-8 space-y-6">
+    <article class="prose-body">
+        <div class="segments">
           {segments.map((segment, segmentIndex) => {
             const normalized = normalizeSegment(segment);
             return (
-              <div class="space-y-6" data-segment={segmentIndex}>
+              <div class="segments" data-segment={segmentIndex}>
                 {(() => {
                   const rendered: any[] = [];
                   for (let i = 0; i < normalized.length; i += 1) {
@@ -414,19 +366,19 @@ const formatDate = (iso: string) => {
                       const widthA = block.width;
                       const widthB = next.width;
                       const useFlex = widthA || widthB;
-                      const rowClass = useFlex ? "flex flex-wrap gap-4 items-start justify-center" : "grid gap-4 md:grid-cols-2";
+                      const rowClass = useFlex ? "pair-loose" : "pair";
                       rendered.push(
                         <div class={rowClass}>
                           {srcA ? (
                             <img
                               src={srcA}
                               alt={imageAlt(block.value)}
-                              class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                              class="content-img"
                               style={widthA ? `width:${widthA}%; margin-left:auto; margin-right:auto;` : undefined}
                               loading="lazy"
                             />
                           ) : (
-                            <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                            <div class="missing">
                               Image not found: {block.value}
                             </div>
                           )}
@@ -434,12 +386,12 @@ const formatDate = (iso: string) => {
                             <img
                               src={srcB}
                               alt={imageAlt(next.value)}
-                              class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                              class="content-img"
                               style={widthB ? `width:${widthB}%; margin-left:auto; margin-right:auto;` : undefined}
                               loading="lazy"
                             />
                           ) : (
-                            <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                            <div class="missing">
                               Image not found: {next.value}
                             </div>
                           )}
@@ -493,16 +445,16 @@ const formatDate = (iso: string) => {
                           <img
                             src={mediaImages[0]}
                             alt={imageAlt(block.media.value as string)}
-                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            class="content-img"
                             loading="lazy"
                           />
                         ) : (
-                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                          <div class="missing">
                             Image not found: {block.media.value as string}
                           </div>
                         );
                       rendered.push(
-                        <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <div class="split">
                           {mediaLeft && mediaNode}
                           <div set:html={renderMarkdown(block.text)} />
                           {!mediaLeft && mediaNode}
@@ -518,12 +470,12 @@ const formatDate = (iso: string) => {
                           <img
                             src={src}
                             alt={imageAlt(block.value)}
-                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            class="content-img"
                             style={block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : undefined}
                             loading="lazy"
                           />
                         ) : (
-                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                          <div class="missing">
                             Image not found: {block.value}
                           </div>
                         )
@@ -538,11 +490,11 @@ const formatDate = (iso: string) => {
                           <iframe
                             src={src}
                             title={block.value}
-                            class="w-full rounded-2xl border border-slate-200 bg-white/80 shadow-sm"
+                            class="content-img"
                             style={`${block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : ""} height: 70vh;`}
                           ></iframe>
                         ) : (
-                          <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-sm text-slate-500">
+                          <div class="missing">
                             PDF not found: {block.value}
                           </div>
                         )
@@ -563,22 +515,23 @@ const formatDate = (iso: string) => {
             );
           })}
         </div>
-      </article>
-    </section>
+    </article>
+
+    {
+      related.length > 0 && (
+        <section class="section">
+          <SectionHeader title="Related events" linkHref="/events" linkLabel="All events →" />
+          <div class="rows">
+            {related.map((entry) => (
+              <EventRow event={entry} />
+            ))}
+          </div>
+        </section>
+      )
+    }
   </EventsLayout>
+
+  <Container>
+    <JoinCTA />
+  </Container>
 </Base>
-
-<script>
-  const content = document.querySelector('.fade-once');
-  if (content) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px 20% 0px" });
-
-    observer.observe(content);
-  }
-</script>

@@ -1,0 +1,45 @@
+---
+import { Image } from "astro:assets";
+import { initialsOf } from "../../data/committee";
+import { asset } from "../../lib/assets";
+
+/**
+ * Committee / advisory portrait tile. When there is no photo the tile shows the
+ * member's initials over the radial gradient — that is the designed fallback,
+ * not a placeholder, so a member can be listed before their headshot exists.
+ */
+type Props = {
+  name: string;
+  role: string;
+  /** Path relative to src/assets, e.g. "committee/1.png". */
+  photo?: string;
+};
+
+const { name, role, photo } = Astro.props;
+const image = asset(photo);
+---
+
+<div class="member">
+  <div class="face">
+    {/* Initials sit underneath the photo, so a slow or broken image reveals a
+        designed fallback rather than a gap. The portrait itself is decorative:
+        the member's name is already adjacent text, so alt is empty. */}
+    <span aria-hidden="true">{initialsOf(name)}</span>
+    {
+      image && (
+        <Image
+          src={image}
+          alt=""
+          widths={[240, 360]}
+          sizes="(max-width: 1000px) 50vw, 25vw"
+          loading="lazy"
+          decoding="async"
+        />
+      )
+    }
+  </div>
+  <div class="n">
+    <b>{name}</b>
+    <span>{role}</span>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+---
+/**
+ * Counts down to a real event start time.
+ *
+ * The digits are deliberately empty in the HTML and filled on the client:
+ * this is a static site, so a server-rendered figure would be the build time's
+ * answer, not the visitor's. Computing in the browser also means the countdown
+ * runs in the visitor's local time.
+ *
+ * If the start time has already passed when the page loads (or passes while it
+ * is open), the chips are replaced by "Happening now" rather than counting
+ * into negative numbers.
+ */
+type Props = {
+  /** ISO 8601 start time, straight from the event frontmatter. */
+  datetime: string;
+};
+
+const { datetime } = Astro.props;
+
+const units = [
+  ["days", "Days"],
+  ["hours", "Hrs"],
+  ["minutes", "Min"],
+  ["seconds", "Sec"],
+] as const;
+---
+
+<div class="count" data-countdown data-target={datetime}>
+  {
+    units.map(([key, label]) => (
+      <div class="u">
+        <strong data-unit={key} />
+        <span>{label}</span>
+      </div>
+    ))
+  }
+</div>
+
+<p class="happening" data-happening hidden>
+  <i aria-hidden="true"></i>
+  Happening now
+</p>
+
+<script>
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  document.querySelectorAll<HTMLElement>("[data-countdown]").forEach((root) => {
+    const target = new Date(root.dataset.target ?? "").getTime();
+    if (Number.isNaN(target)) return;
+
+    const happening = root.parentElement?.querySelector<HTMLElement>("[data-happening]");
+    const fields = {
+      days: root.querySelector<HTMLElement>('[data-unit="days"]'),
+      hours: root.querySelector<HTMLElement>('[data-unit="hours"]'),
+      minutes: root.querySelector<HTMLElement>('[data-unit="minutes"]'),
+      seconds: root.querySelector<HTMLElement>('[data-unit="seconds"]'),
+    };
+
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    const tick = () => {
+      const remaining = target - Date.now();
+
+      if (remaining <= 0) {
+        root.hidden = true;
+        if (happening) happening.hidden = false;
+        if (timer) clearInterval(timer);
+        return;
+      }
+
+      if (fields.days) fields.days.textContent = pad(Math.floor(remaining / 86400000));
+      if (fields.hours) fields.hours.textContent = pad(Math.floor(remaining / 3600000) % 24);
+      if (fields.minutes) fields.minutes.textContent = pad(Math.floor(remaining / 60000) % 60);
+      if (fields.seconds) fields.seconds.textContent = pad(Math.floor(remaining / 1000) % 60);
+    };
+
+    tick();
+    timer = setInterval(tick, 1000);
+  });
+</script>
