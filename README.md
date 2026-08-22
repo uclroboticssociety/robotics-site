@@ -1,22 +1,22 @@
 # UCL Robotics Society Website
 
-[![Deployed on Cloudflare Pages](https://img.shields.io/badge/Deployed%20on-Cloudflare%20Pages-F38020?logo=cloudflare&logoColor=white)](https://uclrobotics.co.uk)
+[![Deployed on Cloudflare Pages](https://img.shields.io/badge/Deployed%20on-Cloudflare%20Pages-F38020?logo=cloudflare&logoColor=white)](https://uclrobotics.com)
 [![Built with Astro](https://img.shields.io/badge/Built%20with-Astro-BC52EE?logo=astro&logoColor=white)](https://astro.build/)
 [![Styled with TailwindCSS](https://img.shields.io/badge/Styled%20with-TailwindCSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
 Official website of the **UCL Robotics Society**, built with [Astro](https://astro.build/) and [TailwindCSS](https://tailwindcss.com/).  
 Hosted on **Cloudflare Pages** and connected to our custom domain:
 
-**[https://uclrobotics.co.uk](https://uclrobotics.co.uk)**
+**[https://uclrobotics.com](https://uclrobotics.com)**
 
-> **Adding an event, workshop, hackathon, social or project?** See **[CONTENT_GUIDE.md](CONTENT_GUIDE.md)** - the full guide to maintaining the site's content: how Astro's content layer works, frontmatter fields, page syntax, images, and troubleshooting.
+> **Adding an event, workshop, hackathon, social or project?** See **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)** - the full guide to maintaining the site's content: how Astro's content layer works, frontmatter fields, page syntax, images, and troubleshooting.
 
 ---
 
 ## Read this first
 
 > ### `main` is the live website.
-> Anything merged into `main` is public at [uclrobotics.co.uk](https://uclrobotics.co.uk) within minutes. No staging step, no undo button. Work on `dev` or a feature branch.
+> Anything merged into `main` is public at [uclrobotics.com](https://uclrobotics.com) within minutes. No staging step, no undo button. Work on `dev` or a feature branch.
 
 | ✅ Do | ❌ Don't |
 |---|---|
@@ -25,7 +25,7 @@ Hosted on **Cloudflare Pages** and connected to our custom domain:
 | Click the PR's Cloudflare preview URL and look at the page | Merge on a green tick alone |
 | One commit per logical change, named for what changed | `update`, a bare date, or `V6` |
 
-This table covers git and deployment only. The content rules (folders, frontmatter, images) are in [CONTENT_GUIDE.md](CONTENT_GUIDE.md). Full git detail is [below](#git-workflow-and-pull-requests).
+This table covers git and deployment only. The content rules (folders, frontmatter, images) are in [docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md). Full git detail is [below](#git-workflow-and-pull-requests).
 
 ---
 
@@ -34,10 +34,11 @@ This table covers git and deployment only. The content rules (folders, frontmatt
 | File | For |
 |---|---|
 | `README.md` | Setup, git workflow, pull requests, deployment, domain |
-| [`CONTENT_GUIDE.md`](CONTENT_GUIDE.md) | Adding events, projects, images and page content |
+| [`docs/CONTENT_GUIDE.md`](docs/CONTENT_GUIDE.md) | Adding events, projects, images and page content |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | Design tokens, the component set, and rules for extending the look |
 | [`CLAUDE.md`](CLAUDE.md) | Instructions for AI coding agents. `AGENTS.md` is a symlink to it |
 
-If you use an AI coding agent (Claude Code, Cursor, Copilot), `CLAUDE.md` is picked up automatically and tells it the conventions and the traps in this codebase. Point the agent at it if your tool reads neither name. **When you change how this repo works, update `CLAUDE.md` too**, otherwise the next person's agent will confidently do the old thing.
+`CLAUDE.md` stays at the repo root, not in `docs/`, because that's where AI coding agents (Claude Code, Cursor, Copilot) look for it automatically. If you use one, it's picked up without you doing anything, and tells it the conventions and the traps in this codebase. Point the agent at it if your tool reads neither name. **When you change how this repo works, update `CLAUDE.md` too**, otherwise the next person's agent will confidently do the old thing.
 
 ---
 
@@ -92,7 +93,7 @@ git commit -m "Update homepage or content"
 git push
 ```
 
-That is the shortcut for a typo fix. Anything larger: [Git workflow and pull requests](#git-workflow-and-pull-requests). Content pre-push checks: [Publishing checklist](CONTENT_GUIDE.md#publishing-checklist).
+That is the shortcut for a typo fix. Anything larger: [Git workflow and pull requests](#git-workflow-and-pull-requests). Content pre-push checks: [Publishing checklist](docs/CONTENT_GUIDE.md#publishing-checklist).
 
 ---
 
@@ -168,7 +169,7 @@ Do not squash a branch whose commits are each worth keeping. If one of them may 
 
 Add committee members under **Settings → Collaborators → Add person**. They clone and work the same way.
 
-When the committee changes over, work through the [Handover checklist](CONTENT_GUIDE.md#handover-checklist).
+When the committee changes over, work through the [Handover checklist](docs/CONTENT_GUIDE.md#handover-checklist).
 
 ---
 
@@ -186,7 +187,7 @@ If you ever need to manually trigger a new deployment:
 ## Domain & DNS Setup (for reference)
 | Provider | Purpose |
 |---|---|
-| Namecheap | Domain purchase (uclrobotics.co.uk) |
+| Namecheap | Domain purchase (uclrobotics.com) |
 | Cloudflare | DNS management & HTTPS |
 | GitHub | Source code repository |
 | Cloudflare Pages | Hosting & deployment automation |

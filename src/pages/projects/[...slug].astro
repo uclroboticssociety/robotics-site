@@ -321,9 +321,9 @@ const renderMarkdown = (text: string) => {
 >
   <PageHeader title={project.data.title} eyebrow="Project" rule={false}>
     <div class="meta" style="margin-top:18px">
-      {project.data.lead && <>Lead — {project.data.lead}<br /></>}
-      Status — {project.data.status}
-      {project.data.repo && <><br />Repository — {project.data.repo}</>}
+      {project.data.lead && <>Lead - {project.data.lead}<br /></>}
+      Status - {project.data.status}
+      {project.data.repo && <><br />Repository - {project.data.repo}</>}
     </div>
     {
       cover && (
@@ -519,7 +519,7 @@ const renderMarkdown = (text: string) => {
                 href={`/projects/${entry.id}`}
                 title={entry.data.title}
                 summary={entry.data.summary}
-                attribution={entry.data.lead ? `Lead — ${entry.data.lead}` : undefined}
+                attribution={entry.data.lead ? `Lead - ${entry.data.lead}` : undefined}
                 image={coverOf(entry)}
               />
             ))}

@@ -17,4 +17,4 @@ export const site = {
 };
 
 export const statusPillText = () =>
-  `Session ${site.session} — ${site.registrationOpen ? "Registration open" : "Registration closed"}`;
+  `Session ${site.session} - ${site.registrationOpen ? "Registration open" : "Registration closed"}`;

@@ -7,7 +7,7 @@
    Every component in the site references these tokens; there should be no
    stray hex values anywhere else in src/.
 
-   See DESIGN.md for what each token is for and how to extend the language.
+   See docs/DESIGN.md for what each token is for and how to extend the language.
    ========================================================================== */
 
 @theme {

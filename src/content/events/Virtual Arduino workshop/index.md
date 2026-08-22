@@ -1,12 +1,12 @@
 ---
 title: "Virtual Arduino workshop"
 date: "2025-11-10T16:00:00+00:00"
-location: "UCL Main Campus — IOE"
+location: "UCL Main Campus - IOE"
 signup_url: "https://forms.gle/xxxx"
 tags: ["workshop","induction"]
 ---
 /!!!
-A beginner-friendly, hands-on introduction to Arduino programming and hardware control — fully virtual, no physical hardware required.
+A beginner-friendly, hands-on introduction to Arduino programming and hardware control - fully virtual, no physical hardware required.
 !!!/
 
 /!!!

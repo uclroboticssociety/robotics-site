@@ -1,7 +1,7 @@
 ---
 title: "Maze Robot Challenge"
 date: "2025-11-03T14:00:00+00:00"
-location: "UCL East — Marshgate"
+location: "UCL East - Marshgate"
 tags: ["challenge"]
 ---
 

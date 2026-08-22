@@ -2,9 +2,9 @@
 
 How to add and maintain the site's content - events, workshops, hackathons, challenges, socials and projects - without touching a single `.astro` file. If you know basic HTML, CSS and JavaScript, you know enough.
 
-Setup, deployment, git and pull requests live in [README.md](README.md). Start there if you haven't yet run `npm install` and `npm run dev`.
+Setup, deployment, git and pull requests live in [README.md](../README.md). Start there if you haven't yet run `npm install` and `npm run dev`.
 
-Using an AI coding agent? [`CLAUDE.md`](CLAUDE.md) in the repo root holds its instructions and is loaded automatically (`AGENTS.md` is a symlink to the same file). Keep it in step with this guide when conventions change.
+Using an AI coding agent? [`CLAUDE.md`](../CLAUDE.md) in the repo root holds its instructions and is loaded automatically (`AGENTS.md` is a symlink to the same file). Keep it in step with this guide when conventions change.
 
 ---
 
@@ -30,7 +30,7 @@ Using an AI coding agent? [`CLAUDE.md`](CLAUDE.md) in the repo root holds its in
 
 If you read nothing else in this file, read this page.
 
-> **`main` is the live website**, and code changes need a pull request. Those rules and the git workflow live in [README → Read this first](README.md#read-this-first). This page covers content only.
+> **`main` is the live website**, and code changes need a pull request. Those rules and the git workflow live in [README → Read this first](../README.md#read-this-first). This page covers content only.
 
 ### Content rules
 
@@ -120,7 +120,7 @@ scripts/pdf_to_images.py     ← helper: turn a PDF/slide deck into page images
 
 **Where photos go.** Anything in `public/` is copied to the site byte-for-byte
 and is **never compressed or resized**, so a 4 MB phone photo stays 4 MB for
-every visitor. Only genuinely static files belong there — the favicon and the
+every visitor. Only genuinely static files belong there - the favicon and the
 logo. Photos belong in one of two places, both of which Astro optimises to webp:
 
 - an event or project photo → that entry's own folder in `src/content/`
@@ -618,7 +618,7 @@ Before you push:
 - [ ] `tags:` puts it in the right sidebar category
 - [ ] No placeholder text left (`https://forms.gle/xxxx`, `coming soon...`) unless intentional
 
-Branching, PRs and merging: [README → Git workflow](README.md#git-workflow-and-pull-requests).
+Branching, PRs and merging: [README → Git workflow](../README.md#git-workflow-and-pull-requests).
 
 ---
 
@@ -652,9 +652,9 @@ When the committee changes over, the outgoing web officer should confirm the inc
 - [ ] Access to whoever controls the society Google account (the `forms.gle` sign-up links point there)
 - [ ] Walked through adding one real event end to end, together, using this guide
 - [ ] Read [Known gaps](#known-gaps) so nothing surprises them
-- [ ] Read [README → Git workflow and pull requests](README.md#git-workflow-and-pull-requests) - especially that `main` is the live site, and that milestones are marked with git tags rather than `VX` commit messages
+- [ ] Read [README → Git workflow and pull requests](../README.md#git-workflow-and-pull-requests) - especially that `main` is the live site, and that milestones are marked with git tags rather than `VX` commit messages
 - [ ] Tag the handover commit (`git tag -a v<n> -m "Handover to <name>, <year>"`) so there's a clean before/after point if anything breaks
 
 ---
 
-Back to [README.md](README.md) for setup, deployment and infrastructure.
+Back to [README.md](../README.md) for setup, deployment and infrastructure.

@@ -14,7 +14,7 @@ const allEvents = await getCollection("events");
 const sorted = [...allEvents].sort(byDateDesc);
 
 // The sidebar label uses the folder name, which is also the URL, so the two
-// always agree. See CONTENT_GUIDE.md.
+// always agree. See docs/CONTENT_GUIDE.md.
 const listFor = (tag: string) =>
   sorted
     .filter((event) => event.data.tags?.includes(tag))
