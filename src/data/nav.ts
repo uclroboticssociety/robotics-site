@@ -18,7 +18,8 @@ export const menu: Item[] = [
     href: "/events",
     label: "Events",
   },
-  { href: "/projects", label: "Projects" },
+  // Projects is temporarily unrouted (src/pages/_projects*) - re-add this
+  // link when the section comes back.
 ];
 
 export const joinLink = { href: "/join", label: "Join Us" };

@@ -23,7 +23,8 @@ export const footerColumns: FooterColumn[] = [
   {
     title: "Resources",
     links: [
-      { href: "/projects", label: "Projects" },
+      // Projects is temporarily unrouted (src/pages/_projects*) - re-add
+      // { href: "/projects", label: "Projects" } when the section comes back.
       { href: "/join", label: "Join Us" },
       { href: "/contact", label: "Contact" },
     ],
