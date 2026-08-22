@@ -3,7 +3,6 @@ import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import Container from "../components/ui/Container.astro";
-import ArmCanvas from "../components/ui/ArmCanvas.astro";
 import SectionHeader from "../components/ui/SectionHeader.astro";
 import NextEvent from "../components/ui/NextEvent.astro";
 import EventRow from "../components/ui/EventRow.astro";
@@ -27,6 +26,7 @@ const featured = upcoming ?? mostRecentEvent(allEvents);
 
 const recentEvents = [...allEvents].sort(byDateDesc).slice(0, 5);
 const featuredCommittee = committee.slice(0, 8);
+const heroPhoto = asset("mission/2.png");
 const missionPhoto = asset("mission/1.png");
 ---
 
@@ -35,11 +35,23 @@ const missionPhoto = asset("mission/1.png");
   description="A student-led community for robotics, AI and mechatronics at UCL. Workshops, hackathons, challenges and projects, open to every student."
 >
   <div class="hero">
-    <ArmCanvas />
+    {
+      heroPhoto && (
+        <Image
+          class="hero-photo"
+          src={heroPhoto}
+          alt="Society members working on a robotics build"
+          widths={[720, 1080, 1600]}
+          sizes="100vw"
+          loading="eager"
+          decoding="async"
+        />
+      )
+    }
     <Container>
       <div class="hero-in">
-        <span class="pill rise d1"><i aria-hidden="true"></i> {statusPillText()}</span>
-        <h1 class="rise d2">Where UCL builds <em class="grad">things that move</em>.</h1>
+        <span class="mono rise d1">{statusPillText()}</span>
+        <h1 class="rise d2">Where UCL builds things that move.</h1>
         <p class="lede rise d3">
           A student-led community for robotics, AI and mechatronics. We prototype, compete, and
           share the thrill of real-world engineering.
@@ -47,7 +59,6 @@ const missionPhoto = asset("mission/1.png");
         <div class="acts rise d4">
           <a class="btn" href="/join">Join the society</a>
           <a class="btn btn-o" href="/events">See what's on</a>
-          <a class="btn btn-quiet" href="/about/sponsors">Partner with us →</a>
         </div>
       </div>
     </Container>
@@ -69,7 +80,7 @@ const missionPhoto = asset("mission/1.png");
     }
 
     <section class="section">
-      <SectionHeader title="About the society" linkHref="/about/mission" linkLabel="Read our mission →" />
+      <SectionHeader title="Our story" linkHref="/about/mission" linkLabel="Read our mission →" />
       <div class="about">
         <div>
           <p class="big">
@@ -118,7 +129,7 @@ const missionPhoto = asset("mission/1.png");
     </section>
 
     <section class="section">
-      <SectionHeader title="Projects" linkHref="/projects" linkLabel="All projects →" />
+      <SectionHeader title="What we're building" linkHref="/projects" linkLabel="All projects →" />
       <div class="g2">
         {
           allProjects.map((project) => (
