@@ -9,6 +9,7 @@ import SectionHeader from "../../components/ui/SectionHeader.astro";
 import ProjectCard from "../../components/ui/ProjectCard.astro";
 import JoinCTA from "../../components/ui/JoinCTA.astro";
 import Container from "../../components/ui/Container.astro";
+import Carousel from "../../components/ui/Carousel.astro";
 import { coverOf } from "../../lib/projects";
 
 export async function getStaticPaths() {
@@ -166,6 +167,28 @@ const normalizeSegment = (segmentBlocks: Block[]) => {
       out.push({
         type: "split",
         media: { type: "scroll", value: next.type === "scroll" ? next.value : [], folder: next.type === "scroll_folder" ? next.value : undefined, width: next.type === "scroll_folder" ? next.width : undefined },
+        text: current.value,
+        mediaSide: "right",
+      });
+      i += 1;
+      continue;
+    }
+    // A single [picture] immediately beside a text block splits the same way
+    // a [scroll] does, keeping the image's natural proportions (no forced 16:9).
+    if (current.type === "image" && next?.type === "text") {
+      out.push({
+        type: "split",
+        media: { type: "image", value: current.value, width: current.width },
+        text: next.value,
+        mediaSide: "left",
+      });
+      i += 1;
+      continue;
+    }
+    if (current.type === "text" && next?.type === "image") {
+      out.push({
+        type: "split",
+        media: { type: "image", value: next.value, width: next.width },
         text: current.value,
         mediaSide: "right",
       });
@@ -394,50 +417,58 @@ const renderMarkdown = (text: string) => {
                     }
 
                     if (block.type === "scroll" || block.type === "scroll_folder") {
-                      const images = block.type === "scroll"
-                        ? block.value.map((img) => resolveImage(img)).filter(Boolean)
-                        : resolveFolderImages(block.value);
+                      // Pair each alt with its image before dropping the ones
+                      // that failed to resolve, so the remaining alt text
+                      // cannot slide onto the wrong picture.
+                      const slides = (block.type === "scroll"
+                        ? block.value.map((img) => ({ src: resolveImage(img), alt: imageAlt(img) }))
+                        : resolveFolderImages(block.value).map((src, index) => ({
+                            src,
+                            alt: `${block.value} image ${index + 1}`,
+                          }))
+                      ).filter((slide) => slide.src);
                       rendered.push(
-                        <div
-                          class="scroll-frame"
-                          style={block.type === "scroll_folder" && block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : undefined}
-                        >
-                          <div class="scroll-track">
-                            {images.map((src, index) => (
-                              <img src={src} alt={`scroll image ${index + 1}`} loading="lazy" />
-                            ))}
-                          </div>
-                        </div>
+                        <Carousel
+                          images={slides}
+                          width={block.type === "scroll_folder" ? block.width : undefined}
+                        />
                       );
                       continue;
                     }
 
                     if (block.type === "split") {
                       const mediaLeft = block.mediaSide === "left";
-                      const mediaImages =
+                      // Same alt/src pairing as the standalone branch above.
+                      const mediaSlides =
                         block.media.type === "scroll"
-                          ? block.media.folder
-                            ? resolveFolderImages(block.media.folder)
-                            : block.media.value.map((img) => resolveImage(img)).filter(Boolean)
-                          : [resolveImage(block.media.value as string)].filter(Boolean);
+                          ? (block.media.folder
+                              ? resolveFolderImages(block.media.folder).map((src, index) => ({
+                                  src,
+                                  alt: `${block.media.folder} image ${index + 1}`,
+                                }))
+                              : (block.media.value as string[]).map((img) => ({
+                                  src: resolveImage(img),
+                                  alt: imageAlt(img),
+                                }))
+                            ).filter((slide) => slide.src)
+                          : [];
+                      // Only the single-image case needs this; a carousel reads
+                      // its sources from mediaSlides above.
+                      const singleImage =
+                        block.media.type === "scroll" ? "" : resolveImage(block.media.value as string);
                       const mediaStyle =
-                        block.media.type === "scroll" && block.media.width
+                        block.media.width
                           ? `width:${block.media.width}%; margin-left:auto; margin-right:auto;`
                           : undefined;
                       const mediaNode =
                         block.media.type === "scroll" ? (
-                          <div class="scroll-frame" style={mediaStyle}>
-                            <div class="scroll-track">
-                              {mediaImages.map((src, index) => (
-                                <img src={src} alt={imageAlt((block.media.value as string[])[index])} loading="lazy" />
-                              ))}
-                            </div>
-                          </div>
-                        ) : mediaImages[0] ? (
+                          <Carousel images={mediaSlides} width={block.media.width} />
+                        ) : singleImage ? (
                           <img
-                            src={mediaImages[0]}
+                            src={singleImage}
                             alt={imageAlt(block.media.value as string)}
                             class="content-img"
+                            style={mediaStyle}
                             loading="lazy"
                           />
                         ) : (

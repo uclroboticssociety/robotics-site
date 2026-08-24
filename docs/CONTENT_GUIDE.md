@@ -391,6 +391,12 @@ Wrap several `[picture]` markers in `[scroll](…)`:
 
 Renders a swipeable, snap-scrolling strip. Best for 3+ photos from the same event.
 
+It moves on its own, advancing one photo every 5 seconds, and stops as soon as the reader hovers it, tabs to it, scrolls it themselves, or scrolls it off the screen - so it never fights someone trying to look at one picture. Readers who have turned on "reduce motion" in their operating system get a strip that never moves by itself. There is nothing to switch on, and no way to turn it off from Markdown.
+
+Readers can also move it by hand. Back and forward arrows appear over the photo when the mouse is over it, and are always on show on a phone or tablet. Both ends wrap around, so the arrows never dead-end. This is automatic - there is no syntax for it.
+
+For a single photo use `[picture]` instead - it keeps the picture's real proportions, where `[scroll]` crops every slide to a 16:9 letterbox.
+
 ### `[scroll_folder]` - carousel of a whole subfolder
 
 ```markdown
@@ -399,11 +405,11 @@ Renders a swipeable, snap-scrolling strip. Best for 3+ photos from the same even
 !!!/
 ```
 
-Every image inside `<entry folder>/pdf_images/` becomes a slide, **sorted alphabetically by filename**. Perfect for slide decks converted to images. The `(80%)` width is optional.
+Every image inside `<entry folder>/pdf_images/` becomes a slide, **sorted alphabetically by filename**. Perfect for slide decks converted to images. The `(80%)` width is optional. It advances on its own and pauses exactly like `[scroll]` above.
 
 ### Text beside media (automatic split layout)
 
-If a `[scroll]` or `[scroll_folder]` is **immediately followed by, or preceded by, a text block**, the two are laid out side by side in a two-column grid:
+If a `[scroll]`, `[scroll_folder]` or a single `[picture]` is **immediately followed by, or preceded by, a text block**, the two are laid out side by side in a two-column grid:
 
 ```markdown
 /!!!
@@ -415,9 +421,14 @@ The carousel sits on the left, this paragraph on the right.
 This paragraph sits on the left, the carousel on the right.
 [scroll]([picture]"3.png"[picture]"4.png")
 !!!/
+
+/!!!
+[picture]"5.png"
+The photo sits on the left, this paragraph on the right.
+!!!/
 ```
 
-Whichever comes first in the file goes on the left.
+Whichever comes first in the file goes on the left. A single `[picture]` keeps its natural proportions in this layout (no forced crop) - use it over `[scroll]` for one image; `[scroll]`/`[scroll_folder]` still force a 16:9 crop, which is fine for a carousel but not for a single photo. The optional `(NN%)` width still works on the picture in this layout, same as everywhere else.
 
 ### `[pdf]` - embed a PDF
 

@@ -79,7 +79,8 @@ const missionPhoto = asset("mission/1.png");
       )
     }
 
-    <section class="section">
+    {/* One reveal per section, below the fold only — see docs/DESIGN.md §6. */}
+    <section class="section" data-reveal>
       <SectionHeader title="Our story" linkHref="/about/mission" linkLabel="Read our mission →" />
       <div class="about">
         <div>
@@ -114,14 +115,14 @@ const missionPhoto = asset("mission/1.png");
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" data-reveal>
       <SectionHeader title="Committee" linkHref="/about/committee" linkLabel="Meet the full team →" />
       <div class="team">
         {featuredCommittee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} />)}
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" data-reveal>
       <SectionHeader title="What's on" linkHref="/events" linkLabel="All events →" />
       <div class="rows">
         {recentEvents.map((event) => <EventRow event={event} />)}

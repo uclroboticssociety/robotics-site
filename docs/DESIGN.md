@@ -139,6 +139,7 @@ All in `src/components/ui/` unless noted.
 | `MemberTile` / `AdvisorTile` | Portrait tiles with an initials fallback. |
 | `NextEvent` | Featured event panel; countdown or recap. |
 | `Countdown` | Client-side countdown to a real event. |
+| `Carousel` | Horizontal photo strip for `[scroll]`/`[scroll_folder]` bodies. Autoplays; pauses on hover, focus and off screen. Hover-revealed prev/next arrows. |
 | `JoinCTA` | Closing call-to-action band - solid accent fill, white text. |
 | `events/EventsLayout` | Sidebar shell shared by events and projects. |
 
@@ -157,6 +158,19 @@ fourth variant - the class name and markup stay the same everywhere.
 
 **Exactly one primary button per view region.** If two purple things compete
 for attention on a screen, demote one to outline.
+
+Icon-only controls that belong to one component sit outside these three rather
+than becoming a fourth variant: `.nav-toggle` (mobile drawer), `.socials a`
+(footer) and `.carousel-nav` (the carousel's prev/next arrows). All three are a
+fixed square, `inline-flex` centred, with a `currentColor` glyph, and none is
+ever accent purple - two arrows on one photo must not read as primary actions.
+
+**The plate is not part of the convention.** `.nav-toggle` and `.socials a`
+carry a 1px `--color-rule` box because they sit on paper, where it costs
+nothing. `.carousel-nav` has none: it sits *on a photo*, where an opaque box
+covers the picture and eats real estate a narrow carousel cannot spare. Its
+box survives at 40x40 as an invisible hit target only. Any future control
+overlaid on imagery should follow the arrows, not the other two.
 
 ### Status
 
@@ -195,11 +209,52 @@ an aspect ratio, and lazy-load anything below the fold.
 
 ## 6. Motion
 
+Two reveals, one animation. Both run `@keyframes rise` - 16px translateY,
+0.8s, `cubic-bezier(0.2, 0.7, 0.3, 1)`. Don't introduce a third set of values.
+
 - `.rise` with `.d1`-`.d4` - the page-load reveal. **First screen only, four
-  elements maximum.** Never on every section.
+  elements maximum.** Never on every section. The four delays are currently
+  all spent on the home hero.
+- `data-reveal` - the scroll-triggered reveal. The observer in `Base.astro`
+  adds `data-shown` once, then stops watching that element.
+  - **One per section, and below the fold only.** An element already on
+    screen at load fires immediately and competes with the hero.
+  - **Never on the items inside a section** - the committee grid arrives as
+    one block, not tile by tile.
+  - The element is fully visible until `data-shown` lands, so if the script
+    never runs the reader loses the animation, not the content. Never give
+    `[data-reveal]` an `opacity: 0` resting state.
+  - There is deliberately no stagger mechanism. If one is ever genuinely
+    needed, put `animation-delay` on the specific child then - don't build a
+    `.d5`-`.d8` ladder for it.
 - Hover: cards lift 3px (tiles 4px); buttons lift 1px. Transitions 0.16-0.22s.
+- Carousels (`Carousel.astro`) advance every 5s and pause on hover, on
+  keyboard focus, for 8s after any interaction, and while off screen. The
+  prev/next arrows use the same code path as autoplay, so they are reachable
+  under `prefers-reduced-motion` and jump without a smooth sweep.
 - `prefers-reduced-motion: reduce` disables every animation and transition.
-  **This is not optional.**
+  **This is not optional.** The CSS block at the foot of `global.css` covers
+  anything driven by a class or a transition - which is why `data-reveal`
+  needs no reduced-motion handling of its own.
+
+  **It does not stop JavaScript.** `scroll-behavior: auto !important` has no
+  effect on the `behavior` option of `scrollTo`, and nothing in CSS stops a
+  `setInterval`. **Any script that moves something must check
+  `matchMedia("(prefers-reduced-motion: reduce)")` itself and listen for its
+  `change` event.** `Carousel.astro` is the reference implementation.
+
+### Staying library-free
+
+Motion here is hand-written CSS and vanilla JS - there is no animation
+library, and that is a deliberate choice rather than an accident. Fades,
+slides, staggers and carousels do not need one, and a dependency is a second
+vocabulary for the next committee to learn on top of these tokens.
+
+Revisit only when you hit something these genuinely can't express: sequenced
+timelines (A, then B overlapping C), scroll-scrubbed motion, springs, or SVG
+path drawing. At that point add a small library **for that one component** -
+Astro bundles a component's script only into the pages that use it, so it
+never becomes a site-wide dependency.
 
 ---
 
@@ -213,6 +268,13 @@ inventing a new pattern.
 2. **Depth comes from borders, not shadows or radius.** Panels are
    `--color-surface` on `--color-bg` with a 1px `--color-rule`, sharp corners.
    Shadows only on hover, and only long, soft, low-opacity blacks.
+
+   **Legibility shadows are exempt.** A shadow that exists to hold a glyph
+   apart from photography underneath it is not doing depth, and this rule is
+   not about it. The only instance is `.carousel-nav svg`, whose `drop-shadow`
+   replaces the plate the arrows used to sit on. The hero's alternative - a
+   full-bleed scrim (`.hero::after`) - was rejected there because a scrim would
+   spend exactly the space dropping the plate was meant to save.
 3. **Nothing is rounded** (see §1). Don't reach for a radius value that isn't
    `0` - if a shape genuinely needs one, that's a deliberate exception to raise,
    not a one-off tweak.
@@ -226,7 +288,14 @@ inventing a new pattern.
    optional right-aligned accent link. Nothing else sets its own spacing.
 7. **No emoji as iconography.** Categories are identified by mono uppercase
    labels.
-8. If a genuinely new component is unavoidable, build it from existing tokens
+8. **Capability queries are allowed where a control genuinely depends on the
+   input device.** The rest of the stylesheet branches only on viewport width,
+   and that stays the default. But width is a poor proxy for input: the
+   carousel arrows use `@media (hover: hover)` because a `max-width` rule would
+   leave a touch tablet wider than 1000px with no visible control. Write them so
+   **visible is the base state and hiding is the enhancement**, so a device that
+   matches neither branch still gets a working control.
+9. If a genuinely new component is unavoidable, build it from existing tokens
    and add it to §4 here, so the next committee inherits a documented language
    rather than a pile of exceptions.
 
@@ -242,6 +311,37 @@ Non-negotiables, all currently satisfied:
   below 12px for essential information, and never dim it further.
 - Everything interactive works from the keyboard: the nav dropdown, the mobile
   drawer (Escape closes, focus is trapped), the sidebar accordions, the
-  carousels and the forms.
+  carousels (the prev/next arrow buttons) and the forms.
+
+  The carousel frame carries **no `tabindex`**, but Chrome and Firefox still
+  give a scrollable region a tab stop of its own when it has no focusable
+  descendants, so the tab order per carousel is prev, next, then the frame.
+  That is deliberate: the frame's stop is what makes arrow-key scrolling
+  available, and focusing it also trips `:focus-within` and reveals the arrows.
+  **Do not "fix" it with `tabindex="-1"`** - that would take keyboard scrolling
+  away from the people the browser behaviour exists for.
 - Real alt text on content images, `alt=""` on decorative ones.
 - One `h1` per page.
+- **Carousel autoplay and WCAG 2.2.2 (Pause, Stop, Hide).** Anything that moves
+  on its own for more than 5s needs a way to stop it. Autoplay pauses on
+  hover, on keyboard focus of the frame, for 8s after any interaction, and
+  while the carousel is off screen - and never starts at all under
+  `prefers-reduced-motion`. Keyboard focus is the pause mechanism. If that is
+  ever judged insufficient, the fix is a visible pause button, not removing
+  the guards.
+- **The carousel scrollbar is hidden**, so the frame can hug its images with no
+  white space around them. The prev/next arrows and autoplay are what now
+  signal there is more to see. Manual control is the arrows, swipe, trackpad,
+  and arrow keys once the frame has focus - so a desktop visitor with a plain
+  mouse wheel is covered. Do not bring the scrollbar back to add an affordance;
+  extend the overlaid controls instead.
+- **A control overlaid on photography carries its own contrast.** The picture
+  underneath is chosen by a content editor and unknown at build time, so it may
+  be pale, busy, or dark. Never rely on the photo to make a control readable:
+  give it a plate, a scrim, or a shadow on the glyph itself, and check it
+  against the palest image on the page rather than a convenient one.
+- **Hover-revealed controls must be visible on touch.** A touch device has no
+  hover state, so a control that only appears on `:hover` is unreachable there.
+  Hide it inside `@media (hover: hover)`, never in the base rule, and hide it
+  with `opacity` plus `pointer-events: none` - `visibility`/`display` would drop
+  it out of the tab order, putting it beyond a keyboard visitor on a mouse.

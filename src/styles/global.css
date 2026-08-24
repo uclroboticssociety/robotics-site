@@ -1248,6 +1248,22 @@
     gap: 24px;
   }
 
+  /* Each rendered block is a flex item of .segments or a grid item of .split,
+     and neither collapses margins. So a block's trailing paragraph margin and
+     its leading heading margin both survive as visible space on top of the
+     24px gap - which is what made carousels look like they had a gap above
+     them. Trim at the block edges; .segments and .split own the spacing.
+     Same idea as .notice p:last-child below. */
+  .segments > div > :last-child,
+  .split > div > :last-child {
+    margin-bottom: 0;
+  }
+
+  .segments > div > :first-child,
+  .split > div > :first-child {
+    margin-top: 0;
+  }
+
   .content-img {
     width: 100%;
     display: block;
@@ -1265,8 +1281,17 @@
     background: var(--color-surface);
   }
 
-  /* Horizontal image carousel. The native scrollbar is styled rather than
-     hidden, so the control stays discoverable and keyboard-scrollable. */
+  /* Horizontal image carousel. The frame hugs its images: no padding, no gap
+     between slides and no scrollbar lane, so exactly one photo fills the plate
+     and nothing of the next one peeks in at the edge. Every slide is the full
+     width of the frame, which also makes each snap position land exactly on a
+     slide boundary.
+
+     The scrollbar is hidden rather than styled. It used to be the affordance
+     that said "there is more to see here", but the strip now advances on its
+     own and carries prev/next arrows, which say the same thing without
+     spending a strip of white space on it. Scrolling still works every other
+     way too: swipe, trackpad, and the arrow buttons below. */
   .scroll-frame {
     width: 100%;
     border-radius: var(--radius-card);
@@ -1275,28 +1300,15 @@
     background: var(--color-surface);
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-rule-hover) transparent;
+    scrollbar-width: none;
   }
 
   .scroll-frame::-webkit-scrollbar {
-    height: 12px;
-  }
-
-  .scroll-frame::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scroll-frame::-webkit-scrollbar-thumb {
-    background: var(--color-rule-hover);
-    border-radius: var(--radius-pill);
-    border: 4px solid var(--color-surface);
+    display: none;
   }
 
   .scroll-track {
     display: flex;
-    gap: 12px;
-    padding: 10px;
     min-width: 100%;
   }
 
@@ -1309,6 +1321,103 @@
     border-radius: var(--radius-chip);
     scroll-snap-align: start;
     filter: contrast(1.05);
+  }
+
+  /* The wrapper around the frame. It exists to be the positioning context for
+     the arrows, which cannot live inside .scroll-frame - that is the scroll
+     container, so an absolutely positioned child there would scroll away with
+     the photos. It is also where a marker's (NN%) width lands, so the arrows
+     sit against the photo's own edges rather than against a full-width box. */
+  .carousel {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Prev/next controls, overlaid on the photo. Unlike the other icon controls
+     (.nav-toggle, .socials a) these carry no plate: those two sit on paper,
+     where a hairline box costs nothing, but an opaque box over a photo covers
+     the picture - and at 40px it covers a lot of a 336px carousel in a .split
+     column. So the visible control is the chevron stroke and nothing else.
+
+     The box stays 40x40 all the same. Only its paint is gone; the hit target
+     is unchanged, and shrinking it toward the 24px minimum would buy nothing
+     because an invisible box takes up no room.
+
+     Deliberately not accent purple - two of them on one photo must not read as
+     primary actions (docs/DESIGN.md section 7). */
+  .carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: none;
+    color: #fff;
+    /* Dimmed at rest, full strength on the one arrow actually being pointed
+       at or tabbed to. This goes through a custom property because the plain
+       version does not work: .carousel:hover .carousel-nav below is three
+       classes deep once :hover is counted, so it outranks a bare
+       .carousel-nav:hover no matter which comes first in the file. A custom
+       property is resolved where it is used, so the button's own state wins
+       without any of that. */
+    --nav-opacity: 0.7;
+    opacity: var(--nav-opacity);
+    cursor: pointer;
+    transition: 0.18s;
+  }
+
+  .carousel-nav:hover,
+  .carousel-nav:focus-visible {
+    --nav-opacity: 1;
+  }
+
+  /* The plate used to be what made the glyph legible; this replaces it. The
+     hero solves white-on-photo with a full-bleed scrim (.hero::after), but a
+     scrim here would spend exactly the space the missing plate just saved, so
+     the contrast rides on the glyph itself. It is a legibility device, not one
+     of the depth shadows section 7 rule 2 rules out.
+
+     On the svg rather than the button, because filter traces everything the
+     element paints - on the button it would put a dark halo around the purple
+     :focus-visible ring too. */
+  .carousel-nav svg {
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
+  }
+
+  .carousel-prev {
+    left: 4px;
+  }
+
+  .carousel-next {
+    right: 4px;
+  }
+
+  /* Visible is the default, and that is what a touch device gets: it has no
+     hover state, so a hover-only control would be unreachable there. On a
+     pointer device the arrows fade in with the photo instead - hiding is the
+     enhancement, not the base case, so nothing can fall through.
+
+     Both levers are needed. opacity alone would leave an invisible but
+     clickable target sitting over the image; visibility or display would take
+     the button out of the tab order, so a keyboard visitor on a mouse could
+     never reach it and :focus-within could never fire to bring it back.
+     opacity plus pointer-events hides it from the mouse while keeping it
+     focusable. */
+  @media (hover: hover) {
+    .carousel-nav {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .carousel:hover .carousel-nav,
+    .carousel:focus-within .carousel-nav {
+      opacity: var(--nav-opacity);
+      pointer-events: auto;
+    }
   }
 
   .space-block {
@@ -1612,9 +1721,29 @@
   .d4 {
     animation-delay: 0.42s;
   }
+
+  /* Scroll-triggered reveal - the same motion as .rise, fired by the observer
+     in Base.astro instead of on page load. One per section, below the fold
+     only, never on the items inside a section.
+
+     Note what is NOT here: no opacity:0 resting state. The element is fully
+     visible until [data-shown] is added, so if the script never runs the
+     reader loses the animation, not the content. That also means the global
+     reduced-motion block below neutralises this for free - there is nothing
+     to reset, because nothing was hidden. */
+  [data-reveal][data-shown] {
+    animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  }
 }
 
+/* The `from` is what lets [data-reveal] share this keyframe: .rise declares
+   the same start state itself, so adding it here changes nothing for the hero
+   but gives the scroll reveal something to animate from. */
 @keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
   to {
     opacity: 1;
     transform: none;

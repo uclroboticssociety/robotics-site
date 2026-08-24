@@ -31,5 +31,33 @@ const {
     <Navbar />
     <main><slot /></main>
     <Footer />
+    <script>
+      // Reveals anything marked [data-reveal] as it comes into view. Elements
+      // are visible by default and this only adds [data-shown], so a failure
+      // here costs the animation, not the content. Pages with nothing marked
+      // pay for an empty querySelectorAll and nothing else.
+      //
+      // rootMargin rather than a threshold: a section taller than the viewport
+      // can never reach, say, threshold 0.15, but its top always crosses 85%
+      // of the viewport height.
+      const revealables = document.querySelectorAll("[data-reveal]");
+
+      if (revealables.length) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.setAttribute("data-shown", "");
+              // Reveal once. Re-animating on every scroll past is what makes
+              // this kind of thing feel cheap.
+              observer.unobserve(entry.target);
+            });
+          },
+          { rootMargin: "0px 0px -15% 0px" }
+        );
+
+        revealables.forEach((el) => observer.observe(el));
+      }
+    </script>
   </body>
 </html>
