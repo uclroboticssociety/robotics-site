@@ -7,14 +7,15 @@ import JoinCTA from "../components/ui/JoinCTA.astro";
 const sections = [
   { href: "/about/mission", title: "Mission", body: "Why the society exists, what we do, and who we are for." },
   { href: "/about/committee", title: "Committee", body: "The students running the society this session." },
-  { href: "/about/advisoryteam", title: "Advisory team", body: "Faculty advisors and research mentors who support our work." },
+  // Advisory team is temporarily unrouted (src/pages/about/_advisoryteam.astro)
+  // - re-add this entry when the section comes back.
   { href: "/about/sponsors", title: "Sponsors", body: "The organisations backing our workshops and events." },
 ];
 ---
 
 <Base
   title="About | UCL Robotics Society"
-  description="About the UCL Robotics Society: our mission, committee, advisory team and sponsors."
+  description="About the UCL Robotics Society: our mission, committee and sponsors."
 >
   <PageHeader
     title="About"

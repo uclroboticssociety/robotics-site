@@ -22,7 +22,9 @@ UCL Robotics Society website. Astro 7 static site, Tailwind 4, deployed on Cloud
 
 ## Verifying a change
 
-`npm run build` currently outputs **25 pages**. If your change alters that number and you did not add or remove a content file, something is broken. Confirm the count in the build output, and grep the built HTML in `dist/` for empty `src=""` attributes, which is how broken image lookups show up.
+`npm run build` currently outputs **18 pages**. If your change alters that number and you did not add or remove a content file, something is broken.
+
+Two sections are deliberately unrouted and so are not in that count: Projects (`src/pages/_projects*`) and the Advisory Team (`src/pages/about/_advisoryteam.astro`). Their content, data and components all still exist - only the `_` prefix keeps them off the site. Removing the prefix puts them back, and the links commented out in `src/data/nav.ts`, `src/data/footer.ts` and `src/pages/about.astro` say so at each site. Confirm the count in the build output, and grep the built HTML in `dist/` for empty `src=""` attributes, which is how broken image lookups show up.
 
 ## Codebase specifics agents get wrong
 

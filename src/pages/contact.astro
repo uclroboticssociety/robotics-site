@@ -37,7 +37,9 @@ const FORM_ENDPOINT = "https://formsubmit.co/your@email.com";
 
   <Container>
     <section class="section" style="padding-top:48px">
-      <div class="g3">
+      {/* g2, not g3, while the Community panel is hidden - a third track
+           here would leave an empty column at the end of the row. */}
+      <div class="g2">
         <article class="panel">
           <h2 class="mono">Email</h2>
           <p>Our official inbox, monitored by the committee.</p>
@@ -59,6 +61,8 @@ const FORM_ENDPOINT = "https://formsubmit.co/your@email.com";
           </ul>
         </article>
 
+        {/* Community / WhatsApp group is temporarily hidden. Restore this
+             panel and put the grid above back to "g3" when it returns.
         <article class="panel">
           <h2 class="mono">Community</h2>
           <p>Join the group chat to hear about sessions first.</p>
@@ -71,12 +75,15 @@ const FORM_ENDPOINT = "https://formsubmit.co/your@email.com";
             >
           </div>
         </article>
+        */}
       </div>
     </section>
 
     <section class="section">
       <SectionHeader title="Send us a message" />
-      <div class="g2">
+      {/* Single column while the Newsletter panel is hidden. Capped rather
+           than full-bleed: a form line that wide is hard to read. */}
+      <div style="max-width:620px">
         <form class="panel" method="POST" action={FORM_ENDPOINT} novalidate data-validate>
           <label class="field">
             <span class="label">Name</span>
@@ -103,6 +110,8 @@ const FORM_ENDPOINT = "https://formsubmit.co/your@email.com";
           </p>
         </form>
 
+        {/* Newsletter sign-up is temporarily hidden. Restore this panel and
+             put the wrapper above back to class="g2" when it returns.
         <div class="panel" id="newsletter">
           <h2 class="mono">Newsletter</h2>
           <p>Event reminders and project updates, a few times a term.</p>
@@ -116,6 +125,7 @@ const FORM_ENDPOINT = "https://formsubmit.co/your@email.com";
             <button class="btn btn-o" type="submit">Subscribe</button>
           </form>
         </div>
+        */}
       </div>
     </section>
   </Container>

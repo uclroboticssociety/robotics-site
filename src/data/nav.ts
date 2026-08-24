@@ -9,7 +9,8 @@ export const menu: Item[] = [
     children: [
       { href: "/about/mission", label: "Mission" },
       { href: "/about/committee", label: "Committee" },
-      { href: "/about/advisoryteam", label: "Advisory Team" },
+      // Advisory Team is temporarily unrouted (src/pages/about/_advisoryteam.astro)
+      // - re-add this link when the section comes back.
       { href: "/about/sponsors", label: "Sponsors" },
       { href: "/join", label: "Join Us" },
     ],
