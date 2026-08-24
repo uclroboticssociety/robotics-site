@@ -1238,6 +1238,99 @@
     text-underline-offset: 5px;
   }
 
+  /* The rest of the Markdown element set. Content bodies go through Astro's
+     own Markdown processor (src/lib/markdown.ts), so an author can write any
+     standard Markdown and these are the tags it can produce. Without styles
+     here they would render bare: Tailwind's preflight strips list markers and
+     element margins, so an ordered list loses its numbers entirely. */
+  .prose-body ol {
+    list-style: decimal;
+    padding-left: 22px;
+    margin: 0 0 15px;
+    color: var(--color-fg);
+  }
+
+  /* A list nested inside another should not add a second bottom gap. */
+  .prose-body li > ul,
+  .prose-body li > ol {
+    margin: 6px 0 0;
+  }
+
+  .prose-body h4 {
+    font-size: 17px;
+    margin: 22px 0 8px;
+  }
+
+  .prose-body em {
+    font-style: italic;
+  }
+
+  .prose-body del {
+    text-decoration: line-through;
+    color: var(--color-muted);
+  }
+
+  .prose-body code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 2px 5px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-rule);
+  }
+
+  .prose-body pre {
+    margin: 0 0 15px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-rule);
+  }
+
+  /* The panel is the block's own; the inner code tag must not draw a second
+     border and background inside it. */
+  .prose-body pre code {
+    padding: 0;
+    background: none;
+    border: 0;
+    font-size: 13px;
+  }
+
+  .prose-body blockquote {
+    margin: 0 0 15px;
+    padding: 2px 0 2px 18px;
+    border-left: 2px solid var(--color-rule);
+    color: var(--color-muted);
+  }
+
+  .prose-body blockquote p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Tables scroll inside their own lane rather than widening the page: a wide
+     one on a phone must not make the whole article scroll sideways. */
+  .prose-body .table-scroll {
+    margin: 0 0 15px;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .prose-body table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .prose-body th,
+  .prose-body td {
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid var(--color-rule);
+  }
+
+  .prose-body th {
+    background: var(--color-surface-2);
+    font-weight: 700;
+  }
+
   /* ---- content blocks (the /!!! … !!!/ body syntax) -------------------- */
   /* These style the output of the renderer in the [...slug] pages. The
      renderer emits bare tags; everything visual is decided here. */

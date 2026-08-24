@@ -345,17 +345,29 @@ Think of a block as a section. Blocks are how the page gets its rhythm and verti
 
 ### Text formatting supported inside a block
 
-| Syntax | Result |
-|---|---|
-| `## Heading` | Section heading (h2) |
-| `### Heading` | Sub-heading (h3) |
-| `- item` | Bullet list (indent 2 spaces for a nested level) |
-| `**bold**` | **bold** |
-| `---` on its own line | Horizontal rule |
-| blank line | Starts a new paragraph |
-| emoji | Renders fine, and existing pages use it in headings |
+**Standard Markdown works.** Text inside a block goes through the same Markdown processor Astro uses for any `.md` file, so headings, `**bold**`, `*italic*`, `[links](https://example.com)`, bullet and numbered lists, nested lists, `> blockquotes`, tables, `` `inline code` ``, code fences, `~~strikethrough~~`, `---` rules and emoji all behave the way they do everywhere else. If you know Markdown, you already know this.
 
-**Not supported - will show as raw characters:** `[text](url)` links, `*italic*`, `# h1`, numbered lists (`1.`), tables, code fences, blockquotes, inline HTML, and standard Markdown images `![]()`. Use `[picture]` for images. If you need a link, ask for it to be added to the renderer rather than pasting HTML.
+Four things are worth knowing on top of that:
+
+**1. `#` and `##` both give the same size heading.** The page already has its `h1` - the event or project title at the top - and a page should only ever have one. So a `#` in the body is treated as `##`. Below that everything is normal: `###` and `####` step down as you would expect.
+
+**2. Images use `[picture]`, not `![]()`.** A Markdown image is the one thing that genuinely does not work. `![alt](1.png)` produces a link relative to the page address rather than to the entry's folder, so the picture will not load and you get a broken image with no warning. Every image marker in this guide (`[picture]`, `[scroll]`, `[scroll_folder]`) exists precisely to look the file up in the right place.
+
+**3. `---` needs a blank line above it.** In Markdown, a line of text with `---` directly underneath means "make that line a heading", not "draw a rule". So write this:
+
+```markdown
+Some text.
+
+---
+
+More text.
+```
+
+If you leave out the blank line, "Some text." silently becomes a heading.
+
+**4. The `/!!! … !!!/` blocks and the `[…]` markers are unchanged.** They are not Markdown and are not affected by any of the above - they are still how you place images, carousels, PDFs, spacing and the side-by-side layouts. Markdown handles the words; the markers handle the layout.
+
+Raw HTML also passes straight through, but prefer Markdown - it is what the next person will expect to find in the file.
 
 ### `[picture]` - a single image
 

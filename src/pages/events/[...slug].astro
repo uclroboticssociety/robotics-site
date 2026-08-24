@@ -9,6 +9,7 @@ import SectionHeader from "../../components/ui/SectionHeader.astro";
 import EventRow from "../../components/ui/EventRow.astro";
 import JoinCTA from "../../components/ui/JoinCTA.astro";
 import Container from "../../components/ui/Container.astro";
+import { renderBlockMarkdown } from "../../lib/markdown";
 import Carousel from "../../components/ui/Carousel.astro";
 import { initiatives } from "../../data/events";
 import { byDateDesc, folderOf, longDate, thumbnailOf } from "../../lib/events";
@@ -250,88 +251,30 @@ const imageAlt = (file: string) =>
     .replace(/[-_]+/g, " ")
     .trim();
 
-const renderInline = (text: string) =>
-  text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+/**
+ * Text blocks are rendered ahead of the template, not inside it.
+ *
+ * The Markdown processor is async and the template's block loop is not, so
+ * every text chunk is rendered here and looked up by its own source string
+ * below. The Set de-duplicates, so a string repeated across blocks is only
+ * processed once.
+ */
+const normalizedSegments = segments.map(normalizeSegment);
 
-const renderInlineWithBreaks = (text: string) =>
-  renderInline(text.trim()).replace(/\\n|\n/g, "<br />");
+const textChunks = new Set<string>();
+for (const blocks of normalizedSegments) {
+  for (const block of blocks) {
+    if (block.type === "text") textChunks.add(block.value);
+    if (block.type === "split") textChunks.add(block.text);
+  }
+}
 
-const renderMarkdown = (text: string) => {
-  const normalized = text.replace(/\\n/g, "\n");
-  const lines = normalized.split("\n");
-  const html: string[] = [];
-  const listStack: number[] = [];
-  let paragraph: string[] = [];
+const htmlByChunk = new Map<string, string>();
+for (const chunk of textChunks) {
+  htmlByChunk.set(chunk, await renderBlockMarkdown(chunk));
+}
 
-  const closeParagraph = () => {
-    if (!paragraph.length) return;
-    html.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
-    paragraph = [];
-  };
-
-  const closeLists = (targetLevel = 0) => {
-    while (listStack.length > targetLevel) {
-      html.push("</ul>");
-      listStack.pop();
-    }
-  };
-
-  const openList = () => {
-    html.push("<ul>");
-    listStack.push(1);
-  };
-
-  lines.forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      closeParagraph();
-      return;
-    }
-
-    if (trimmed === "---") {
-      closeParagraph();
-      closeLists(0);
-      html.push("<hr />");
-      return;
-    }
-
-    if (trimmed.startsWith("## ")) {
-      closeParagraph();
-      closeLists(0);
-      html.push(`<h2>${renderInline(trimmed.slice(3))}</h2>`);
-      return;
-    }
-
-    if (trimmed.startsWith("### ")) {
-      closeParagraph();
-      closeLists(0);
-      html.push(`<h3>${renderInline(trimmed.slice(4))}</h3>`);
-      return;
-    }
-
-    const listMatch = line.match(/^(\s*)-\s+(.*)$/);
-    if (listMatch) {
-      const indent = listMatch[1].length;
-      const level = Math.floor(indent / 2);
-      closeParagraph();
-
-      if (listStack.length < level + 1) {
-        openList();
-      } else if (listStack.length > level + 1) {
-        closeLists(level + 1);
-      }
-
-      html.push(`<li>${renderInline(listMatch[2])}</li>`);
-      return;
-    }
-
-    paragraph.push(trimmed);
-  });
-
-  closeParagraph();
-  closeLists(0);
-  return html.join("");
-};
+const renderMarkdown = (text: string) => htmlByChunk.get(text) ?? "";
 
 const primaryTag = event.data.tags?.map((tag) => tagLabels[tag]).find(Boolean);
 
@@ -374,8 +317,7 @@ const heroImage = thumbnailOf(event);
   >
     <article class="prose-body">
         <div class="segments">
-          {segments.map((segment, segmentIndex) => {
-            const normalized = normalizeSegment(segment);
+          {normalizedSegments.map((normalized, segmentIndex) => {
             return (
               <div class="segments" data-segment={segmentIndex}>
                 {(() => {

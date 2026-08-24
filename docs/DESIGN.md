@@ -146,6 +146,20 @@ All in `src/components/ui/` unless noted.
 There is no home-only decorative canvas: the hero is a full-bleed photo with a
 dark gradient overlay, not an animated illustration.
 
+### Prose
+
+`.prose-body` styles the whole Markdown element set, not just the handful the
+old body renderer could produce. Content bodies go through Astro's own Markdown
+processor (`src/lib/markdown.ts`), so an author can write a table, a blockquote,
+a numbered list or a code block and it will already look right - **you do not
+need to add CSS when someone uses a new bit of Markdown.**
+
+Two things to keep in mind if you extend it. Tailwind's preflight strips list
+markers and element margins, so any new list-like element needs its
+`list-style` set explicitly or it renders unnumbered and unindented. And every
+element here is styled from the tokens with sharp corners, so a new one should
+be too - see §7.
+
 ### Buttons - three variants, no more
 
 - `.btn` - primary. Purple fill, white text.
