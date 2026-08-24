@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import PageHeader from "../components/ui/PageHeader.astro";
 import Container from "../components/ui/Container.astro";
+import { site } from "../data/site";
 
 /**
  * TODO (committee): this page is a scaffold. The footer has always linked to a
@@ -33,7 +34,7 @@ import Container from "../components/ui/Container.astro";
             In the meantime, all society activities are covered by the UCL Students' Union rules for
             clubs and societies. If you need to raise a concern about someone's behaviour at one of
             our events, email the committee at
-            <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a> and we will deal with it.
+            <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> and we will deal with it.
           </p>
         </div>
       </div>

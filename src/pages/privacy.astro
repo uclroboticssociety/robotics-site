@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import PageHeader from "../components/ui/PageHeader.astro";
 import Container from "../components/ui/Container.astro";
+import { site } from "../data/site";
 
 /**
  * What this page states about the site itself is factual and verifiable from
@@ -38,7 +39,7 @@ import Container from "../components/ui/Container.astro";
         <p>
           If you use a form on the contact page, what you type is sent to a third-party form service
           which forwards it to the committee's inbox. If you would rather not use a third party,
-          email us directly at <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a>.
+          email us directly at <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
         </p>
 
         <div class="notice">
@@ -62,7 +63,7 @@ import Container from "../components/ui/Container.astro";
         <p>
           You can ask what we hold about you, ask for it to be corrected, or ask for it to be
           deleted. Email the committee at
-          <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a>.
+          <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
         </p>
       </div>
     </section>

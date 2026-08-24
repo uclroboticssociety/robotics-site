@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import PageHeader from "../components/ui/PageHeader.astro";
 import Container from "../components/ui/Container.astro";
 import SectionHeader from "../components/ui/SectionHeader.astro";
+import { site } from "../data/site";
 
 // These were placeholders (your_handle, your-org, your_invite). They are now
 // the society's real accounts, taken from the footer. GitHub is omitted
@@ -15,7 +16,7 @@ const socials = [
   { name: "LinkedIn", href: "https://www.linkedin.com/company/robotics-society-ucl/" },
 ];
 
-const email = "ucl.robotics.society@gmail.com";
+const email = site.contactEmail;
 
 // TODO (committee): both forms still post to the placeholder endpoint that
 // shipped with the original page, so submissions go nowhere. Replace it with

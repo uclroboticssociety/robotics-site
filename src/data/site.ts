@@ -14,6 +14,15 @@ export const site = {
 
   /** Where "Join the society" points. */
   joinUrl: "/join",
+
+  /**
+   * The society's inbox. Every page that offers an email address reads it from
+   * here - sponsorship, membership, conduct reports and privacy requests all
+   * land in the same place. It used to be hardcoded on each of those pages,
+   * which is how four of them were left pointing at a retired address after
+   * the contact page alone was updated.
+   */
+  contactEmail: "ucl.robotics.society@gmail.com",
 };
 
 export const statusPillText = () =>

@@ -6,6 +6,7 @@ import PageHeader from "../../components/ui/PageHeader.astro";
 import Container from "../../components/ui/Container.astro";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
 import { sponsors } from "../../data/sponsors";
+import { site } from "../../data/site";
 ---
 
 <Base
@@ -51,11 +52,11 @@ import { sponsors } from "../../data/sponsors";
         </p>
         <p>
           To talk about sponsorship, email us at
-          <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a>.
+          <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
         </p>
       </div>
       <div class="acts">
-        <a class="btn" href="mailto:robosoc@ucl.ac.uk">Get in touch</a>
+        <a class="btn" href={`mailto:${site.contactEmail}`}>Get in touch</a>
         <a class="btn btn-o" href="/contact">Contact page</a>
       </div>
     </section>

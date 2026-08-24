@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import PageHeader from "../components/ui/PageHeader.astro";
 import Container from "../components/ui/Container.astro";
 import SectionHeader from "../components/ui/SectionHeader.astro";
+import { site } from "../data/site";
 
 const membershipUrl = "https://studentsunionucl.org/clubs-societies/robotics-society";
 
@@ -48,7 +49,7 @@ const included = [
         <p>
           New to robotics? Try our taster sessions first and join when you're ready. Membership can
           be obtained via the Students' Union website. Email us at
-          <a href="mailto:robosoc@ucl.ac.uk">robosoc@ucl.ac.uk</a> if you have any questions.
+          <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> if you have any questions.
         </p>
       </div>
 
