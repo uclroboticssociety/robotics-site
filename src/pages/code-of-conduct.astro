@@ -4,6 +4,8 @@ import PageHeader from "../components/ui/PageHeader.astro";
 import Container from "../components/ui/Container.astro";
 import { site } from "../data/site";
 
+const unionCodeUrl = "https://studentsunionucl.org/events-code-of-conduct";
+
 /**
  * TODO (committee): this page is a scaffold. The footer has always linked to a
  * code of conduct, but no text for one exists anywhere in this repository, and
@@ -27,14 +29,12 @@ import { site } from "../data/site";
       <div class="prose-body">
         <div class="notice">
           <p>
-            <strong>This page is being finalised.</strong> The society's written code of conduct is
-            not yet published here.
-          </p>
-          <p>
-            In the meantime, all society activities are covered by the UCL Students' Union rules for
-            clubs and societies. If you need to raise a concern about someone's behaviour at one of
-            our events, email the committee at
-            <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> and we will deal with it.
+            All society activities are covered by the UCL Students' Union <a
+              href={unionCodeUrl}
+              target="_blank"
+              rel="noreferrer">events code of conduct</a
+            >. If you need to raise a concern about someone's behaviour at one of
+            our events, email the committee at <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> and we will deal with it.
           </p>
         </div>
       </div>

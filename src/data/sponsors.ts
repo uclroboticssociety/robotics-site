@@ -12,6 +12,5 @@ export type Sponsor = {
  * src/assets/sponsors/ also contains 3.png and 4.png, which nothing renders.
  */
 export const sponsors: Sponsor[] = [
-  { name: "", logo: "sponsors/1.png" },
-  { name: "", logo: "sponsors/2.png" },
+
 ];
