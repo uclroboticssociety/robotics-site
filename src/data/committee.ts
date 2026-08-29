@@ -14,20 +14,17 @@ export type Member = {
  * before their headshot exists.
  */
 export const committee: Member[] = [
-  { name: "Morgan Zhang", role: "President", photo: "committee/1.png" },
-  { name: "Xavier Parker", role: "Treasurer", photo: "committee/2.png" },
-  { name: "Martin Chan", role: "Teaching Officer", photo: "committee/3.png" },
-  { name: "Taylan Arslan", role: "Teaching Officer", photo: "committee/4.png" },
-  { name: "Ian Qichen Yin", role: "Teaching Officer", photo: "committee/11.png" },
-  { name: "Mingxuan Song", role: "Technical Officer", photo: "committee/5.png" },
-  { name: "Akhilesh Pranav", role: "Industry Coordinator", photo: "committee/6.png" },
-  { name: "Tara Kasayapanand", role: "Head of Events", photo: "committee/7.png" },
-  { name: "Hailey Quek", role: "Design & Social Media Officer", photo: "committee/8.png" },
-  { name: "Hamnah Javed", role: "Head of Marketing", photo: "committee/9.png" },
-  { name: "Yizhong Yan", role: "Web Officer", photo: "committee/10.png" },
+  { name: "Xavier Parker", role: "President", photo: "committee/1.jpg" },
+  { name: "Tara Kasayapanand", role: "VP, Treasurer", photo: "committee/2.jpg" },
+  { name: "Ethan Hocquellet", role: "Technical Officer", photo: "committee/3.jpg" },
+  { name: "Yash Joshi", role: "Welfare Officer", photo: "committee/4.jpg"},
+  { name: "Rahul Ranjan", role: "Teaching Officer", photo: "committee/5.jpg" },
+  { name: "Aryan Naik", role: "Teaching Officer", photo: "committee/6.jpg" },
+  { name: "Aryan Dashti", role: "Teaching Officer", photo: "committee/7.jpg" },
+  { name: "Edwin Readhead", role: "Industry Coordinator", photo: "committee/8.jpg" },
+  { name: "Hailey Quek", role: "Design & Social Media Officer", photo: "committee/9.jpg" },
 ];
 
-/** "Morgan Zhang" -> "MZ". Used by the tile fallback when there is no photo. */
 export const initialsOf = (name: string) =>
   name
     .trim()
