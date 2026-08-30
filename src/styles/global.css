@@ -141,8 +141,19 @@
     top: 0;
     z-index: 50;
     background: rgba(244, 243, 241, 0.88);
-    backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--color-rule);
+  }
+
+  /* Blur lives on a pseudo-element, not .site-nav itself, so .site-nav does
+     not become the containing block for its position:fixed descendants
+     (namely .nav-drawer) — a filtered/backdrop-filtered ancestor otherwise
+     resolves "fixed" against its own box instead of the viewport. */
+  .site-nav::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    backdrop-filter: blur(14px);
   }
 
   .nav-in {
@@ -300,9 +311,10 @@
     left: 0;
     right: 0;
     top: 74px;
-    bottom: 0;
+    height: calc(100dvh - 74px);
     z-index: 49;
     overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--color-bg);
     border-top: 1px solid var(--color-rule);
     padding: 22px 0 40px;
