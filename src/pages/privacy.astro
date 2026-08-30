@@ -4,17 +4,6 @@ import PageHeader from "../components/ui/PageHeader.astro";
 import Container from "../components/ui/Container.astro";
 import { site } from "../data/site";
 
-/**
- * What this page states about the site itself is factual and verifiable from
- * this repository: it is a static build, it sets no cookies of its own, it
- * loads no analytics, and its fonts are self-hosted so no request goes to
- * Google on page load.
- *
- * TODO (committee): the parts that are a policy rather than a fact — how long
- * you keep form submissions, who inside the society can see them, and your
- * lawful basis under UK GDPR — are marked below and must be completed by you.
- * Check what your form provider and the Students' Union already commit to.
- */
 ---
 
 <Base
@@ -41,13 +30,6 @@ import { site } from "../data/site";
           which forwards it to the committee's inbox. If you would rather not use a third party,
           email us directly at <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
         </p>
-
-        <div class="notice">
-          <p>
-            <strong>To be completed by the committee.</strong> How long form submissions are kept,
-            who can read them, and the lawful basis for holding them are not yet documented here.
-          </p>
-        </div>
 
         <hr />
 

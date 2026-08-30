@@ -1,6 +1,6 @@
 # Content Guide
 
-How to add and maintain the site's content - events, workshops, hackathons, challenges, socials and projects - without touching a single `.astro` file. If you know basic HTML, CSS and JavaScript, you know enough.
+How to add and maintain the site's content - events, workshops, hackathons, challenges, socials and projects - without touching a single `.astro` file. Only basic HTML, CSS and JavaScript required.
 
 Setup, deployment, git and pull requests live in [README.md](../README.md). Start there if you haven't yet run `npm install` and `npm run dev`.
 
@@ -183,7 +183,7 @@ Astro turns each entry's path into an **id**, and the id becomes the URL. Spaces
 
 Note the triple dash in the third row: ` - ` in a folder name becomes `---`. **Name folders without dashes or punctuation** (`Film Night Iron Giant`) to get clean URLs. The pretty name shown on the page comes from `title:` anyway.
 
-> **Renaming a folder changes the URL and breaks any link already shared on Instagram or Discord.** Prefer getting the name right first time; if you must rename, expect the old link to 404.
+> **Renaming a folder changes the URL and breaks any link already shared on socials such as Instagram or Discord.** Prefer getting the name right first time; if you must rename, expect the old link to 404.
 
 ### 4. One template renders all of them
 
@@ -314,7 +314,7 @@ Because the loader pattern is `**/*.md`, a folder can hold more than one page. `
 | `lead` | no | string | Shown as "Lead: …" on the card |
 | `repo` | no | string | Must be a valid URL. Not displayed today |
 
-**Frontmatter rules that trip people up**
+**Frontmatter tips**
 
 - Always **quote strings**, especially dates and anything containing `:` or `#`.
 - `tags` is a list, even with one item: `tags: ["social"]`.
@@ -603,6 +603,13 @@ Footer links live in `src/data/footer.ts`.
 ### Edit the event category descriptions
 
 `src/data/events.ts` holds the four categories - emoji, title and description text used by the sidebar. Changing a `description` or `emoji` here is safe.
+
+### Edit a committee member
+
+`src/data/committee.ts` holds the `committee` array (rendered on the homepage and `/about/committee`, both through `src/components/ui/MemberTile.astro`). Each `Member` is `{ name, role, photo?, linkedin? }`:
+
+- `photo` is a path relative to `src/assets`, e.g. `"committee/1.jpg"` - see "Where images can live" above. Omit it and the tile falls back to the member's initials.
+- `linkedin` is a full profile URL. Set it and the whole tile becomes a link with a LinkedIn badge in the photo's corner; omit it (or leave it `undefined`) for a plain, non-linking tile with no badge. Only publish a member's real profile URL with their consent, the same as with their photo.
 
 ### Add a fifth event category
 

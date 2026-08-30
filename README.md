@@ -111,7 +111,7 @@ Opening a PR with yourself is normal practice. Do it even as the only maintainer
 | `src/content.config.ts`, `package.json`, `astro.config.mjs`, Tailwind config | **Branch + PR** |
 | Navbar or footer links, new page, redesign | **Branch + PR** |
 
-A bad content edit breaks one page. A bad code edit can take the whole site down, publicly, until you notice. When in doubt, branch.
+If in doubt, branch :).
 
 ### The flow
 
@@ -125,28 +125,9 @@ git push -u origin fix-nav-dropdown    # -u only on a branch's first push
 
 On GitHub: **Compare & pull request** → wait for the Cloudflare check → **click the preview URL and look at the page** → merge → delete the branch.
 
-### Naming
+### PR Naming
 
-Say what changed. Present tense, no version numbers. GitHub numbers PRs itself.
-
-```
-Add March robotics workshop event
-Fix nav dropdown closing before the cursor reaches it
-Update committee photos for 2026/27
-```
-
-### Tags, not version numbers
-
-The old `VX` convention (`V4 31/1/2026`, `V4.1`, `V5`) is retired: it duplicated the commit date, and `V4.1` was used twice. Mark milestones with tags instead, a handful a year (start of term, redesign, handover).
-
-```bash
-git tag -a v6 -m "Site as deployed for Welcome Week 2026"
-git push origin v6
-```
-
-### Commit frequency
-
-One commit per finished thing: a page, a fix, a translated file. Several per session is normal, not clutter. Avoid the opposite, one commit holding five unrelated changes that can't be reverted separately. Push at the end of a session, or sooner to trigger a preview build.
+Say what changed. Present tense, no version numbers. GitHub numbers PRs itself. A template is attached to the repo and should open upon opening a PR.
 
 ### Squash merging
 
@@ -157,7 +138,7 @@ Which merge type to use depends on the branch, and getting this wrong causes rea
 | Short-lived feature branch, deleted after merging | **Squash and merge** | Collapses `wip` / `fix typo` commits into one tidy entry |
 | Long-lived `dev` into `main` | **Create a merge commit** | Squashing here makes a commit with no shared ancestry, so `dev` keeps its originals and the next merge hits phantom conflicts |
 
-Pick the type from the dropdown on the green merge button. Changing the repo default needs admin rights, which the web officer may not have, so check the dropdown every time.
+Pick the type from the dropdown on the green merge button. Changing the repo default needs admin rights which you may not have - reach out to the technical / web officer if you need help.
 
 Do not squash a branch whose commits are each worth keeping. If one of them may need reverting on its own later, a merge commit preserves that.
 

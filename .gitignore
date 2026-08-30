@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Claude Code skill-lock manifest — local tool state, not project content
+skills-lock.json

@@ -7,8 +7,17 @@ export type Member = {
   linkedin?: string;
 };
 
-
-
+/**
+ * The current committee, in the order they appear on the site.
+ *
+ * Photos live in src/assets/committee/ and are referenced by path relative to
+ * src/assets — that is what lets Astro optimise them. A member without a photo
+ * still renders (the tile shows their initials), so it is fine to add someone
+ * before their headshot exists.
+ *
+ * linkedin is optional too: a member's tile only links out and shows the
+ * linkedIn badge when it's set, so omit it to leave a plain, non-linking tile.
+ */
 export const committee: Member[] = [
   { name: "Xavier Parker", role: "President", photo: "committee/1.jpg", linkedin: "https://www.linkedin.com/in/xavier-parker1/" },
   { name: "Tara Kasayapanand", role: "VP, Treasurer", photo: "committee/2.jpg", linkedin: "https://www.linkedin.com/in/tara-kasayapanand/" },

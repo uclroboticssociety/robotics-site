@@ -71,6 +71,13 @@ aesthetic - buttons, cards, tags, thumbnails and images are rectangles, never
 rounded. The tokens still exist (rather than every component hardcoding `0`) so
 a future, deliberate change to the radius scale only touches one file.
 
+**One raised, deliberate exception:** `.member-linkedin` (the committee/advisor
+LinkedIn badge) is `border-radius: 9px`, hardcoded rather than a token. A
+sharp-cornered chip that small reads as a stray rectangle sitting on a photo
+rather than a considered control, which is the failure mode the site's other
+sharp corners don't have to worry about (they're never this small or this
+isolated on imagery) - see "Icon-only controls" above.
+
 ### Two documented exceptions to "no hex outside the tokens"
 
 1. `<meta name="theme-color">` in `Base.astro` - a meta tag cannot read a CSS
@@ -183,8 +190,18 @@ ever accent purple - two arrows on one photo must not read as primary actions.
 carry a 1px `--color-rule` box because they sit on paper, where it costs
 nothing. `.carousel-nav` has none: it sits *on a photo*, where an opaque box
 covers the picture and eats real estate a narrow carousel cannot spare. Its
-box survives at 40x40 as an invisible hit target only. Any future control
-overlaid on imagery should follow the arrows, not the other two.
+box survives at 40x40 as an invisible hit target only. A future control
+overlaid on imagery should default to the arrows' bare-glyph treatment, not
+the other two.
+
+**Exception: `.member-linkedin`.** The committee/advisor LinkedIn badge is a
+small translucent, blurred glass chip (not an opaque plate) behind the glyph,
+because unlike the carousel's handful of curated photos, member headshots are
+numerous and their contrast is uncontrolled — a bare drop-shadowed glyph
+disappears against a pale one. The chip stays translucent for exactly that
+reason: enough to guarantee contrast on any photo, not opaque enough to read
+as a plate. Follow this pattern only for the same problem (many,
+uncontrolled-contrast photos), not as a default upgrade to `.carousel-nav`.
 
 ### Status
 
@@ -285,13 +302,16 @@ inventing a new pattern.
 
    **Legibility shadows are exempt.** A shadow that exists to hold a glyph
    apart from photography underneath it is not doing depth, and this rule is
-   not about it. The only instance is `.carousel-nav svg`, whose `drop-shadow`
-   replaces the plate the arrows used to sit on. The hero's alternative - a
-   full-bleed scrim (`.hero::after`) - was rejected there because a scrim would
-   spend exactly the space dropping the plate was meant to save.
+   not about it. `.carousel-nav svg`'s `drop-shadow` replaces the plate the
+   arrows used to sit on; `.member-linkedin`'s blur and box-shadow do the same
+   job by a different route - see "Icon-only controls" above. The hero's
+   alternative - a full-bleed scrim (`.hero::after`) - was rejected there
+   because a scrim would spend exactly the space dropping the plate was meant
+   to save.
 3. **Nothing is rounded** (see §1). Don't reach for a radius value that isn't
    `0` - if a shape genuinely needs one, that's a deliberate exception to raise,
-   not a one-off tweak.
+   not a one-off tweak. `.member-linkedin` (§1, "Radii") is the one raised so
+   far.
 4. **Accent budget:** `--color-accent` for the primary action, active/upcoming
    status and links; `--color-accent-hover` for deep-purple fills (the join
    band, countdown values, tag text). There is no secondary hue.

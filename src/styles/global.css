@@ -800,34 +800,6 @@
     text-decoration: none;
   }
 
-  /* Corner badge, frosted-glass chip so the mark reads over light photos too.
-     A step past .carousel-nav's plain drop-shadow icon (see DESIGN.md), since
-     a bare icon disappears against pale backgrounds. */
-  /* Scoped to .member .face, not just .member-linkedin, so this outranks the
-     initials-fallback rule above (.member .face span) — both are <span>s. */
-  .member .face .member-linkedin {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
-    color: #fff;
-    /* Neutral glass gray, blended toward --color-accent-deep for a slight purple tint. */
-    background: rgba(40, 22, 53, 0.4);
-    backdrop-filter: blur(8px) saturate(160%);
-    -webkit-backdrop-filter: blur(8px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow:
-      0 4px 14px rgba(0, 0, 0, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.32);
-    pointer-events: none;
-  }
-
   .member .face {
     aspect-ratio: 4 / 5;
     position: relative;
@@ -851,6 +823,37 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* LinkedIn corner badge: a documented exception to the plate-free
+     .carousel-nav convention (see DESIGN.md, "Icon-only controls") — a
+     translucent, blurred glass chip rather than a bare drop-shadowed glyph,
+     since committee/advisor photos are numerous and uncontrolled for
+     contrast in a way the carousel's curated set isn't. Also this
+     codebase's one deliberate non-zero radius (see DESIGN.md §1, §7.3).
+     Scoped to .member .face, not just .member-linkedin, so this outranks
+     the initials-fallback rule above (.member .face span) — both are <span>s. */
+  .member .face .member-linkedin {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    color: #fff;
+    /* Neutral glass gray, blended toward --color-accent-deep for a slight purple tint. */
+    background: rgba(40, 22, 53, 0.4);
+    backdrop-filter: blur(8px) saturate(160%);
+    -webkit-backdrop-filter: blur(8px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow:
+      0 4px 14px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.32);
+    pointer-events: none;
   }
 
   .member .n {
@@ -2003,6 +2006,7 @@
 
 @media (max-width: 900px) {
   .hero {
+    min-height: 0;
     padding-bottom: 40px;
   }
 }
