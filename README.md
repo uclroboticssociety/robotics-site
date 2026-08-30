@@ -99,7 +99,7 @@ That is the shortcut for a typo fix. Anything larger: [Git workflow and pull req
 
 ## Git workflow and pull requests
 
-Opening a PR with yourself is normal practice. Do it even as the only maintainer: the Cloudflare preview URL lets you see the change on a real page before the public does, and the PR is a record for whoever inherits this repo.
+If you are making a big change do a pull request. the Cloudflare preview URL lets you see the change on a real page before the public does. If you are **not** the technical officer, please contact the technical officer to accept your pull request. If you **are** the technical officer **PR anyway** the history is much easier to track.
 
 ### PR, or push straight?
 
