@@ -194,6 +194,13 @@
     color: var(--color-fg);
   }
 
+  /* The Join Us button keeps .btn's white-on-purple styling; without this,
+     the generic .nav-links a color rule above wins on specificity. */
+  .nav-links a.btn,
+  .nav-links a.btn:hover {
+    color: #fff;
+  }
+
   /* desktop dropdown */
   .nav-menu {
     position: relative;
@@ -361,6 +368,23 @@
     margin-top: 26px;
   }
 
+  /* Restore the pill look for Join Us: .nav-drawer a above (list-row style,
+     no fill) otherwise wins over .btn on specificity. */
+  .nav-drawer .acts a.btn {
+    display: inline-flex;
+    width: auto;
+    padding: 12px 20px;
+    color: #fff;
+    background: var(--color-accent);
+    border: 1px solid var(--color-accent);
+  }
+
+  .nav-drawer .acts a.btn:hover {
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+    color: #fff;
+  }
+
   /* ---- type ------------------------------------------------------------ */
 
   /* Mono is for machine-ish information only: dates, counts, status flags,
@@ -468,7 +492,8 @@
   .hero {
     position: relative;
     overflow: hidden;
-    min-height: 560px;
+    min-height: calc(100vh - 75px);
+    min-height: calc(100dvh - 75px);
     display: flex;
     align-items: flex-end;
     padding: 0 0 56px;
@@ -501,7 +526,6 @@
     font-size: clamp(40px, 5.6vw, 68px);
     font-weight: 800;
     margin: 18px 0 0;
-    max-width: 15ch;
     color: #fff;
   }
 
@@ -1944,7 +1968,6 @@
 
 @media (max-width: 900px) {
   .hero {
-    min-height: 0;
     padding-bottom: 40px;
   }
 }

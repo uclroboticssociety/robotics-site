@@ -25,7 +25,7 @@ const upcoming = nextEvent(allEvents);
 const featured = upcoming ?? mostRecentEvent(allEvents);
 
 const recentEvents = [...allEvents].sort(byDateDesc).slice(0, 5);
-const featuredCommittee = committee.slice(0, 8);
+const featuredCommittee = committee;
 const heroPhoto = asset("mission/2.png");
 const missionPhoto = asset("mission/1.png");
 ---
@@ -118,7 +118,7 @@ const missionPhoto = asset("mission/1.png");
 
     <section class="section" data-reveal>
       <SectionHeader title="Committee" linkHref="/about/committee" linkLabel="Meet the full team →" />
-      <div class="team">
+      <div class="team team-3">
         {featuredCommittee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} />)}
       </div>
     </section>
