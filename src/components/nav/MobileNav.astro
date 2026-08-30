@@ -1,5 +1,7 @@
 ---
 import type { Item } from "../../data/nav";
+import { joinLink } from "../../data/nav";
+
 const { items, pathname } = Astro.props as {
   items: Item[];
   pathname: string;
@@ -7,67 +9,128 @@ const { items, pathname } = Astro.props as {
 
 const isActive = (href: string) =>
   href === "/" ? pathname === "/" : pathname.startsWith(href);
-
-const linkCls = (href: string) =>
-  `px-2 py-1 rounded-md transition ${
-    isActive(href) ? "text-slate-900 font-semibold" : "text-slate-600 hover:text-slate-900"
-  }`;
 ---
-<div class="relative md:hidden shrink-0">
-  <!-- Toggle button -->
-  <button
-    id="menuBtn"
-    class="inline-flex items-center justify-center p-2 rounded-lg border border-slate-300"
-    aria-label="Toggle menu"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-    </svg>
-  </button>
 
-  <!-- Slide-down drawer -->
-  <div id="mobileMenu" class="hidden fixed left-0 right-0 top-[calc(env(safe-area-inset-top)+5rem)] border-t border-slate-200 bg-white z-50">
-    <div class="px-6 py-4 flex flex-col gap-2">
-      {items.map((item, i) => (
+<button
+  type="button"
+  class="nav-toggle"
+  id="navToggle"
+  aria-label="Open menu"
+  aria-expanded="false"
+  aria-controls="navDrawer"
+>
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+    <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
+  </svg>
+</button>
+
+<div class="nav-drawer" id="navDrawer">
+  <div class="wrap">
+    {
+      items.map((item, i) =>
         item.children ? (
-          <div class="border border-slate-200 rounded-lg">
-            <button class="w-full text-left px-3 py-2 flex items-center justify-between"
-                    data-acc={`acc-${i}`} aria-expanded="false">
-              <span class={linkCls(item.href)}>{item.label}</span>
-              <span class="text-slate-500">▾</span>
+          <div>
+            <button
+              type="button"
+              class="acc-toggle"
+              aria-expanded="false"
+              aria-controls={`drawer-acc-${i}`}
+            >
+              {item.label}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
-            <div id={`acc-${i}`} class="hidden px-2 pb-2">
+            <div class="acc-panel" id={`drawer-acc-${i}`}>
               {item.children.map((c) => (
-                <a href={c.href} class="block px-3 py-2 rounded-md text-slate-700 hover:bg-slate-50">{c.label}</a>
-    ))}
-  </div>
-</div>
+                <a href={c.href} aria-current={isActive(c.href) ? "page" : undefined}>
+                  {c.label}
+                </a>
+              ))}
+            </div>
+          </div>
         ) : (
-          <a href={item.href} class={linkCls(item.href)}>{item.label}</a>
+          <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>
+            {item.label}
+          </a>
         )
-      ))}
+      )
+    }
+    <div class="acts">
+      <a class="btn" href={joinLink.href}>{joinLink.label}</a>
+    </div>
   </div>
-</div>
 </div>
 
 <script>
-  const btn = document.getElementById('menuBtn');
-  const menu = document.getElementById('mobileMenu');
-  btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+  const toggle = document.getElementById("navToggle");
+  const drawer = document.getElementById("navDrawer");
 
-  // Bind a click handler to each collapsible section button
-  document.querySelectorAll('[data-acc]').forEach((el) => {
-    const btnEl = el /** @type {HTMLElement} */;
+  if (toggle && drawer) {
+    const focusables = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')
+      ).filter((el) => el.offsetParent !== null);
 
-    btnEl.addEventListener('click', () => {
-      const id = btnEl.getAttribute('data-acc'); // string | null
-      if (!id) return;                           // guard against a null attribute
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      if (open) drawer.setAttribute("data-open", "");
+      else drawer.removeAttribute("data-open");
+    };
 
-      const panel = document.getElementById(id);
-      const expanded = btnEl.getAttribute('aria-expanded') === 'true';
+    const isOpen = () => toggle.getAttribute("aria-expanded") === "true";
 
-      panel?.classList.toggle('hidden');
-      btnEl.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    toggle.addEventListener("click", () => {
+      const next = !isOpen();
+      setOpen(next);
+      if (next) focusables()[0]?.focus();
     });
-  });
+
+    // Escape closes and returns focus to the trigger.
+    document.addEventListener("keydown", (event) => {
+      if (!isOpen()) return;
+
+      if (event.key === "Escape") {
+        setOpen(false);
+        toggle.focus();
+        return;
+      }
+
+      // Keep Tab inside the drawer while it is open.
+      if (event.key === "Tab") {
+        const items = [toggle, ...focusables()];
+        const first = items[0];
+        const last = items[items.length - 1];
+        const active = document.activeElement;
+
+        if (event.shiftKey && active === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // A resize past the breakpoint should not leave a hidden drawer "open".
+    const wide = window.matchMedia("(min-width: 1001px)");
+    wide.addEventListener("change", (event) => {
+      if (event.matches && isOpen()) setOpen(false);
+    });
+
+    drawer.querySelectorAll<HTMLButtonElement>(".acc-toggle").forEach((button) => {
+      const id = button.getAttribute("aria-controls");
+      const panel = id ? document.getElementById(id) : null;
+      if (!panel) return;
+
+      button.addEventListener("click", () => {
+        const open = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!open));
+        if (open) panel.removeAttribute("data-open");
+        else panel.setAttribute("data-open", "");
+      });
+    });
+  }
 </script>

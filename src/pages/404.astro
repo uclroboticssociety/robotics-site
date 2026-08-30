@@ -1,0 +1,21 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
+import Container from "../components/ui/Container.astro";
+---
+
+<Base title="Page not found | UCL Robotics Society" description="That page doesn't exist.">
+  <PageHeader
+    title="Page not found"
+    eyebrow="404"
+    lede="That page doesn't exist, or it has moved."
+    rule={false}
+  />
+
+  <Container>
+    <div class="acts" style="margin-bottom:92px">
+      <a class="btn" href="/">Go home</a>
+      <a class="btn btn-o" href="/events">See what's on</a>
+    </div>
+  </Container>
+</Base>

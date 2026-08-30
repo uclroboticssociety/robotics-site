@@ -5,7 +5,7 @@ status: "active"
 lead: "Mingxuan Song"
 ---
 /!!!
-comming soon...
+coming soon...
 !!!/
 
 /!!!

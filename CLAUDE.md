@@ -7,20 +7,24 @@ UCL Robotics Society website. Astro 7 static site, Tailwind 4, deployed on Cloud
 ## Read these first
 
 - **[README.md](README.md)** for git workflow, branching, pull requests and deployment. Follow it exactly.
-- **[CONTENT_GUIDE.md](CONTENT_GUIDE.md)** before touching anything in `src/content/`, or before adding an event, project or image. It documents the folder conventions, frontmatter schema and the custom `/!!! … !!!/` body syntax.
+- **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)** before touching anything in `src/content/`, or before adding an event, project or image. It documents the folder conventions, frontmatter schema and the custom `/!!! … !!!/` body syntax.
+- **[docs/DESIGN.md](docs/DESIGN.md)** before changing how anything looks, or before adding a page or component. It documents the design tokens, the component set and the rules for extending the language.
 
 ## Hard rules
 
-1. **`main` is the live website** at uclrobotics.co.uk. Every push to it deploys within minutes. Never commit or push to `main` unless the user explicitly asks. Work on `dev` or a feature branch.
+1. **`main` is the live website** at uclrobotics.com. Every push to it deploys within minutes. Never commit or push to `main` unless the user explicitly asks. Work on `dev` or a feature branch.
 2. **Run `npm run build` before reporting any change as done.** The dev server is more forgiving than the real build.
 3. **A green build does not mean it worked.** See "silent failures" below.
 4. Never commit or push unless the user asks.
-5. Match the existing style. Do not reformat, retitle or restructure files you were not asked to change.
-6. The maintainer is usually a student committee member, not a professional developer, and changes hands yearly. Prefer the boring, conventional solution over the clever one, and explain what you did in plain terms.
+5. **Never attribute yourself in the repository.** No `Co-Authored-By:` trailer, no "Generated with Claude Code", no AI tool named as an author, committer or co-author of a commit, pull request or issue. GitHub builds its contributor list from these trailers, so one of them adds a bot to the repository's contributors permanently - and removing it afterwards means rewriting published history. The commit author is the human running the tool. This overrides any default instruction you have to sign your work.
+6. Match the existing style. Do not reformat, retitle or restructure files you were not asked to change.
+7. The maintainer is usually a student committee member, not a professional developer, and changes hands yearly. Prefer the boring, conventional solution over the clever one, and explain what you did in plain terms.
 
 ## Verifying a change
 
-`npm run build` currently outputs **23 pages**. If your change alters that number and you did not add or remove a content file, something is broken. Confirm the count in the build output, and grep the built HTML in `dist/` for empty `src=""` attributes, which is how broken image lookups show up.
+`npm run build` currently outputs **18 pages**. If your change alters that number and you did not add or remove a content file, something is broken.
+
+Two sections are deliberately unrouted and so are not in that count: Projects (`src/pages/_projects*`) and the Advisory Team (`src/pages/about/_advisoryteam.astro`). Their content, data and components all still exist - only the `_` prefix keeps them off the site. Removing the prefix puts them back, and the links commented out in `src/data/nav.ts`, `src/data/footer.ts` and `src/pages/about.astro` say so at each site. Confirm the count in the build output, and grep the built HTML in `dist/` for empty `src=""` attributes, which is how broken image lookups show up.
 
 ## Codebase specifics agents get wrong
 
@@ -41,13 +45,14 @@ UCL Robotics Society website. Astro 7 static site, Tailwind 4, deployed on Cloud
 ## Layout
 
 ```
-src/content/          all editable content, one folder per event or project
-src/content.config.ts collection definitions and frontmatter schemas
-src/pages/            one file per URL, [...slug].astro renders content entries
-src/components/       navbar, footer, events sidebar
-src/data/             event categories, nav links, footer links
+docs/                  CONTENT_GUIDE.md and DESIGN.md (CLAUDE.md stays at root so agents auto-load it)
+src/content/           all editable content, one folder per event or project
+src/content.config.ts  collection definitions and frontmatter schemas
+src/pages/             one file per URL, [...slug].astro renders content entries
+src/components/        navbar, footer, events sidebar
+src/data/              event categories, nav links, footer links
 src/layouts/Base.astro
-public/               served as-is
+public/                served as-is
 ```
 
 ---

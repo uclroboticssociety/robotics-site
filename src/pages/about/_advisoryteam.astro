@@ -1,0 +1,35 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/ui/PageHeader.astro";
+import Container from "../../components/ui/Container.astro";
+import SectionHeader from "../../components/ui/SectionHeader.astro";
+import AdvisorTile from "../../components/ui/AdvisorTile.astro";
+import { facultyAdvisors, researchMentors } from "../../data/advisors";
+---
+
+<Base
+  title="Advisory Team | UCL Robotics Society"
+  description="Faculty advisors and research mentors supporting the UCL Robotics Society."
+>
+  <PageHeader
+    title="Advisory team"
+    eyebrow="About"
+    lede="Academics and researchers who support the society's projects and teaching."
+  />
+
+  <Container>
+    <section class="section" style="padding-top:48px">
+      <SectionHeader title="Faculty advisors" meta={`${facultyAdvisors.length} advisors`} />
+      <div class="team team-3">
+        {facultyAdvisors.map((advisor) => <AdvisorTile advisor={advisor} />)}
+      </div>
+    </section>
+
+    <section class="section">
+      <SectionHeader title="Research mentors" meta={`${researchMentors.length} mentors`} />
+      <div class="team team-3">
+        {researchMentors.map((advisor) => <AdvisorTile advisor={advisor} />)}
+      </div>
+    </section>
+  </Container>
+</Base>

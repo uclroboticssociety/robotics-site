@@ -1,0 +1,89 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
+import EventsLayout from "../components/events/EventsLayout.astro";
+import SectionHeader from "../components/ui/SectionHeader.astro";
+import ProjectCard from "../components/ui/ProjectCard.astro";
+import JoinCTA from "../components/ui/JoinCTA.astro";
+import Container from "../components/ui/Container.astro";
+import { coverOf } from "../lib/projects";
+
+type ProjectEntry = CollectionEntry<"projects">;
+type ProjectStatus = ProjectEntry["data"]["status"];
+
+const statusOrder: Record<ProjectStatus, number> = {
+  active: 0,
+  paused: 1,
+  completed: 2,
+};
+
+const projects: ProjectEntry[] = await getCollection("projects");
+const sorted = [...projects].sort(
+  (a, b) => statusOrder[a.data.status] - statusOrder[b.data.status]
+);
+
+// Projects share the events sidebar shell. There is one track today; add
+// another entry here when a second one starts.
+const projectSidebar = [
+  {
+    id: "vla" as const,
+    title: "VLA",
+    label: "VLA",
+    href: "/projects",
+    tag: "vla" as never,
+    description: "Vision-Language-Action research and build track.",
+  },
+];
+
+const recentByInitiative = {
+  vla: sorted.map((entry) => ({
+    title: entry.data.title,
+    href: `/projects/${entry.id}`,
+  })),
+};
+---
+
+<Base
+  title="Projects | UCL Robotics Society"
+  description="Student-led robotics and AI projects running at the UCL Robotics Society."
+>
+  <PageHeader
+    title="Projects"
+    eyebrow="Build track"
+    lede="Student-led builds spanning perception, control and machine learning."
+    rule={false}
+  />
+
+  <EventsLayout
+    initiatives={projectSidebar}
+    sidebarTitle="Explore projects"
+    recentByInitiative={recentByInitiative}
+  >
+    <SectionHeader title="All projects" meta={`${sorted.length} projects`} />
+    {
+      sorted.length ? (
+        <div class="g2">
+          {sorted.map((project) => (
+            <ProjectCard
+              href={`/projects/${project.id}`}
+              title={project.data.title}
+              summary={project.data.summary}
+              attribution={project.data.lead ? `Lead - ${project.data.lead}` : undefined}
+              image={coverOf(project)}
+            />
+          ))}
+        </div>
+      ) : (
+        <p class="lede">No projects published yet.</p>
+      )
+    }
+  </EventsLayout>
+
+  <Container>
+    <JoinCTA
+      title="Want to work on one of these?"
+      body="Projects are open to members at any level. Join the society and come to a session."
+    />
+  </Container>
+</Base>

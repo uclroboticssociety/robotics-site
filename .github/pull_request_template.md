@@ -9,4 +9,4 @@
 - [ ] Checked a narrow window (mobile layout)
 - [ ] No placeholder text left in
 
-<!-- Conventions: README.md → Git workflow. Content rules: CONTENT_GUIDE.md -->
+<!-- Conventions: README.md → Git workflow. Content rules: docs/CONTENT_GUIDE.md -->

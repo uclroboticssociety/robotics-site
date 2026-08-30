@@ -1,0 +1,65 @@
+---
+import { Image } from "astro:assets";
+import Countdown from "./Countdown.astro";
+import { categoryOf, longDate, thumbnailOf, type EventEntry } from "../../lib/events";
+
+/**
+ * The featured event panel.
+ *
+ * Two states, chosen by the caller passing `upcoming`:
+ *   upcoming — counts down to the event
+ *   recap    — the most recent event, no countdown, relabelled
+ *
+ * The site currently has no future-dated events, so this renders in recap.
+ * Adding an event with a future `date:` switches it over with no code change.
+ */
+type Props = {
+  event: EventEntry;
+  upcoming: boolean;
+};
+
+const { event, upcoming } = Astro.props;
+
+const image = thumbnailOf(event);
+const category = categoryOf(event);
+---
+
+<div class="next">
+  {/* With no image the panel goes full width rather than reserving a large
+      empty pane — the gradient fallback is for a slow image, not for none. */}
+  <div class:list={["next-grid", !image && "next-grid-solo"]}>
+    <div class="next-l">
+      {category && <span class="tag">{category.label}</span>}
+      <h3>{event.data.title}</h3>
+
+      <div class="meta">
+        {longDate(event.data.date)}
+        {event.data.location && <><br />{event.data.location}</>}
+      </div>
+
+      {upcoming && <Countdown datetime={event.data.date} />}
+
+      <div class="acts">
+        <a class="btn" href={`/events/${event.id}`}>
+          {upcoming ? "Event details" : "Read the recap"}
+        </a>
+        <a class="btn btn-o" href="/events">All events</a>
+      </div>
+    </div>
+
+    {
+      image && (
+        <div class="next-r">
+          <Image
+            src={image}
+            alt={`${event.data.title} at ${event.data.location ?? "UCL"}`}
+            widths={[480, 720, 960]}
+            sizes="(max-width: 1000px) 100vw, 45vw"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      )
+    }
+  </div>
+</div>

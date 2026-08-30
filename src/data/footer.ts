@@ -7,7 +7,8 @@ export const footerColumns: FooterColumn[] = [
     links: [
       { href: "/about/mission", label: "Mission" },
       { href: "/about/committee", label: "Committee" },
-      { href: "/about/advisoryteam", label: "Advisory Team" },
+      // Advisory Team is temporarily unrouted (src/pages/about/_advisoryteam.astro)
+      // - re-add this link when the section comes back.
       { href: "/about/sponsors", label: "Sponsors" },
     ],
   },
@@ -23,16 +24,17 @@ export const footerColumns: FooterColumn[] = [
   {
     title: "Resources",
     links: [
-      { href: "/projects", label: "Projects" },
+      // Projects is temporarily unrouted (src/pages/_projects*) - re-add
+      // { href: "/projects", label: "Projects" } when the section comes back.
       { href: "/join", label: "Join Us" },
       { href: "/contact", label: "Contact" },
     ],
   },
   {
-    title: "Company",
+    title: "Legal",
     links: [
-      { href: "#", label: "Code of Conduct" },
-      { href: "#", label: "Privacy" },
+      { href: "/code-of-conduct", label: "Code of Conduct" },
+      { href: "/privacy", label: "Privacy" },
     ],
   },
 ];

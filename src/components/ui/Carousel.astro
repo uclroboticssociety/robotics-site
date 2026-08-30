@@ -1,0 +1,236 @@
+---
+/**
+ * Horizontal photo strip for the `[scroll]` and `[scroll_folder]` body
+ * markers. Native scroll-snap does the scrolling; the script below only moves
+ * it along, either on a timer or when the reader clicks an arrow.
+ *
+ * Images arrive already resolved by the calling page - this component does no
+ * image lookup of its own, so it cannot be the thing that produces src="".
+ * They are passed as {src, alt} pairs so a missing image can be dropped
+ * without the remaining alt text sliding onto the wrong picture.
+ *
+ * With fewer than two images there is nothing to scroll, so the wrapper
+ * renders without the arrows, the ARIA grouping and the autoplay hook: no
+ * dead controls, no timer. A one-image [scroll] still looks exactly as its
+ * author intended.
+ *
+ * The outer .carousel wrapper exists because the arrows cannot live inside
+ * .scroll-frame: that element is the scroll container, so an absolutely
+ * positioned child would scroll away with the photos.
+ *
+ * The arrows are bare chevrons with no plate behind them - they sit on a
+ * photo, so the styling rules are not the ones the other icon buttons follow.
+ * See the .carousel-nav block in global.css for why.
+ */
+type Slide = { src: string; alt: string };
+
+type Props = {
+  images: Slide[];
+  /** Percentage width, from the marker's optional (NN%) argument. */
+  width?: number;
+  /** Escape hatch for a deck that shouldn't move on its own. */
+  autoplay?: boolean;
+};
+
+const { images, width, autoplay = true } = Astro.props;
+
+const interactive = images.length > 1;
+// The width lands on the wrapper, not the frame, so the arrows sit against
+// the photo's own edges rather than against a full-width box.
+const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : undefined;
+---
+
+<div
+  class="carousel"
+  style={style}
+  role={interactive ? "group" : undefined}
+  aria-label={interactive ? `Photo carousel, ${images.length} images` : undefined}
+  data-carousel={interactive ? "" : undefined}
+  data-carousel-autoplay={interactive && autoplay ? "" : undefined}
+>
+  <div class="scroll-frame">
+    <div class="scroll-track">
+      {images.map((image) => <img src={image.src} alt={image.alt} loading="lazy" />)}
+    </div>
+  </div>
+
+  {
+    interactive && (
+      <Fragment>
+        <button class="carousel-nav carousel-prev" type="button" aria-label="Previous image" data-carousel-prev>
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M15 5l-7 7 7 7" />
+          </svg>
+        </button>
+        <button class="carousel-nav carousel-next" type="button" aria-label="Next image" data-carousel-next>
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </Fragment>
+    )
+  }
+</div>
+
+<script>
+  // Moves each carousel along, on a timer and on an arrow click. The scrolling
+  // itself is native -- this only calls scrollTo, so dragging, trackpads and
+  // scroll-snap all keep working exactly as they would with no script at all.
+  const REVEAL_MS = 5000; // time on each image
+  const IDLE_MS = 8000; // quiet period after the reader touches it
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const syncers: Array<() => void> = [];
+
+  // Rooted on [data-carousel], not the autoplay attribute: a deck built with
+  // autoplay={false} still needs working arrows. Autoplay is a per-instance
+  // flag that gates the timer only.
+  document.querySelectorAll<HTMLElement>("[data-carousel]").forEach((box) => {
+    const frame = box.querySelector<HTMLElement>(".scroll-frame");
+    const track = box.querySelector<HTMLElement>(".scroll-track");
+    const slides = track ? (Array.from(track.children) as HTMLElement[]) : [];
+    if (!frame || slides.length < 2) return;
+
+    const autoplayOn = box.hasAttribute("data-carousel-autoplay");
+
+    let timer: ReturnType<typeof setInterval> | undefined;
+    let idle: ReturnType<typeof setTimeout> | undefined;
+    let hovering = false;
+    let focusInside = false;
+    let onScreen = false;
+
+    const canPlay = () =>
+      autoplayOn &&
+      !hovering &&
+      !focusInside &&
+      onScreen &&
+      !idle &&
+      !reduce.matches &&
+      !document.hidden;
+
+    // dir is 1 for the next image, -1 for the previous one. Both ends wrap.
+    const goTo = (dir: 1 | -1) => {
+      // Measure the real slide pitch rather than assuming width + gap, so the
+      // target always lands exactly on a snap point. Re-read every call so a
+      // resize needs no extra handling.
+      const pitch = slides[1].offsetLeft - slides[0].offsetLeft;
+      if (pitch <= 0) return;
+      const max = frame.scrollWidth - frame.clientWidth;
+      const last = slides.length - 1;
+
+      // Step from the rounded current index rather than from the raw
+      // scrollLeft. A half-swiped strip then still moves a whole slide, and
+      // the wrap test cannot be thrown by a subpixel remainder. Note the test
+      // is on the current index, not the computed target: testing the target
+      // treats the last ordinary step as a wrap and skips the final image.
+      const current = Math.round(frame.scrollLeft / pitch);
+      let next = current + dir;
+      const wrapped = next < 0 || next > last;
+      if (next < 0) next = last;
+      if (next > last) next = 0;
+
+      // Jumping instantly beats sweeping the whole strip end to end, which
+      // reads as a glitch on a long deck. And CSS scroll-behavior does not
+      // govern this option, so reduced motion has to be honoured here too.
+      frame.scrollTo({
+        left: Math.min(next * pitch, max),
+        behavior: reduce.matches || wrapped ? "auto" : "smooth",
+      });
+    };
+
+    const sync = () => {
+      if (canPlay()) {
+        if (!timer) timer = setInterval(() => goTo(1), REVEAL_MS);
+      } else if (timer) {
+        clearInterval(timer);
+        timer = undefined;
+      }
+    };
+    syncers.push(sync);
+
+    // Hold off for a while after any deliberate interaction.
+    const touched = () => {
+      if (idle) clearTimeout(idle);
+      idle = setTimeout(() => {
+        idle = undefined;
+        sync();
+      }, IDLE_MS);
+      sync();
+    };
+
+    box.querySelector("[data-carousel-prev]")?.addEventListener("click", () => goTo(-1));
+    box.querySelector("[data-carousel-next]")?.addEventListener("click", () => goTo(1));
+
+    // Every listener is on the wrapper, not the frame. The arrows are siblings
+    // of the frame, so a frame-level mouseleave would fire the moment the
+    // cursor reached an arrow and restart autoplay under the reader's hand.
+    box.addEventListener("mouseenter", () => {
+      hovering = true;
+      sync();
+    });
+    box.addEventListener("mouseleave", () => {
+      hovering = false;
+      sync();
+    });
+
+    box.addEventListener("focusin", () => {
+      focusInside = true;
+      sync();
+    });
+    // focusout fires before the incoming focusin, so check where focus landed.
+    box.addEventListener("focusout", (event) => {
+      const next = event.relatedTarget as Node | null;
+      if (next && box.contains(next)) return;
+      focusInside = false;
+      sync();
+    });
+
+    // Deliberately NOT a "scroll" listener: our own scrollTo above fires that
+    // event, so the carousel would read its own movement as the reader taking
+    // over and stop for good. These three are the reader's actual intent, and
+    // an arrow click arrives here as a pointerdown for free.
+    box.addEventListener("pointerdown", touched, { passive: true });
+    box.addEventListener("wheel", touched, { passive: true });
+    box.addEventListener("keydown", touched);
+
+    new IntersectionObserver(
+      (entries) => {
+        // A callback can carry several batched entries after a fast scroll,
+        // and they are in time order - so read the last one, not the first,
+        // or the carousel can be left believing a stale visibility.
+        onScreen = entries[entries.length - 1].isIntersecting;
+        sync();
+      },
+      { threshold: 0.35 }
+    ).observe(box);
+  });
+
+  if (syncers.length) {
+    const syncAll = () => syncers.forEach((sync) => sync());
+    // Coming back to a forgotten tab should not find the strip six images on.
+    document.addEventListener("visibilitychange", syncAll);
+    // The CSS reduced-motion block cannot stop a setInterval, so honour the
+    // setting here -- including when it is toggled with the page already open.
+    reduce.addEventListener("change", syncAll);
+  }
+</script>

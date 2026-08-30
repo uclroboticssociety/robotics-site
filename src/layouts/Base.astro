@@ -1,9 +1,20 @@
 ---
 import "../styles/global.css";
+import { Font } from "astro:assets";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
-const { title = "Robotics Society", description = "Build. Learn. Compete." } = Astro.props;
+
+type Props = {
+  title?: string;
+  description?: string;
+};
+
+const {
+  title = "UCL Robotics Society",
+  description = "A student-led robotics, AI and mechatronics society at UCL.",
+} = Astro.props;
 ---
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -11,11 +22,42 @@ const { title = "Robotics Society", description = "Build. Learn. Compete." } = A
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" href="/logo.png" />
+    <meta name="theme-color" content="#F4F3F1" />
+    {/* Display weights are used above the fold on every page, so preload them. */}
+    <Font cssVariable="--font-archivo" preload />
+    <Font cssVariable="--font-spline-mono" />
   </head>
-  <body class="bg-gradient-to-br from-indigo-50 via-white to-cyan-50 text-slate-900">
+  <body>
     <Navbar />
     <main><slot /></main>
     <Footer />
+    <script>
+      // Reveals anything marked [data-reveal] as it comes into view. Elements
+      // are visible by default and this only adds [data-shown], so a failure
+      // here costs the animation, not the content. Pages with nothing marked
+      // pay for an empty querySelectorAll and nothing else.
+      //
+      // rootMargin rather than a threshold: a section taller than the viewport
+      // can never reach, say, threshold 0.15, but its top always crosses 85%
+      // of the viewport height.
+      const revealables = document.querySelectorAll("[data-reveal]");
+
+      if (revealables.length) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.setAttribute("data-shown", "");
+              // Reveal once. Re-animating on every scroll past is what makes
+              // this kind of thing feel cheap.
+              observer.unobserve(entry.target);
+            });
+          },
+          { rootMargin: "0px 0px -15% 0px" }
+        );
+
+        revealables.forEach((el) => observer.observe(el));
+      }
+    </script>
   </body>
 </html>
-

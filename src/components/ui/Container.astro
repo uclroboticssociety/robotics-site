@@ -1,0 +1,20 @@
+---
+/**
+ * The one container used everywhere: 1200px max, 30px gutters, and z-index 2 so
+ * content sits above the fixed background layer painted by body::before.
+ *
+ * Do not set page widths inline — if a page needs a narrower measure, nest a
+ * max-width on the content itself (e.g. .prose-body at 70ch) rather than
+ * changing the container.
+ */
+type Props = {
+  as?: string;
+  class?: string;
+};
+
+const { as: Tag = "div", class: className = "", ...rest } = Astro.props;
+---
+
+<Tag class:list={["wrap", className]} {...rest}>
+  <slot />
+</Tag>

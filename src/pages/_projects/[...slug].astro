@@ -1,0 +1,511 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { Image, getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import EventsLayout from "../../components/events/EventsLayout.astro";
+import PageHeader from "../../components/ui/PageHeader.astro";
+import SectionHeader from "../../components/ui/SectionHeader.astro";
+import ProjectCard from "../../components/ui/ProjectCard.astro";
+import JoinCTA from "../../components/ui/JoinCTA.astro";
+import Container from "../../components/ui/Container.astro";
+import { renderBlockMarkdown } from "../../lib/markdown";
+import Carousel from "../../components/ui/Carousel.astro";
+import { coverOf } from "../../lib/projects";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.id },
+  }));
+}
+
+const slugParam = Astro.params.slug;
+const slug = Array.isArray(slugParam) ? slugParam.join("/") : slugParam;
+
+const projects = await getCollection("projects");
+const project = projects.find((entry) => entry.id === slug);
+
+if (!project) {
+  throw new Error(`Project not found: ${slug ?? "unknown"}`);
+}
+
+const sortByStatus: Record<string, number> = {
+  active: 0,
+  paused: 1,
+  completed: 2,
+};
+const sorted = projects
+  .slice()
+  .sort((a, b) => sortByStatus[a.data.status] - sortByStatus[b.data.status]);
+
+const projectSidebar = [
+  {
+    id: "vla" as const,
+    title: "VLA",
+    label: "VLA",
+    href: "/projects",
+    description: "Vision-Language-Action research and build track.",
+    tag: "vla" as never,
+  },
+];
+
+const cover = coverOf(project);
+const otherProjects = sorted.filter((entry) => entry.id !== project.id);
+
+const recentByInitiative = {
+  vla: sorted.map((entry) => ({
+    title: entry.data.title,
+    href: `/projects/${entry.id}`,
+  })),
+};
+
+const body = project.body ?? "";
+const pictureRegex = /\[picture\]\s*"([^"]+)"(?:\((\d+)%\))?/g;
+const pdfRegex = /\[pdf\]\s*"([^"]+)"(?:\((\d+)%\))?/g;
+const spaceRegex = /\[space\]\s*"([^"]+)"/g;
+const scrollRegex = /\[scroll\]\(([\s\S]*?)\)/g;
+const scrollFolderRegex = /\[scroll_folder\]\s*"([^"]+)"(?:\((\d+)%\))?/g;
+type Block =
+  | { type: "text"; value: string }
+  | { type: "image"; value: string; width?: number }
+  | { type: "pdf"; value: string; width?: number }
+  | { type: "scroll_folder"; value: string; width?: number }
+  | { type: "scroll"; value: string[] }
+  | { type: "space"; value: string }
+  | { type: "split"; media: { type: "image" | "scroll"; value: string | string[]; folder?: string; width?: number }; text: string; mediaSide: "left" | "right" };
+
+const parseScrollImages = (text: string) => {
+  const images: string[] = [];
+  for (const match of text.matchAll(pictureRegex)) {
+    images.push(match[1]);
+  }
+  return images;
+};
+
+const splitSegments = (input: string) =>
+  input
+    .split("/!!!")
+    .map((segment) => segment.replace("!!!/", "").trim())
+    .filter(Boolean);
+
+const parseSegment = (segment: string): Block[] => {
+  const blocks: Block[] = [];
+  const matches = [
+    ...segment.matchAll(scrollRegex),
+    ...segment.matchAll(scrollFolderRegex),
+  ].sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
+  let lastIndex = 0;
+  for (const match of matches) {
+    const textChunk = segment.slice(lastIndex, match.index).trim();
+    if (textChunk) blocks.push({ type: "text", value: textChunk });
+    if (match[0].startsWith("[scroll_folder]")) {
+      const width = match[2] ? Number(match[2]) : undefined;
+      blocks.push({ type: "scroll_folder", value: match[1], width });
+    } else {
+      const images = parseScrollImages(match[1]);
+      if (images.length) {
+        blocks.push({ type: "scroll", value: images });
+      }
+    }
+    lastIndex = (match.index ?? 0) + match[0].length;
+  }
+  const tail = segment.slice(lastIndex).trim();
+  if (tail) blocks.push({ type: "text", value: tail });
+  return blocks;
+};
+
+const segments = splitSegments(body).map(parseSegment);
+
+const expandPictures = (input: Block[]) => {
+  const out: Block[] = [];
+  input.forEach((block) => {
+    if (block.type !== "text") {
+      out.push(block);
+      return;
+    }
+    const text = block.value;
+    const markers = [...text.matchAll(pictureRegex), ...text.matchAll(pdfRegex), ...text.matchAll(spaceRegex)]
+      .sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
+    let last = 0;
+    for (const match of markers) {
+      const chunk = text.slice(last, match.index).trim();
+      if (chunk) out.push({ type: "text", value: chunk });
+      if (match[0].startsWith("[picture]")) {
+        const width = match[2] ? Number(match[2]) : undefined;
+        out.push({ type: "image", value: match[1], width });
+      } else if (match[0].startsWith("[pdf]")) {
+        const width = match[2] ? Number(match[2]) : undefined;
+        out.push({ type: "pdf", value: match[1], width });
+      } else {
+        out.push({ type: "space", value: match[1] });
+      }
+      last = (match.index ?? 0) + match[0].length;
+    }
+    const tailText = text.slice(last).trim();
+    if (tailText) out.push({ type: "text", value: tailText });
+  });
+  return out;
+};
+
+const normalizeSegment = (segmentBlocks: Block[]) => {
+  const expanded = expandPictures(segmentBlocks);
+  const out: Block[] = [];
+  for (let i = 0; i < expanded.length; i += 1) {
+    const current = expanded[i];
+    const next = expanded[i + 1];
+    if ((current.type === "scroll" || current.type === "scroll_folder") && next?.type === "text") {
+      out.push({
+        type: "split",
+        media: { type: "scroll", value: current.type === "scroll" ? current.value : [], folder: current.type === "scroll_folder" ? current.value : undefined, width: current.type === "scroll_folder" ? current.width : undefined },
+        text: next.value,
+        mediaSide: "left",
+      });
+      i += 1;
+      continue;
+    }
+    if (current.type === "text" && (next?.type === "scroll" || next?.type === "scroll_folder")) {
+      out.push({
+        type: "split",
+        media: { type: "scroll", value: next.type === "scroll" ? next.value : [], folder: next.type === "scroll_folder" ? next.value : undefined, width: next.type === "scroll_folder" ? next.width : undefined },
+        text: current.value,
+        mediaSide: "right",
+      });
+      i += 1;
+      continue;
+    }
+    // A single [picture] immediately beside a text block splits the same way
+    // a [scroll] does, keeping the image's natural proportions (no forced 16:9).
+    if (current.type === "image" && next?.type === "text") {
+      out.push({
+        type: "split",
+        media: { type: "image", value: current.value, width: current.width },
+        text: next.value,
+        mediaSide: "left",
+      });
+      i += 1;
+      continue;
+    }
+    if (current.type === "text" && next?.type === "image") {
+      out.push({
+        type: "split",
+        media: { type: "image", value: next.value, width: next.width },
+        text: current.value,
+        mediaSide: "right",
+      });
+      i += 1;
+      continue;
+    }
+    out.push(current);
+  }
+  return out;
+};
+
+const imageMap = import.meta.glob<ImageMetadata>(
+  "/src/content/projects/**/*.{png,jpg,jpeg,webp,gif,svg}",
+  { eager: true, import: "default" }
+);
+const pdfMap = import.meta.glob<{ default: string }>(
+  "/src/content/projects/**/*.pdf",
+  { eager: true }
+);
+const baseDir = (project.filePath ?? "")
+  .replace(/^src\/content\/projects\//, "")
+  .split("/")
+  .slice(0, -1)
+  .join("/");
+/**
+ * See the note in events/[...slug].astro: ImageMetadata.src is the original
+ * file, so body images are converted to webp up front instead of shipping
+ * full-size PNGs. VLA2 alone carries 25 of them.
+ */
+const optimised = new Map<string, string>();
+for (const [key, image] of Object.entries(imageMap)) {
+  if (!key.startsWith(`/src/content/projects/${baseDir}/`)) continue;
+  const result = await getImage({
+    src: image,
+    width: Math.min(image.width, 1200),
+    format: "webp",
+  });
+  optimised.set(key, result.src);
+}
+
+const resolveImage = (file: string) => {
+  const directKey = `/src/content/projects/${baseDir}/${file}`;
+  const fallbackKey = `/src/content/projects/${file}`;
+  const image = imageMap[directKey] ?? imageMap[fallbackKey];
+  return optimised.get(directKey) ?? optimised.get(fallbackKey) ?? image?.src ?? "";
+};
+const resolveFolderImages = (folder: string) => {
+  const folderPrefix = `/src/content/projects/${baseDir}/${folder}/`;
+  return Object.entries(imageMap)
+    .filter(([key]) => key.startsWith(folderPrefix))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => optimised.get(key) ?? value.src);
+};
+const resolvePdf = (file: string) => {
+  const directKey = `/src/content/projects/${baseDir}/${file}`;
+  const fallbackKey = `/src/content/projects/${file}`;
+  const pdf = pdfMap[directKey] ?? pdfMap[fallbackKey];
+  return (pdf as any)?.default ?? "";
+};
+const imageAlt = (file: string) =>
+  file
+    .replace(/\.[^/.]+$/, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
+
+/**
+ * Text blocks are rendered ahead of the template, not inside it.
+ *
+ * The Markdown processor is async and the template's block loop is not, so
+ * every text chunk is rendered here and looked up by its own source string
+ * below. The Set de-duplicates, so a string repeated across blocks is only
+ * processed once.
+ */
+const normalizedSegments = segments.map(normalizeSegment);
+
+const textChunks = new Set<string>();
+for (const blocks of normalizedSegments) {
+  for (const block of blocks) {
+    if (block.type === "text") textChunks.add(block.value);
+    if (block.type === "split") textChunks.add(block.text);
+  }
+}
+
+const htmlByChunk = new Map<string, string>();
+for (const chunk of textChunks) {
+  htmlByChunk.set(chunk, await renderBlockMarkdown(chunk));
+}
+
+const renderMarkdown = (text: string) => htmlByChunk.get(text) ?? "";
+---
+
+<Base
+  title={`${project.data.title} | UCL Robotics Society`}
+  description={project.data.summary}
+>
+  <PageHeader title={project.data.title} eyebrow="Project" rule={false}>
+    <div class="meta" style="margin-top:18px">
+      {project.data.lead && <>Lead - {project.data.lead}<br /></>}
+      Status - {project.data.status}
+      {project.data.repo && <><br />Repository - {project.data.repo}</>}
+    </div>
+    {
+      cover && (
+        <div class="detail-hero">
+          <Image src={cover} alt="" widths={[720, 1080, 1440]} sizes="100vw" loading="eager" />
+        </div>
+      )
+    }
+  </PageHeader>
+
+  <EventsLayout
+    initiatives={projectSidebar}
+    sidebarTitle="Explore projects"
+    currentId="vla"
+    recentByInitiative={recentByInitiative}
+    currentEventHref={`/projects/${project.id}`}
+  >
+    <article class="prose-body">
+        <div class="segments">
+          {normalizedSegments.map((normalized, segmentIndex) => {
+            return (
+              <div class="segments" data-segment={segmentIndex}>
+                {(() => {
+                  const rendered: any[] = [];
+                  for (let i = 0; i < normalized.length; i += 1) {
+                    const block = normalized[i];
+                    const next = normalized[i + 1];
+                    if (block.type === "image" && next?.type === "image") {
+                      const srcA = resolveImage(block.value);
+                      const srcB = resolveImage(next.value);
+                      const widthA = block.width;
+                      const widthB = next.width;
+                      const useFlex = widthA || widthB;
+                      const rowClass = useFlex ? "pair-loose" : "pair";
+                      rendered.push(
+                        <div class={rowClass}>
+                          {srcA ? (
+                            <img
+                              src={srcA}
+                              alt={imageAlt(block.value)}
+                              class="content-img"
+                              style={widthA ? `width:${widthA}%; margin-left:auto; margin-right:auto;` : undefined}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div class="missing">
+                              Image not found: {block.value}
+                            </div>
+                          )}
+                          {srcB ? (
+                            <img
+                              src={srcB}
+                              alt={imageAlt(next.value)}
+                              class="content-img"
+                              style={widthB ? `width:${widthB}%; margin-left:auto; margin-right:auto;` : undefined}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div class="missing">
+                              Image not found: {next.value}
+                            </div>
+                          )}
+                        </div>
+                      );
+                      i += 1;
+                      continue;
+                    }
+
+                    if (block.type === "scroll" || block.type === "scroll_folder") {
+                      // Pair each alt with its image before dropping the ones
+                      // that failed to resolve, so the remaining alt text
+                      // cannot slide onto the wrong picture.
+                      const slides = (block.type === "scroll"
+                        ? block.value.map((img) => ({ src: resolveImage(img), alt: imageAlt(img) }))
+                        : resolveFolderImages(block.value).map((src, index) => ({
+                            src,
+                            alt: `${block.value} image ${index + 1}`,
+                          }))
+                      ).filter((slide) => slide.src);
+                      rendered.push(
+                        <Carousel
+                          images={slides}
+                          width={block.type === "scroll_folder" ? block.width : undefined}
+                        />
+                      );
+                      continue;
+                    }
+
+                    if (block.type === "split") {
+                      const mediaLeft = block.mediaSide === "left";
+                      // Same alt/src pairing as the standalone branch above.
+                      const mediaSlides =
+                        block.media.type === "scroll"
+                          ? (block.media.folder
+                              ? resolveFolderImages(block.media.folder).map((src, index) => ({
+                                  src,
+                                  alt: `${block.media.folder} image ${index + 1}`,
+                                }))
+                              : (block.media.value as string[]).map((img) => ({
+                                  src: resolveImage(img),
+                                  alt: imageAlt(img),
+                                }))
+                            ).filter((slide) => slide.src)
+                          : [];
+                      // Only the single-image case needs this; a carousel reads
+                      // its sources from mediaSlides above.
+                      const singleImage =
+                        block.media.type === "scroll" ? "" : resolveImage(block.media.value as string);
+                      const mediaStyle =
+                        block.media.width
+                          ? `width:${block.media.width}%; margin-left:auto; margin-right:auto;`
+                          : undefined;
+                      const mediaNode =
+                        block.media.type === "scroll" ? (
+                          <Carousel images={mediaSlides} width={block.media.width} />
+                        ) : singleImage ? (
+                          <img
+                            src={singleImage}
+                            alt={imageAlt(block.media.value as string)}
+                            class="content-img"
+                            style={mediaStyle}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div class="missing">
+                            Image not found: {block.media.value as string}
+                          </div>
+                        );
+                      rendered.push(
+                        <div class="split">
+                          {mediaLeft && mediaNode}
+                          <div set:html={renderMarkdown(block.text)} />
+                          {!mediaLeft && mediaNode}
+                        </div>
+                      );
+                      continue;
+                    }
+
+                    if (block.type === "image") {
+                      const src = resolveImage(block.value);
+                      rendered.push(
+                        src ? (
+                          <img
+                            src={src}
+                            alt={imageAlt(block.value)}
+                            class="content-img"
+                            style={block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : undefined}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div class="missing">
+                            Image not found: {block.value}
+                          </div>
+                        )
+                      );
+                      continue;
+                    }
+
+                    if (block.type === "pdf") {
+                      const src = resolvePdf(block.value);
+                      rendered.push(
+                        src ? (
+                          <iframe
+                            src={src}
+                            title={block.value}
+                            class="content-img"
+                            style={`${block.width ? `width:${block.width}%; margin-left:auto; margin-right:auto;` : ""} height: 70vh;`}
+                          ></iframe>
+                        ) : (
+                          <div class="missing">
+                            PDF not found: {block.value}
+                          </div>
+                        )
+                      );
+                      continue;
+                    }
+
+                    if (block.type === "space") {
+                      rendered.push(<div class="space-block" style={`--space-height:${block.value};`} />);
+                      continue;
+                    }
+
+                    rendered.push(<div set:html={renderMarkdown(block.value)} />);
+                  }
+                  return rendered;
+                })()}
+              </div>
+            );
+          })}
+        </div>
+    </article>
+
+    {
+      otherProjects.length > 0 && (
+        <section class="section">
+          <SectionHeader title="Other projects" linkHref="/projects" linkLabel="All projects →" />
+          <div class="g2">
+            {otherProjects.map((entry) => (
+              <ProjectCard
+                href={`/projects/${entry.id}`}
+                title={entry.data.title}
+                summary={entry.data.summary}
+                attribution={entry.data.lead ? `Lead - ${entry.data.lead}` : undefined}
+                image={coverOf(entry)}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </EventsLayout>
+
+  <Container>
+    <JoinCTA
+      title="Join this project"
+      body="Projects are open to members at any level. Join the society and come to a session."
+    />
+  </Container>
+</Base>

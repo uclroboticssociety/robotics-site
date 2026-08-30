@@ -1,0 +1,30 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/ui/PageHeader.astro";
+import Container from "../components/ui/Container.astro";
+import { site } from "../data/site";
+
+const unionCodeUrl = "https://studentsunionucl.org/events-code-of-conduct";
+
+
+---
+
+<Base
+  title="Code of Conduct | UCL Robotics Society"
+  description="The UCL Robotics Society code of conduct."
+>
+  <PageHeader title="Code of conduct" eyebrow="Legal" />
+
+  <Container>
+    <section class="section" style="padding-top:48px">
+      <div class="prose-body">
+            All society activities are covered by the UCL Students' Union <a
+              href={unionCodeUrl}
+              target="_blank"
+              rel="noreferrer">events code of conduct</a
+            >. If you need to raise a concern about someone's behaviour at one of
+            our events, email the committee at <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> and we will deal with it.
+      </div>
+    </section>
+  </Container>
+</Base>

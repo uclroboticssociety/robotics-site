@@ -1,0 +1,49 @@
+---
+import { Image } from "astro:assets";
+import { initialsOf } from "../../data/committee";
+import { asset } from "../../lib/assets";
+import type { Advisor } from "../../data/advisors";
+
+/**
+ * Committee tile extended with the detail an academic listing needs:
+ * department, contact email and expertise chips. Same tile shell, so the
+ * advisory page does not introduce a new pattern.
+ */
+type Props = { advisor: Advisor };
+
+const { advisor } = Astro.props;
+const image = asset(advisor.image);
+---
+
+<div class="member">
+  <div class="face">
+    <span aria-hidden="true">{initialsOf(advisor.name)}</span>
+    {
+      image && (
+        <Image
+          src={image}
+          alt=""
+          widths={[240, 360]}
+          sizes="(max-width: 1000px) 50vw, 33vw"
+          loading="lazy"
+          decoding="async"
+        />
+      )
+    }
+  </div>
+  <div class="n">
+    <b>{advisor.name}</b>
+    <span>{advisor.title}</span>
+    <p class="dept">{advisor.department}</p>
+    <a href={`mailto:${advisor.email}`}>{advisor.email}</a>
+    {
+      advisor.expertise.length > 0 && (
+        <div class="chips">
+          {advisor.expertise.map((item) => (
+            <span>{item}</span>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</div>

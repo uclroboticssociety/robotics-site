@@ -1,0 +1,43 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+/**
+ * Browsable, image-led card. Used for projects and anywhere else a grid of
+ * things with pictures is the right pattern. Scannable chronological lists use
+ * EventRow instead.
+ */
+type Props = {
+  href: string;
+  title: string;
+  summary?: string;
+  /** Mono attribution line, e.g. "Lead — Martin Chen". */
+  attribution?: string;
+  image?: ImageMetadata;
+};
+
+const { href, title, summary, attribution, image } = Astro.props;
+---
+
+<a class="card" href={href}>
+  {
+    image ? (
+      <Image
+        class="shot"
+        src={image}
+        alt={title}
+        widths={[420, 640, 860]}
+        sizes="(max-width: 1000px) 100vw, 45vw"
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <span class="shot" aria-hidden="true" />
+    )
+  }
+  <div class="p">
+    <h3>{title}</h3>
+    {summary && <p>{summary}</p>}
+    {attribution && <div class="who">{attribution}</div>}
+  </div>
+</a>
