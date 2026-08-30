@@ -119,7 +119,7 @@ const missionPhoto = asset("mission/1.png");
     <section class="section" data-reveal>
       <SectionHeader title="Committee" linkHref="/about/committee" linkLabel="Meet the full team →" />
       <div class="team team-3">
-        {featuredCommittee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} />)}
+        {featuredCommittee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} linkedin={member.linkedin} />)}
       </div>
     </section>
 

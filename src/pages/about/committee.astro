@@ -20,7 +20,7 @@ import { committee } from "../../data/committee";
   <Container>
     <section class="section" style="padding-top:48px">
       <div class="team">
-        {committee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} />)}
+        {committee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} linkedin={member.linkedin} />)}
       </div>
     </section>
 

@@ -13,13 +13,19 @@ type Props = {
   role: string;
   /** Path relative to src/assets, e.g. "committee/1.png". */
   photo?: string;
+  /** Full LinkedIn profile URL. Omit to render a plain, non-linking tile with no badge. */
+  linkedin?: string;
 };
 
-const { name, role, photo } = Astro.props;
+const { name, role, photo, linkedin } = Astro.props;
 const image = asset(photo);
+const Tag = linkedin ? "a" : "div";
 ---
 
-<div class="member">
+<Tag
+  class="member"
+  {...linkedin && { href: linkedin, target: "_blank", rel: "noopener noreferrer", "aria-label": `${name} on LinkedIn` }}
+>
   <div class="face">
     {/* Initials sit underneath the photo, so a slow or broken image reveals a
         designed fallback rather than a gap. The portrait itself is decorative:
@@ -37,9 +43,18 @@ const image = asset(photo);
         />
       )
     }
+    {
+      linkedin && (
+        <span class="member-linkedin" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M6.94 6.5A1.44 1.44 0 1 1 4.06 6.5a1.44 1.44 0 0 1 2.88 0ZM4.5 8.75H7.5V19H4.5V8.75Zm5.25 0h2.86v1.4h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.6 2 3.6 4.6V19h-3v-4.55c0-1.09-.02-2.5-1.52-2.5-1.52 0-1.76 1.18-1.76 2.42V19h-3V8.75Z" />
+          </svg>
+        </span>
+      )
+    }
   </div>
   <div class="n">
     <b>{name}</b>
     <span>{role}</span>
   </div>
-</div>
+</Tag>
