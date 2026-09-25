@@ -163,6 +163,9 @@
     height: 74px;
   }
 
+  /* baseline, not center: the logo is bottom-heavy, so centring the text on
+     it makes the wordmark look like it floats. Baseline sits the letters on
+     the logo's bottom edge. */
   .brand {
     display: flex;
     align-items: center;
@@ -175,14 +178,20 @@
     flex: none;
   }
 
-  /* The society's own logo. It lives in public/ so it doubles as the favicon,
-     which means it is served unoptimised — worth compressing the source file
-     at some point, but it is cached across every page. */
+  /* Society logo - lives in:
+     Robotics_society_logo/logov1.svg. It lives in public/ so it doubles as the
+     favicon. The artwork is taller than it is wide, so only the height is fixed. */
   .brand-logo {
-    width: 32px;
+    width: auto;
     height: 32px;
     object-fit: contain;
     flex: none;
+  }
+
+  /* Manual alignment for centring */
+  .brand span {
+    position: relative;
+    top: 4px;
   }
 
   .nav-links {

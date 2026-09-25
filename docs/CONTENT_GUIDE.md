@@ -114,7 +114,7 @@ src/
 ├─ assets/                   ← page photos (committee, advisors, mission, sponsors)
 └─ data/                     ← committee, advisors, sponsors, nav, footer, site config
 
-public/                      ← static files served as-is (logo.png → /logo.png)
+public/                      ← static files served as-is (logo.svg → /logo.svg)
 scripts/pdf_to_images.py     ← helper: turn a PDF/slide deck into page images
 ```
 
@@ -552,7 +552,7 @@ Content images live in Git, and the repo already carries roughly 56 MB of them. 
 
 ### Where images can live
 
-Images must sit **in the entry's own folder** (or a subfolder of it, for `[scroll_folder]`). An image in a different event's folder won't resolve - you'll see a dashed *"Image not found: x.png"* box on the page. Committee, advisor, mission and sponsor photos go in `src/assets/` and are listed in `src/data/`. Only the logo and favicon belong in `public/`, referenced with a leading slash: `/logo.png`.
+Images must sit **in the entry's own folder** (or a subfolder of it, for `[scroll_folder]`). An image in a different event's folder won't resolve - you'll see a dashed *"Image not found: x.png"* box on the page. Committee, advisor, mission and sponsor photos go in `src/assets/` and are listed in `src/data/`. Only the logo and favicon belong in `public/`, referenced with a leading slash: `/logo.svg`.
 
 ### Turning a PDF or slide deck into images
 
