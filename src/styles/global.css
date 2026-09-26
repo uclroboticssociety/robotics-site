@@ -163,9 +163,8 @@
     height: 74px;
   }
 
-  /* baseline, not center: the logo is bottom-heavy, so centring the text on
-     it makes the wordmark look like it floats. Baseline sits the letters on
-     the logo's bottom edge. */
+  /* The wordmark is centred on the logo, then nudged down by .brand span
+     below because the logo is heavier at the bottom. */
   .brand {
     display: flex;
     align-items: center;
@@ -222,8 +221,12 @@
   }
 
   /* desktop dropdown */
+  /* A flex box rather than a plain block, so the button inside is centred
+     like the other links instead of sitting on an invisible 16.5px text line. */
   .nav-menu {
     position: relative;
+    display: flex;
+    align-items: center;
   }
 
   .nav-menu > button {
@@ -259,7 +262,9 @@
 
   .nav-panel {
     position: absolute;
-    left: 0;
+    /* -21px = 1px border + 8px panel padding + 12px link padding, so the
+       dropdown links start directly under the "About" text. */
+    left: -21px;
     top: calc(100% + 14px);
     min-width: 210px;
     padding: 8px;
