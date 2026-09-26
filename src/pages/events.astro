@@ -8,18 +8,16 @@ import EventRow from "../components/ui/EventRow.astro";
 import JoinCTA from "../components/ui/JoinCTA.astro";
 import Container from "../components/ui/Container.astro";
 import { initiatives } from "../data/events";
-import { byDateDesc, folderOf, groupByAcademicYear } from "../lib/events";
+import { byDateDesc, groupByAcademicYear } from "../lib/events";
 
 const allEvents = await getCollection("events");
 const sorted = [...allEvents].sort(byDateDesc);
 const yearGroups = groupByAcademicYear(sorted);
 
-// The sidebar label uses the folder name, which is also the URL, so the two
-// always agree. See docs/CONTENT_GUIDE.md.
 const listFor = (tag: string) =>
   sorted
     .filter((event) => event.data.tags?.includes(tag))
-    .map((event) => ({ title: folderOf(event), href: `/events/${event.id}` }));
+    .map((event) => ({ title: event.data.title, href: `/events/${event.id}` }));
 
 const recentByInitiative = Object.fromEntries(
   initiatives.map((initiative) => [initiative.id, listFor(initiative.tag)])

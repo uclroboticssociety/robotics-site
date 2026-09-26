@@ -1,0 +1,59 @@
+backend:
+  name: github
+  repo: uclroboticssociety/robotics-site
+  branch: explore/decap-cms # point at this branch while testing; change before any real rollout
+  base_url: https://REPLACE-WITH-THIS-BRANCHS-PREVIEW-DOMAIN
+  auth_endpoint: /api/auth
+
+media_folder: ""
+public_folder: ""
+
+collections:
+  - name: events
+    label: Events
+    folder: src/content/events
+    path: "{{slug}}/index"
+    media_folder: ""
+    public_folder: ""
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ" }
+      - { label: Location, name: location, widget: string, required: false }
+      - { label: Signup URL, name: signup_url, widget: string, required: false }
+      - label: Tags
+        name: tags
+        widget: select
+        options: [workshop, hackathon, challenge, social]
+        multiple: true
+        min: 1
+        max: 1
+      - { label: Show countdown on homepage, name: countdown, widget: boolean, required: false }
+      - label: Countdown units
+        name: countdown_units
+        widget: select
+        options: [days, hours, minutes, seconds]
+        multiple: true
+        required: false
+      - { label: Body, name: body, widget: markdown }
+
+  - name: projects
+    label: Projects
+    folder: src/content/projects
+    path: "{{slug}}/index"
+    media_folder: ""
+    public_folder: ""
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Repo URL, name: repo, widget: string, required: false }
+      - { label: Lead, name: lead, widget: string, required: false }
+      - label: Status
+        name: status
+        widget: select
+        options: [active, paused, completed]
+        default: active
+      - { label: Body, name: body, widget: markdown }

@@ -12,7 +12,7 @@ import Container from "../../components/ui/Container.astro";
 import { renderBlockMarkdown } from "../../lib/markdown";
 import Carousel from "../../components/ui/Carousel.astro";
 import { initiatives } from "../../data/events";
-import { byDateDesc, folderOf, longDate, thumbnailOf } from "../../lib/events";
+import { byDateDesc, longDate, thumbnailOf } from "../../lib/events";
 
 export async function getStaticPaths() {
   const allEvents = await getCollection("events");
@@ -36,7 +36,7 @@ const sorted = [...allEvents].sort(byDateDesc);
 const listFor = (tag: string) =>
   sorted
     .filter((entry) => entry.data.tags?.includes(tag))
-    .map((entry) => ({ title: folderOf(entry), href: `/events/${entry.id}` }));
+    .map((entry) => ({ title: entry.data.title, href: `/events/${entry.id}` }));
 
 const recentByInitiative = Object.fromEntries(
   initiatives.map((initiative) => [initiative.id, listFor(initiative.tag)])
