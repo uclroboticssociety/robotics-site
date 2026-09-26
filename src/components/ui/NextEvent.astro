@@ -37,7 +37,9 @@ const category = categoryOf(event);
         {event.data.location && <><br />{event.data.location}</>}
       </div>
 
-      {upcoming && <Countdown datetime={event.data.date} />}
+      {upcoming && event.data.countdown !== false && (
+        <Countdown datetime={event.data.date} units={event.data.countdown_units} />
+      )}
 
       <div class="acts">
         <a class="btn" href={`/events/${event.id}`}>

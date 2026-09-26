@@ -148,6 +148,8 @@ const events = defineCollection({
     location: z.string().optional(),
     signup_url: z.string().url().optional(),
     tags: z.array(z.string()).optional(),
+    countdown: z.boolean().optional(),
+    countdown_units: z.array(z.enum(["days", "hours", "minutes", "seconds"])).optional(),
   }),
 });
 ```
@@ -303,6 +305,8 @@ Because the loader pattern is `**/*.md`, a folder can hold more than one page. `
 | `location` | no | string | Rendered next to a location-pin icon |
 | `signup_url` | no | string | Must be a **valid URL** if present, or the build fails. Currently stored but not displayed anywhere - see [Known gaps](#known-gaps) |
 | `tags` | no | array of strings | Drives the sidebar category. Use exactly one of the four tags above |
+| `countdown` | no | boolean | Only matters for whichever event is currently featured on the homepage ("Next event" panel). Set `false` to hide the countdown even though the event is upcoming |
+| `countdown_units` | no | array of strings | Only matters for the featured event. Restricts the countdown to some of `"days"`, `"hours"`, `"minutes"`, `"seconds"` - e.g. `["days", "hours"]`. Omit to show all four |
 
 ### Projects collection (`src/content/projects/**/*.md`)
 

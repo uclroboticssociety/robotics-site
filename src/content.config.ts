@@ -9,6 +9,8 @@ const events = defineCollection({
     location: z.string().optional(),
     signup_url: z.string().url().optional(),
     tags: z.array(z.string()).optional(),
+    countdown: z.boolean().optional(),
+    countdown_units: z.array(z.enum(["days", "hours", "minutes", "seconds"])).optional(),
   }),
 });
 

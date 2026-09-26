@@ -1055,6 +1055,16 @@
     border-top: 1px solid var(--color-rule);
   }
 
+  /* One block per academic year on the events page. .sh only carries
+     margin-bottom, so consecutive year sections need their own gap. */
+  .year-group {
+    margin-top: 56px;
+  }
+
+  .year-group:first-of-type {
+    margin-top: 0;
+  }
+
   .row {
     display: grid;
     grid-template-columns: 70px 148px 1fr 200px 118px;

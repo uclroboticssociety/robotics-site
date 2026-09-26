@@ -89,6 +89,38 @@ export const mostRecentEvent = (entries: EventEntry[]) => [...entries].sort(byDa
 // zone explicitly — otherwise output depends on the build machine's timezone.
 const LONDON = "Europe/London";
 
+// UK academic years run September to August.
+const academicYearStart = (iso: string) => {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    year: "numeric",
+    month: "numeric",
+    timeZone: LONDON,
+  }).formatToParts(new Date(iso));
+  const year = Number(parts.find((p) => p.type === "year")?.value);
+  const month = Number(parts.find((p) => p.type === "month")?.value);
+  return month >= 9 ? year : year - 1;
+};
+
+/** "2025/2026" style UK academic-year label. */
+export const academicYearOf = (entry: EventEntry) => {
+  const start = academicYearStart(entry.data.date);
+  return `${start}/${start + 1}`;
+};
+
+/** Events bucketed by academic year, most recent year first; events within
+ *  each bucket keep whatever order the caller already sorted them in. */
+export const groupByAcademicYear = (entries: EventEntry[]) => {
+  const groups = new Map<string, EventEntry[]>();
+  for (const entry of entries) {
+    const year = academicYearOf(entry);
+    if (!groups.has(year)) groups.set(year, []);
+    groups.get(year)!.push(entry);
+  }
+  return [...groups.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([year, events]) => ({ year, events }));
+};
+
 /** "Fri 23 Oct" — set uppercase by CSS in row and meta contexts. */
 export const shortDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", {
