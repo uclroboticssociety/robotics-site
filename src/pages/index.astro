@@ -41,14 +41,14 @@ const missionPhoto = asset("mission/1.png");
           class="hero-photo"
           src={heroPhoto}
           alt="Society members working on a robotics build"
-          widths={[720, 1080, 1600]}
+          widths={[720, 1080, 1600, 2048]}
           sizes="100vw"
           loading="eager"
           decoding="async"
         />
       )
     }
-    <Container>
+    <Container class="wrap-wide">
       <div class="hero-in">
         <span class="mono rise d1">{statusPillText()}</span>
         <h1 class="rise d2">Experience the heart of UCL innovation</h1>
@@ -63,7 +63,13 @@ const missionPhoto = asset("mission/1.png");
         </div>
       </div>
     </Container>
+    <a class="hero-scroll" href="#after-hero" aria-label="Scroll to content">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    </a>
   </div>
+  <div id="after-hero"></div>
 
   <Container>
     {

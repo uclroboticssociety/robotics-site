@@ -106,6 +106,7 @@ API and preloaded in `Base.astro`. Nothing is fetched from Google at page load.
 | `h2` section head | Archivo 700, `clamp(24px,3.2vw,36px)` |
 | `h3` card title | 20px; `clamp(28px,3.8vw,44px)` for the featured event |
 | Body | Archivo 400, 16.5px, line-height 1.6, `--color-fg` |
+| Home hero | Text block centred horizontally and vertically, text left-aligned inside it. Title `clamp(40px,5.6vw,96px)`, max 10.2em (keeps a two-line break; measured at weight 800, re-measure if the title text changes); lede up to 20px, 44ch; mono label 11.5px |
 | Lede (`.lede`) | Archivo 400, 18.5px, `--color-muted`, max 46ch |
 | Metadata (`.mono`) | Spline Sans Mono, 10–11.5px, `.10–.13em`, uppercase |
 | Big numbers | Archivo 700, `-.04em`, `tabular-nums`, `--color-accent-hover` |
@@ -124,10 +125,13 @@ meta.** Never set a paragraph or a heading in mono.
 - **Background** - flat paper (`--color-bg`). No decorative gradients or
   textures behind the page; depth comes from hairline borders and the
   occasional tinted panel (`--color-surface-2`), not from a background layer.
+- **Width** - everything sits in the 1200px `Container`, except the navbar and
+  home hero, which use `wrap-wide`: full screen width with a 20-56px gutter.
 - **Section rhythm** - `.section` gives 92px top padding. Nothing else sets its
   own section spacing.
 - **Breakpoints** - 1000px is the main one (grids collapse, nav becomes a
-  drawer), 900px shrinks the hero, 640px tightens gutters and stacks section
+  drawer), 900px tightens the hero's bottom padding (the hero fills the screen
+  below the nav at every width, with a scroll arrow), 640px tightens gutters and stacks section
   headers. Test at 320 / 768 / 1000 / 1440.
 
 ---
@@ -182,7 +186,8 @@ for attention on a screen, demote one to outline.
 
 Icon-only controls that belong to one component sit outside these three rather
 than becoming a fourth variant: `.nav-toggle` (mobile drawer), `.socials a`
-(footer) and `.carousel-nav` (the carousel's prev/next arrows). All three are a
+(footer), `.carousel-nav` (the carousel's prev/next arrows) and `.hero-scroll`
+(the home hero's scroll-down arrow). All four are a
 fixed square, `inline-flex` centred, with a `currentColor` glyph, and none is
 ever accent purple - two arrows on one photo must not read as primary actions.
 
