@@ -6,6 +6,9 @@
  * Do not set page widths inline — if a page needs a narrower measure, nest a
  * max-width on the content itself (e.g. .prose-body at 70ch) rather than
  * changing the container.
+ *
+ * The one exception is class="wrap-wide" (navbar and home hero only), which
+ * drops the 1200px limit so their content reaches the screen edges.
  */
 type Props = {
   as?: string;

@@ -129,6 +129,14 @@
     z-index: 2;
   }
 
+  /* Full-width variant for the navbar and home hero: content runs to the
+     screen edges with a gutter instead of stopping at 1200px. Phones still get
+     the 20px gutter from the 640px rule at the bottom of the file. */
+  .wrap-wide {
+    max-width: none;
+    padding: 0 clamp(20px, 3vw, 56px);
+  }
+
   /* Section vertical rhythm. Nothing else should set its own top padding. */
   .section {
     padding: 92px 0 0;
@@ -518,11 +526,19 @@
   .hero {
     position: relative;
     overflow: hidden;
-    min-height: clamp(560px, calc(100vh - 75px), 760px);
-    min-height: clamp(560px, calc(100dvh - 75px), 760px);
+    /* Fills the screen below the 75px nav (74px bar + 1px border) on every
+       device; the .hero-scroll arrow tells people there is more below.
+       svh = screen height with the mobile toolbar showing, so it doesn't jump;
+       vh is the fallback for older browsers. */
+    min-height: calc(100vh - 75px);
+    min-height: calc(100svh - 75px);
+    /* The text block is centred both ways, in line with the scroll arrow; the
+       text inside it is left-aligned (see .hero-in). The bottom padding leaves
+       room for the arrow, and because it is larger than the top padding the
+       block sits slightly above the true centre, which looks balanced. */
     display: flex;
-    align-items: flex-end;
-    padding: 0 0 56px;
+    align-items: center;
+    padding: 32px 0 88px;
   }
 
   .hero-photo {
@@ -549,18 +565,32 @@
   }
 
   .hero h1 {
-    font-size: clamp(40px, 5.6vw, 68px);
+    font-size: clamp(40px, 5.6vw, 96px);
+    /* In em (the title's own size), so the line length grows exactly with the
+       letters and the break is always "Experience the heart / of UCL
+       innovation". Measured in the browser at weight 800: "Experience the
+       heart" = 9.71em, "Experience the heart of" = 10.80em. Keep this between
+       10em and 10.7em, or re-measure if the title text changes. */
+    max-width: 10.2em;
+    text-wrap: balance;
     font-weight: 800;
-    margin: 18px 0 0;
+    margin: 20px 0 0;
     color: #fff;
   }
 
   .hero .mono {
     color: #d9bfea;
+    font-size: 11.5px;
   }
 
   .hero .lede {
     color: rgba(255, 255, 255, 0.88);
+    font-size: clamp(18.5px, 1.4vw, 20px);
+    max-width: 44ch;
+  }
+
+  .hero .acts {
+    margin-top: 40px;
   }
 
   .hero .btn-o {
@@ -574,10 +604,58 @@
     border-color: #fff;
   }
 
+  /* The container must span the hero. .wrap has margin: 0 auto, and inside a
+     flex row auto margins shrink an item to its content and centre it, which
+     put the left-aligned text in a centred box instead of under the logo. */
+  .hero > .wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
   .hero-in {
     position: relative;
     z-index: 2;
-    max-width: 640px;
+    /* Room for the title: 10.2em x 96px. fit-content makes the block hug its
+       widest line (the title), so margin: auto centres the text itself rather
+       than an emptier box around it. */
+    max-width: 980px;
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  /* Scroll hint. A bare white glyph like .carousel-nav, since it sits on the
+     photo (see DESIGN.md, "Icon-only controls"). */
+  .hero-scroll {
+    position: absolute;
+    z-index: 2; /* above the .hero::after wash */
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #fff;
+    opacity: 0.55;
+    transition: opacity 0.18s;
+    animation: hero-bob 2.4s ease-in-out infinite;
+  }
+
+  .hero-scroll:hover,
+  .hero-scroll:focus-visible {
+    opacity: 1;
+  }
+
+  .hero-scroll svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* The arrow's target, just below the hero. The margin keeps the sticky nav
+     from covering the section it scrolls to. */
+  #after-hero {
+    scroll-margin-top: 75px;
   }
 
   /* ---- page header (every page that isn't home) ------------------------ */
@@ -1917,6 +1995,18 @@
   }
 }
 
+/* The hero's scroll arrow bobs gently. translate rather than transform, so it
+   doesn't undo the translateX(-50%) that centres it. */
+@keyframes hero-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 6px;
+  }
+}
+
 /* The `from` is what lets [data-reveal] share this keyframe: .rise declares
    the same start state itself, so adding it here changes nothing for the hero
    but gives the scroll reveal something to animate from. */
@@ -2032,8 +2122,7 @@
 
 @media (max-width: 900px) {
   .hero {
-    min-height: 0;
-    padding-bottom: 40px;
+    padding-bottom: 80px;
   }
 }
 
