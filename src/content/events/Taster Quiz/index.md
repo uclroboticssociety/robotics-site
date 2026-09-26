@@ -1,8 +1,9 @@
 ---
-title: "Taster Quiz Social" 
+title: "Taster Quiz" 
 date: "2026-09-30T12:00:00+01:00"
 location: "Bloomsbury Campus - Room TBD"
 tags: ["social"]
+countdown: false
 ---
 /!!!
 Join us for a fun quiz to get to know fellow people also interested in robotics. You'll get to meet and mingle with other students from various courses and years. We will provide snacks and refreshments!

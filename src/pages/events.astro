@@ -8,10 +8,11 @@ import EventRow from "../components/ui/EventRow.astro";
 import JoinCTA from "../components/ui/JoinCTA.astro";
 import Container from "../components/ui/Container.astro";
 import { initiatives } from "../data/events";
-import { byDateDesc, folderOf } from "../lib/events";
+import { byDateDesc, folderOf, groupByAcademicYear } from "../lib/events";
 
 const allEvents = await getCollection("events");
 const sorted = [...allEvents].sort(byDateDesc);
+const yearGroups = groupByAcademicYear(sorted);
 
 // The sidebar label uses the folder name, which is also the URL, so the two
 // always agree. See docs/CONTENT_GUIDE.md.
@@ -37,14 +38,21 @@ const recentByInitiative = Object.fromEntries(
   />
 
   <EventsLayout initiatives={initiatives} recentByInitiative={recentByInitiative}>
-    <SectionHeader title="All events" meta={`${sorted.length} events`} />
     {
       sorted.length ? (
-        <div class="rows">
-          {sorted.map((event) => (
-            <EventRow event={event} />
-          ))}
-        </div>
+        yearGroups.map((group) => (
+          <div class="year-group">
+            <SectionHeader
+              title={group.year}
+              meta={`${group.events.length} event${group.events.length === 1 ? "" : "s"}`}
+            />
+            <div class="rows">
+              {group.events.map((event) => (
+                <EventRow event={event} />
+              ))}
+            </div>
+          </div>
+        ))
       ) : (
         <p class="lede">No events announced yet.</p>
       )
