@@ -558,15 +558,15 @@
        device; the .hero-scroll arrow tells people there is more below.
        svh = screen height with the mobile toolbar showing, so it doesn't jump;
        vh is the fallback for older browsers. */
-    min-height: calc(100vh - 75px);
-    min-height: calc(100svh - 75px);
+    min-height: clamp(476px, calc(100vh - 75px), 646px);
+    min-height: clamp(476px, calc(100svh - 75px), 646px);
     /* The text block is centred both ways, in line with the scroll arrow; the
        text inside it is left-aligned (see .hero-in). The bottom padding leaves
        room for the arrow, and because it is larger than the top padding the
        block sits slightly above the true centre, which looks balanced. */
     display: flex;
     align-items: center;
-    padding: 32px 0 88px;
+    padding: 27px 0 75px;
   }
 
   .hero-photo {
@@ -593,7 +593,7 @@
   }
 
   .hero h1 {
-    font-size: clamp(40px, 5.6vw, 96px);
+    font-size: clamp(34px, 4.8vw, 82px);
     /* In em (the title's own size), so the line length grows exactly with the
        letters and the break is always "Experience the heart / of UCL
        innovation". Measured in the browser at weight 800: "Experience the
@@ -613,12 +613,12 @@
 
   .hero .lede {
     color: rgba(255, 255, 255, 0.88);
-    font-size: clamp(18.5px, 1.4vw, 20px);
+    font-size: clamp(16px, 1.2vw, 17px);
     max-width: 44ch;
   }
 
   .hero .acts {
-    margin-top: 40px;
+    margin-top: 34px;
   }
 
   .hero .btn-o {
@@ -643,10 +643,10 @@
   .hero-in {
     position: relative;
     z-index: 2;
-    /* Room for the title: 10.2em x 96px. fit-content makes the block hug its
+    /* Room for the title: 10.2em x 82px. fit-content makes the block hug its
        widest line (the title), so margin: auto centres the text itself rather
        than an emptier box around it. */
-    max-width: 980px;
+    max-width: 836px;
     width: fit-content;
     margin: 0 auto;
   }
@@ -2150,7 +2150,7 @@
 
 @media (max-width: 900px) {
   .hero {
-    padding-bottom: 80px;
+    padding-bottom: 68px;
   }
 }
 
