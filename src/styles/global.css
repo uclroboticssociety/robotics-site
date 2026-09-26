@@ -201,6 +201,34 @@
     top: 4px;
   }
 
+  /* The navbar brand is about 20% larger than the footer's: logo 32 -> 38px,
+     name 16 -> 19px, with the gap and the nudge above scaled to match. */
+  .nav-in > .brand {
+    gap: 13px;
+    font-size: 19px;
+  }
+
+  .nav-in .brand-logo {
+    height: 38px;
+  }
+
+  .nav-in .brand span {
+    top: 5px;
+  }
+
+  /* Lift the whole navbar brand (logo and name together, so the nudge is
+     kept) so the name shares one baseline with the nav links and Join Us.
+     7px = the 5px nudge + the 2px a centred 19px name sits below centred 14px
+     links, measured in the browser. Desktop only: below 1000px the links are
+     hidden and the brand stays centred in the bar. Re-measure if the name,
+     link or logo sizes change. */
+  @media (min-width: 1001px) {
+    .nav-in > .brand {
+      position: relative;
+      top: -7px;
+    }
+  }
+
   .nav-links {
     margin-left: auto;
     display: flex;
