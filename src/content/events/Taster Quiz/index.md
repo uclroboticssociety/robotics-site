@@ -1,14 +1,14 @@
 ---
 title: "Taster Quiz" 
 date: "2026-09-30T12:00:00+01:00"
-location: "UCL East - Marshgate 528"
+location: "UCL East - Marshgate 612"
 tags: ["social"]
 countdown: false
 ---
 
 /!!!
 >Date: 12:00-2:00pm, 30th September \
->Location: UCL East - Marshgate 528
+>Location: UCL East - Marshgate 612
 !!!/
 
 /!!!
