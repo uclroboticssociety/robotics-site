@@ -37,5 +37,5 @@ Remember to get your membership [here](https://studentsunionucl.org/clubs-societ
 !!!/
 
 /!!!
-[More Info](https://studentsunionucl.org/whats-on/clubs-societies/autonomous-sumo-robot-challenge?v=98950)
+[Buy a ticket](https://studentsunionucl.org/whats-on/clubs-societies/autonomous-sumo-robot-challenge?v=98950)
 !!!/
