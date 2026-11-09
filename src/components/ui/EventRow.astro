@@ -36,5 +36,19 @@ const highlight = status === "upcoming" || status === "today";
   <span class="date">{shortDate(event.data.date)}</span>
   <span class="t">{event.data.title}</span>
   <span class="v">{event.data.location ?? category?.label ?? ""}</span>
-  <span class:list={["st", highlight && "st-on"]}>{statusLabel(status)}</span>
+  <span class:list={["st", highlight && "st-on"]} data-status-date={event.data.date}>
+    {statusLabel(status)}
+  </span>
 </a>
+
+<script>
+  import { statusAt, statusLabel } from "../../lib/eventStatus";
+
+  // The label above is the build's answer, which goes stale once a date passes
+  // and nobody has pushed since. Re-check it against the visitor's date.
+  document.querySelectorAll<HTMLElement>("[data-status-date]").forEach((pill) => {
+    const status = statusAt(pill.dataset.statusDate ?? "");
+    pill.textContent = statusLabel(status);
+    pill.classList.toggle("st-on", status !== "past");
+  });
+</script>

@@ -1,6 +1,7 @@
 import type { CollectionEntry } from "astro:content";
 import type { ImageMetadata } from "astro";
 import { initiatives, type EventInitiative } from "../data/events";
+import { statusAt, type EventStatus } from "./eventStatus";
 
 export type EventEntry = CollectionEntry<"events">;
 
@@ -47,41 +48,21 @@ export const thumbnailOf = (entry: EventEntry): ImageMetadata | undefined => {
 export const categoryOf = (entry: EventEntry): EventInitiative | undefined =>
   initiatives.find((initiative) => entry.data.tags?.includes(initiative.tag));
 
-export type EventStatus = "upcoming" | "today" | "past";
-
-const sameDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear() &&
-  a.getMonth() === b.getMonth() &&
-  a.getDate() === b.getDate();
+export { statusLabel, type EventStatus } from "./eventStatus";
 
 /**
- * Status is computed at build time, so it refreshes on each deploy rather than
- * continuously. That is accurate enough for a list; the hero countdown runs
- * client-side and is always live.
- *
- * There is no end-time field on events, so an event's duration is unknown —
- * "today" is as precise as the data allows, and we do not guess a run length.
+ * Status at build time. It is only refreshed when the site is rebuilt, so every
+ * component that renders it also re-checks it in the browser — see
+ * eventStatus.ts.
  */
-export const statusOf = (entry: EventEntry, now = new Date()): EventStatus => {
-  const start = new Date(entry.data.date);
-  if (sameDay(start, now)) return "today";
-  return start.getTime() > now.getTime() ? "upcoming" : "past";
-};
-
-export const statusLabel = (status: EventStatus) =>
-  status === "upcoming" ? "Upcoming" : status === "today" ? "Today" : "Recap";
+export const statusOf = (entry: EventEntry, now = new Date()): EventStatus =>
+  statusAt(entry.data.date, now);
 
 export const byDateDesc = (a: EventEntry, b: EventEntry) =>
   new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
 
 export const byDateAsc = (a: EventEntry, b: EventEntry) =>
   new Date(a.data.date).getTime() - new Date(b.data.date).getTime();
-
-/** Soonest event still ahead of us, or undefined if there are none. */
-export const nextEvent = (entries: EventEntry[], now = new Date()) =>
-  [...entries]
-    .filter((entry) => new Date(entry.data.date).getTime() >= now.getTime())
-    .sort(byDateAsc)[0];
 
 export const mostRecentEvent = (entries: EventEntry[]) => [...entries].sort(byDateDesc)[0];
 
