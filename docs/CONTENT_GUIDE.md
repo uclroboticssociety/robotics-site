@@ -37,7 +37,7 @@ If you read nothing else in this file, read this page.
 | ✅ Do | ❌ Don't |
 |---|---|
 | One folder per event, its photos inside it | Put images in `public/`, or borrow another event's folder |
-| Name the folder what you want in the sidebar, matching `title:` | Rename or delete a live folder, the URL dies with it |
+| Name the folder `Event Name Mon YYYY`, e.g. `Board Games Oct 2025` | Rename a live folder without adding its old URL to `public/_redirects` |
 | Quote `date:` in ISO form, `"2026-02-14T18:00:00+00:00"` | Leave it unquoted, or write `14/02/2026` |
 | Tag every event `workshop`, `hackathon`, `challenge` or `social` | Invent a tag, it lands in no sidebar category |
 | Compress photos, zero-pad past 9 (`01.png`) | Commit 8 MB phone photos, or expect `10.png` after `9.png` |
@@ -46,12 +46,12 @@ If you read nothing else in this file, read this page.
 
 ```bash
 # 1. Make a folder named after the event, and drop your photos in it
-mkdir "src/content/events/Line Following Workshop"
-cp ~/Pictures/photo1.png "src/content/events/Line Following Workshop/1.png"
+mkdir "src/content/events/Line Following Workshop Feb 2026"
+cp ~/Pictures/photo1.png "src/content/events/Line Following Workshop Feb 2026/1.png"
 ```
 
 ```markdown
-<!-- 2. Create src/content/events/Line Following Workshop/index.md -->
+<!-- 2. Create src/content/events/Line Following Workshop Feb 2026/index.md -->
 ---
 title: "Line Following Workshop"
 date: "2026-02-14T18:00:00+00:00"
@@ -74,7 +74,7 @@ npm run build        # must pass before you push
 git add . && git commit -m "Add line following workshop" && git push   # on dev, not main
 ```
 
-The page appears automatically at `/events/line-following-workshop`, in the Workshops sidebar, and in "Latest Events" - no code changes, no route to register, no list to update. The rest of this guide explains why that works and what else you can put in the page.
+The page appears automatically at `/events/line-following-workshop-feb-2026`, in the Workshops sidebar, and in "Latest Events" - no code changes, no route to register, no list to update. The rest of this guide explains why that works and what else you can put in the page.
 
 **Stuck?** Jump to [Troubleshooting](#troubleshooting) - it lists every error this setup produces, with the cause and the fix.
 
@@ -178,14 +178,23 @@ Astro turns each entry's path into an **id**, and the id becomes the URL. Spaces
 
 | File | id | Live URL |
 |---|---|---|
-| `events/Board Games/index.md` | `board-games` | `/events/board-games` |
-| `events/PCB Workshop/index.md` | `pcb-workshop` | `/events/pcb-workshop` |
+| `events/Board Games Oct 2025/index.md` | `board-games-oct-2025` | `/events/board-games-oct-2025` |
+| `events/CV Roast Oct 2026/index.md` | `cv-roast-oct-2026` | `/events/cv-roast-oct-2026` |
 | `events/Film Night - The Iron Giant/index.md` | `film-night---the-iron-giant` | `/events/film-night---the-iron-giant` |
 | `projects/VLA1/index.md` | `vla1` | `/projects/vla1` |
 
-Note the triple dash in the third row: ` - ` in a folder name becomes `---`. **Name folders without dashes or punctuation** (`Film Night Iron Giant`) to get clean URLs. The pretty name shown on the page comes from `title:` anyway.
+Note the triple dash in the third row: ` - ` in a folder name becomes `---`. **Name folders without dashes or punctuation** (`Film Night The Iron Giant Nov 2025`) to get clean URLs; dots are dropped too, so `10.26` becomes `1026`. The pretty name shown on the page comes from `title:` anyway.
 
-> **Renaming a folder changes the URL and breaks any link already shared on socials such as Instagram or Discord.** Prefer getting the name right first time; if you must rename, expect the old link to 404.
+**Event folders are named `Event Name Mon YYYY`**, using the month and year of the event's `date:` (`Sumo Robot Nov 2026`). The date keeps repeat events apart (next year's Board Games gets its own URL) and shows in the sidebar.
+
+> **Renaming a folder changes the URL and breaks any link already shared on socials such as Instagram or Discord.** Prefer getting the name right first time. If you must rename, add the old URL to `public/_redirects` in the same commit, both with and without the trailing slash, so old links forward to the new page:
+>
+> ```
+> /events/board-games /events/board-games-oct-2025/ 301
+> /events/board-games/ /events/board-games-oct-2025/ 301
+> ```
+>
+> Never remove a line from that file. Redirects only run on Cloudflare, so check them on the pull request's preview URL, not with `npm run dev`.
 
 ### 4. One template renders all of them
 
@@ -668,7 +677,7 @@ Branching, PRs and merging: [README → Git workflow](../README.md#git-workflow-
 | Carousel photos in the wrong order | Alphabetical sorting - zero-pad the filenames (`01.png`) |
 | `[picture]"1.png"` appears as literal text | It's outside a `/!!! … !!!/` block, or the quotes are curly “smart quotes” from Word or Notion. Use straight `"` quotes |
 | A Markdown link or italic renders as raw characters | Not supported by the custom renderer - see [Body syntax](#body-syntax-reference-blocks-and-markers) |
-| Sidebar shows a different name than the page heading | Sidebar uses the **folder name**, the heading uses `title:`. Make them match |
+| Sidebar shows a different name than the page heading | Sidebar uses the **folder name** (with its month and year), the heading uses `title:`. To change the sidebar label, rename the folder and add a redirect - see [the folder name becomes the URL](#3-the-folder-name-becomes-the-url) |
 | Page works locally but not live | You committed but didn't push, or the Cloudflare build failed - check the Cloudflare Pages dashboard |
 | Weird stale behaviour in dev | Stop the server, then `rm -rf .astro dist node_modules/.vite`, `npm install`, `npm run dev` |
 

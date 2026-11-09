@@ -32,7 +32,7 @@ Two sections are deliberately unrouted and so are not in that count: Projects (`
 
 **Comments inside `.astro` templates.** Anything inside a `{ }` expression is JSX, so use `{/* … */}`. An HTML `<!-- -->` comment there is a compile error. Note that a comment and an element cannot be siblings in a ternary branch.
 
-**Content entries are `index.md` inside a named folder.** The folder name becomes the URL and the sidebar label. The glob pattern is `**/*.md`, so a folder may hold additional pages (`results.md` becomes a nested URL). Each file needs complete frontmatter.
+**Content entries are `index.md` inside a named folder.** The folder name becomes the URL and the sidebar label. Event folders are named `Event Name Mon YYYY` (`Board Games Oct 2025`). Renaming a live folder breaks shared links, so the old URL must be added to `public/_redirects` in the same change. The glob pattern is `**/*.md`, so a folder may hold additional pages (`results.md` becomes a nested URL). Each file needs complete frontmatter.
 
 **Silent failures.** `getCollection()` returns `[]` rather than throwing when a collection is misconfigured. `getStaticPaths()` then produces zero pages, and the build exits 0 with only a warning. If a section of the site disappears, look at `src/content.config.ts` first.
 
