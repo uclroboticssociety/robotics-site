@@ -20,7 +20,7 @@ const plates = sponsors.flatMap((sponsor) => {
       ...sponsor,
       logo,
       height: Math.round(140 / Math.sqrt(logo.width / logo.height)),
-      // "https://www.elo-robotics.com" -> "elo-robotics.com"
+      // "https://www.mathworks.com" -> "mathworks.com"
       domain: sponsor.url && new URL(sponsor.url).hostname.replace(/^www\./, ""),
       Tag: sponsor.url ? "a" : "div",
     },

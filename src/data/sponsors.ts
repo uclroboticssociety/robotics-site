@@ -15,5 +15,5 @@ export type Sponsor = {
  */
 export const sponsors: Sponsor[] = [
   { name: "MathWorks", logo: "sponsors/mathworks.svg", url: "https://www.mathworks.com" },
-  { name: "ELO", logo: "sponsors/elo.png", url: "https://www.elo-robotics.com" },
+  { name: "ELO", logo: "sponsors/elo.png", url: "https://elo.inc" },
 ];
