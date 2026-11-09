@@ -19,13 +19,17 @@ const eventImages = import.meta.glob<ImageMetadata>(
   { eager: true, import: "default" }
 );
 
-/** "src/content/events/Board Games/index.md" -> "Board Games" */
+/** "src/content/events/2025-2026/Board Games Oct 2025/index.md" -> "2025-2026/Board Games Oct 2025" */
 export const folderOf = (entry: EventEntry) =>
   (entry.filePath ?? "")
     .replace(/^src\/content\/events\//, "")
     .split("/")
     .slice(0, -1)
     .join("/");
+
+/** The event's own folder name, without the academic-year folder above it:
+ *  "Board Games Oct 2025". This is the label shown in the events sidebar. */
+export const folderNameOf = (entry: EventEntry) => folderOf(entry).split("/").pop() ?? "";
 
 /**
  * First image sitting directly beside the entry's index.md, or undefined.

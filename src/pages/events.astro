@@ -8,7 +8,7 @@ import EventRow from "../components/ui/EventRow.astro";
 import JoinCTA from "../components/ui/JoinCTA.astro";
 import Container from "../components/ui/Container.astro";
 import { initiatives } from "../data/events";
-import { byDateDesc, folderOf, groupByAcademicYear } from "../lib/events";
+import { byDateDesc, folderNameOf, groupByAcademicYear } from "../lib/events";
 
 const allEvents = await getCollection("events");
 const sorted = [...allEvents].sort(byDateDesc);
@@ -19,7 +19,7 @@ const yearGroups = groupByAcademicYear(sorted);
 const listFor = (tag: string) =>
   sorted
     .filter((event) => event.data.tags?.includes(tag))
-    .map((event) => ({ title: folderOf(event), href: `/events/${event.id}` }));
+    .map((event) => ({ title: folderNameOf(event), href: `/events/${event.id}` }));
 
 const recentByInitiative = Object.fromEntries(
   initiatives.map((initiative) => [initiative.id, listFor(initiative.tag)])
