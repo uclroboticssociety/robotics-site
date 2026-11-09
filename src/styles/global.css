@@ -1299,16 +1299,62 @@
 
   /* ---- sponsors -------------------------------------------------------- */
 
-  .sponsors {
+  /* The sponsor plate: logos sit straight on the paper with no boxes and no
+     rules around them, two to a row. The only line is a short vertical tick
+     between each pair, centred on the pair (a short horizontal one between
+     logos once they stack on phones). Each logo's height is set per sponsor in
+     sponsors.astro; the fixed-height .sponsor-mark keeps the web addresses
+     underneath on one line whatever the logo's shape. */
+  .sponsor-plate {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sponsor {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    padding: 32px;
+    text-decoration: none;
+  }
+
+  .sponsor:nth-child(even)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 64px;
+    transform: translateY(-50%);
+    border-left: 1px solid var(--color-rule);
+  }
+
+  .sponsor-mark {
     display: flex;
     align-items: center;
-    gap: 42px;
-    flex-wrap: wrap;
     justify-content: center;
-    padding: 34px 0;
-    border-top: 1px solid var(--color-rule);
-    border-bottom: 1px solid var(--color-rule);
-    margin-top: 30px;
+    width: 100%;
+    height: 120px;
+  }
+
+  .sponsor-mark img {
+    width: auto;
+    max-width: 85%;
+    object-fit: contain;
+  }
+
+  .sponsor-arrow {
+    display: inline-block;
+    transition: transform 0.16s;
+  }
+
+  a.sponsor:hover .sponsor-site {
+    color: var(--color-accent);
+  }
+
+  a.sponsor:hover .sponsor-arrow {
+    transform: translate(2px, -2px);
   }
 
   .logo {
@@ -1321,17 +1367,6 @@
 
   .logo:hover {
     color: var(--color-fg);
-  }
-
-  .logo-img {
-    max-height: 46px;
-    width: auto;
-    opacity: 0.5;
-    transition: 0.2s;
-  }
-
-  .logo-img:hover {
-    opacity: 1;
   }
 
   /* ---- join / CTA band ------------------------------------------------- */
@@ -2165,6 +2200,28 @@
 }
 
 @media (max-width: 640px) {
+  .sponsor-plate {
+    grid-template-columns: 1fr;
+  }
+
+  .sponsor {
+    padding: 32px 20px;
+  }
+
+  /* Stacked: the tick turns horizontal and sits between each pair of logos.
+     Every value of the desktop tick is reset, since this also matches it. */
+  .sponsor + .sponsor::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 64px;
+    height: 0;
+    transform: translateX(-50%);
+    border-left: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+
   .wrap {
     padding: 0 20px;
   }
@@ -2194,10 +2251,6 @@
 
   .fg {
     grid-template-columns: 1fr;
-  }
-
-  .sponsors {
-    gap: 26px;
   }
 }
 

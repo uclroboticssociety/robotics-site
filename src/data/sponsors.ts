@@ -1,16 +1,19 @@
 export type Sponsor = {
-  /** Shown as the image alt text, so it must be the organisation's real name. */
+  /** The organisation's real name, used as the logo's alt text. */
   name: string;
+  /** Path under src/assets/, e.g. "sponsors/elo.png". Use a logo with a
+   *  transparent background, trimmed close to the artwork. */
   logo: string;
+  /** Their website. Its address is printed under the logo; without one,
+   *  the logo is not a link. */
   url?: string;
 };
 
 /**
- * TODO (committee): these two entries carry no name — they were added as bare
- * image paths. Fill in the real organisation names so the logos have alt text
- * for screen readers, and add `url` if the sponsor wants to be linked.
- * src/assets/sponsors/ also contains 3.png and 4.png, which nothing renders.
+ * Order here is the order on /about/sponsors. An entry whose logo file is
+ * missing is skipped rather than shown broken.
  */
 export const sponsors: Sponsor[] = [
-
+  { name: "MathWorks", logo: "sponsors/mathworks.svg", url: "https://www.mathworks.com" },
+  { name: "ELO", logo: "sponsors/elo.png", url: "https://www.elo-robotics.com" },
 ];
