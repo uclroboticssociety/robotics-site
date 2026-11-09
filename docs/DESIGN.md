@@ -154,6 +154,14 @@ All in `src/components/ui/` unless noted.
 | `JoinCTA` | Closing call-to-action band - solid accent fill, white text. |
 | `events/EventsLayout` | Sidebar shell shared by events and projects. |
 
+Sponsor logos on `/about/sponsors` are the one deliberate exception to "cards
+or rows": a logo is a mark, not something to browse, so they sit straight on
+the paper in the **sponsor plate** (`.sponsor-plate`): two logos to a row, no
+boxes and no rules around them, just a short hairline tick between each pair
+(horizontal once they stack on phones), and each sponsor's web address in mono
+underneath (accent on hover, like the About rows). Each logo's height is scaled by 1/√(aspect ratio) so wide
+and compact logos carry the same visual weight.
+
 There is no home-only decorative canvas: the hero is a full-bleed photo with a
 dark gradient overlay, not an animated illustration.
 

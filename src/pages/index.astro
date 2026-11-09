@@ -11,18 +11,28 @@ import MemberTile from "../components/ui/MemberTile.astro";
 import JoinCTA from "../components/ui/JoinCTA.astro";
 import { committee } from "../data/committee";
 import { statusPillText } from "../data/site";
-import { byDateDesc, mostRecentEvent, nextEvent } from "../lib/events";
+import { byDateAsc, byDateDesc, mostRecentEvent, statusOf } from "../lib/events";
 import { coverOf } from "../lib/projects";
 import { asset } from "../lib/assets";
 
 const allEvents = await getCollection("events");
 const allProjects = await getCollection("projects");
 
-// Featured panel: the soonest future event if there is one, otherwise the most
-// recent past event as a recap. Adding a future-dated event switches this over
-// on the next build with no code change.
-const upcoming = nextEvent(allEvents);
-const featured = upcoming ?? mostRecentEvent(allEvents);
+// Featured panel: the soonest event that is today or still ahead, otherwise the
+// most recent past event as a recap.
+//
+// The site is only rebuilt when someone pushes, so choosing once at build time
+// would leave a finished event labelled "Next event" until the next push. So
+// every event still ahead at build time gets two panels, one upcoming and one
+// recap, and the script at the bottom of this page shows whichever is right on
+// the day someone visits. Without JavaScript, the build-time choice shows.
+const upcomingEvents = allEvents.filter((event) => statusOf(event) !== "past").sort(byDateAsc);
+const lastPastEvent = mostRecentEvent(allEvents.filter((event) => statusOf(event) === "past"));
+const recapEvents = lastPastEvent ? [lastPastEvent, ...upcomingEvents] : upcomingEvents;
+const featuredPanels = [
+  ...upcomingEvents.map((event) => ({ event, upcoming: true })),
+  ...recapEvents.map((event) => ({ event, upcoming: false })),
+];
 
 const recentEvents = [...allEvents].sort(byDateDesc).slice(0, 5);
 const featuredCommittee = committee;
@@ -73,17 +83,23 @@ const missionPhoto = asset("mission/1.png");
 
   <Container>
     {
-      featured && (
-        <section class="section" style="padding-top:44px">
+      featuredPanels.map(({ event, upcoming }, i) => (
+        <section
+          class="section"
+          style="padding-top:44px"
+          data-featured={upcoming ? "upcoming" : "recap"}
+          data-date={event.data.date}
+          hidden={i !== 0}
+        >
           <SectionHeader
             title={upcoming ? "Next event" : "Most recent event"}
             meta={upcoming ? undefined : "No upcoming events announced"}
             linkHref={upcoming ? "/events" : undefined}
             linkLabel={upcoming ? "All events →" : undefined}
           />
-          <NextEvent event={featured} upcoming={Boolean(upcoming)} />
+          <NextEvent event={event} upcoming={upcoming} />
         </section>
-      )
+      ))
     }
 
     {/* One reveal per section, below the fold only — see docs/DESIGN.md §6. */}
@@ -160,3 +176,23 @@ const missionPhoto = asset("mission/1.png");
     <JoinCTA />
   </Container>
 </Base>
+
+<script>
+  import { statusAt } from "../lib/eventStatus";
+
+  // Pick the featured panel by the visitor's date rather than the build's — see
+  // the note at the top of this file. Upcoming panels come first, in date order,
+  // so the first one not yet over is the next event. If they are all over, the
+  // latest recap that is over takes its place.
+  const panels = Array.from(document.querySelectorAll<HTMLElement>("[data-featured]"));
+  const statusOfPanel = (panel: HTMLElement) => statusAt(panel.dataset.date ?? "");
+  const startOf = (panel: HTMLElement) => new Date(panel.dataset.date ?? "").getTime();
+
+  const choice =
+    panels.find((panel) => panel.dataset.featured === "upcoming" && statusOfPanel(panel) !== "past") ??
+    panels
+      .filter((panel) => panel.dataset.featured === "recap" && statusOfPanel(panel) === "past")
+      .sort((a, b) => startOf(b) - startOf(a))[0];
+
+  if (choice) panels.forEach((panel) => (panel.hidden = panel !== choice));
+</script>

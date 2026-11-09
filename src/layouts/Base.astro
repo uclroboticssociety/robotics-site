@@ -21,7 +21,11 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    {/* Browsers keep tab icons in their own long-lived store, keyed by URL, so
+        a changed file at the same URL can show the old icon for months. When
+        the logo changes, bump ?v= so every browser fetches it fresh, and run
+        scripts/make_favicon.mjs to rebuild public/favicon.ico to match. */}
+    <link rel="icon" href="/logo.svg?v=2" type="image/svg+xml" />
     <meta name="theme-color" content="#F4F3F1" />
     {/* Display weights are used above the fold on every page, so preload them. */}
     <Font cssVariable="--font-archivo" preload />

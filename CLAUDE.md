@@ -22,17 +22,17 @@ UCL Robotics Society website. Astro 7 static site, Tailwind 4, deployed on Cloud
 
 ## Verifying a change
 
-`npm run build` currently outputs **18 pages**. If your change alters that number and you did not add or remove a content file, something is broken.
+`npm run build` currently outputs **26 pages**. If your change alters that number and you did not add or remove a content file, something is broken.
 
 Two sections are deliberately unrouted and so are not in that count: Projects (`src/pages/_projects*`) and the Advisory Team (`src/pages/about/_advisoryteam.astro`). Their content, data and components all still exist - only the `_` prefix keeps them off the site. Removing the prefix puts them back, and the links commented out in `src/data/nav.ts`, `src/data/footer.ts` and `src/pages/about.astro` say so at each site. Confirm the count in the build output, and grep the built HTML in `dist/` for empty `src=""` attributes, which is how broken image lookups show up.
 
 ## Codebase specifics agents get wrong
 
-**`entry.id` is not a file path.** Astro's content layer gives each entry an `id` (the slugified URL, `board-games`) and a `filePath` (the real path, `src/content/events/Board Games/index.md`). Images are resolved through `import.meta.glob`, whose keys are literal filesystem paths with the original spaces and capitals. Deriving an image folder from `id` silently produces `undefined`, which the templates swallow into `src=""` and the build still passes. Always derive folder paths from `filePath`.
+**`entry.id` is not a file path.** Astro's content layer gives each entry an `id` (the slugified URL, `board-games-oct-2025`) and a `filePath` (the real path, `src/content/events/2025-2026/Board Games Oct 2025/index.md`). Images are resolved through `import.meta.glob`, whose keys are literal filesystem paths with the original spaces and capitals. Deriving an image folder from `id` silently produces `undefined`, which the templates swallow into `src=""` and the build still passes. Always derive folder paths from `filePath`.
 
 **Comments inside `.astro` templates.** Anything inside a `{ }` expression is JSX, so use `{/* … */}`. An HTML `<!-- -->` comment there is a compile error. Note that a comment and an element cannot be siblings in a ternary branch.
 
-**Content entries are `index.md` inside a named folder.** The folder name becomes the URL and the sidebar label. The glob pattern is `**/*.md`, so a folder may hold additional pages (`results.md` becomes a nested URL). Each file needs complete frontmatter.
+**Content entries are `index.md` inside a named folder.** The folder name becomes the URL and the sidebar label. Event folders are named `Event Name Mon YYYY` and filed in an academic-year folder (`2025-2026/Board Games Oct 2025`); a custom `generateId` in `src/content.config.ts` drops the year folder from the URL, so `folderOf()` returns the year-prefixed path (right for image lookups) and `folderNameOf()` the bare name (the sidebar label). Renaming a live folder breaks shared links, so the old URL must be added to `public/_redirects` in the same change. The glob pattern is `**/*.md`, so a folder may hold additional pages (`results.md` becomes a nested URL). Each file needs complete frontmatter.
 
 **Silent failures.** `getCollection()` returns `[]` rather than throwing when a collection is misconfigured. `getStaticPaths()` then produces zero pages, and the build exits 0 with only a warning. If a section of the site disappears, look at `src/content.config.ts` first.
 
