@@ -1,0 +1,38 @@
+# Cloudflare Pages redirects: old URL, new URL, status (301 = moved for good).
+# https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# An event's folder name is its URL, so renaming a folder breaks every link to
+# the old name that was already shared (Instagram, Discord, Google). When you
+# rename an event folder, add its old URL here, both with and without the
+# trailing slash. Never remove a line: old links stay out there for years.
+
+/events/film-night---wild-robot /events/film-night-wild-robot-sep-2025/ 301
+/events/film-night---wild-robot/ /events/film-night-wild-robot-sep-2025/ 301
+/events/board-games /events/board-games-oct-2025/ 301
+/events/board-games/ /events/board-games-oct-2025/ 301
+/events/maze-robot-challenge /events/maze-robot-challenge-nov-2025/ 301
+/events/maze-robot-challenge/ /events/maze-robot-challenge-nov-2025/ 301
+/events/arduino-workshop /events/arduino-workshop-nov-2025/ 301
+/events/arduino-workshop/ /events/arduino-workshop-nov-2025/ 301
+/events/virtual-arduino-workshop /events/arduino-workshop-nov-2025/ 301
+/events/virtual-arduino-workshop/ /events/arduino-workshop-nov-2025/ 301
+/events/film-night---the-iron-giant /events/film-night-the-iron-giant-nov-2025/ 301
+/events/film-night---the-iron-giant/ /events/film-night-the-iron-giant-nov-2025/ 301
+/events/bowling /events/bowling-nov-2025/ 301
+/events/bowling/ /events/bowling-nov-2025/ 301
+/events/bowling-game /events/bowling-nov-2025/ 301
+/events/bowling-game/ /events/bowling-nov-2025/ 301
+/events/rhul /events/rhul-dec-2025/ 301
+/events/rhul/ /events/rhul-dec-2025/ 301
+/events/taster-quiz /events/taster-quiz-sep-2026/ 301
+/events/taster-quiz/ /events/taster-quiz-sep-2026/ 301
+/events/taster-quiz-social /events/taster-quiz-sep-2026/ 301
+/events/taster-quiz-social/ /events/taster-quiz-sep-2026/ 301
+/events/technical-taster-2026 /events/technical-taster-oct-2026/ 301
+/events/technical-taster-2026/ /events/technical-taster-oct-2026/ 301
+/events/cad-workshop-2 /events/cad-workshop-2-oct-2026/ 301
+/events/cad-workshop-2/ /events/cad-workshop-2-oct-2026/ 301
+/events/cv-roast-1026 /events/cv-roast-oct-2026/ 301
+/events/cv-roast-1026/ /events/cv-roast-oct-2026/ 301
+/events/sumo-robot /events/sumo-robot-nov-2026/ 301
+/events/sumo-robot/ /events/sumo-robot-nov-2026/ 301

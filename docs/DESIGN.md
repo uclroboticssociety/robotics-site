@@ -175,6 +175,14 @@ All in `src/components/ui/` unless noted.
 | `JoinCTA` | Closing call-to-action band - deep violet with an electric-violet glow. |
 | `events/EventsLayout` | Sidebar shell shared by events and projects. |
 
+Sponsor logos on `/about/sponsors` are the one deliberate exception to "cards
+or rows": a logo is a mark, not something to browse, so they sit straight on
+the page in the **sponsor plate** (`.sponsor-plate`): two logos to a row, no
+panels around them, just a short thin tick between each pair (horizontal once
+they stack on phones), and each sponsor's web address in mono underneath
+(accent on hover). Each logo's height is scaled by 1/√(aspect ratio) so wide
+and compact logos carry the same visual weight.
+
 ### The node motif
 
 The logo's node - **a dark dot in a white ring with a thin violet outline** - is

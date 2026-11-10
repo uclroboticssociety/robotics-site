@@ -1,5 +1,5 @@
 ---
-title: "CAD Workshop Two" 
+title: "CAD Workshop 2" 
 date: "2026-10-20T17:00:00+01:00"
 location: "Room 312, 26 Bedford Way"
 tags: ["workshop"]

@@ -7,6 +7,25 @@ import Container from "../../components/ui/Container.astro";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
 import { sponsors } from "../../data/sponsors";
 import { site } from "../../data/site";
+
+// Sponsors whose logo file exists. Logos come in very different shapes, so one
+// fixed height makes a wide wordmark look tiny next to a compact one. Scaling
+// the height by 1/sqrt(aspect ratio) gives every logo roughly the same area,
+// which is what the eye reads as "the same size".
+const plates = sponsors.flatMap((sponsor) => {
+  const logo = asset(sponsor.logo);
+  if (!logo) return [];
+  return [
+    {
+      ...sponsor,
+      logo,
+      height: Math.round(140 / Math.sqrt(logo.width / logo.height)),
+      // "https://www.mathworks.com" -> "mathworks.com"
+      domain: sponsor.url && new URL(sponsor.url).hostname.replace(/^www\./, ""),
+      Tag: sponsor.url ? "a" : "div",
+    },
+  ];
+});
 ---
 
 <Base
@@ -20,22 +39,22 @@ import { site } from "../../data/site";
   />
 
   <Container>
-    <section class="section" style="padding-top:48px">
+    <section class="section" style="padding-top:56px">
       {
-        sponsors.length ? (
-          <div class="sponsors">
-            {
-              sponsors.map((sponsor) => {
-                const logo = asset(sponsor.logo);
-                if (!logo) return null;
-                /* alt is empty until the committee supplies real names — an
-                   invented name would be worse than none. See data/sponsors.ts */
-                const img = (
-                  <Image class="logo-img" src={logo} alt={sponsor.name} widths={[180, 280]} loading="lazy" />
-                );
-                return sponsor.url ? <a href={sponsor.url}>{img}</a> : img;
-              })
-            }
+        plates.length ? (
+          <div class="sponsor-plate">
+            {plates.map(({ Tag, name, logo, height, url, domain }) => (
+              <Tag class="sponsor" href={url} target={url && "_blank"} rel={url && "noopener"}>
+                <span class="sponsor-mark">
+                  <Image src={logo} alt={name} widths={[280, 560]} sizes="280px" style={`height:${height}px`} loading="lazy" />
+                </span>
+                {domain && (
+                  <span class="mono sponsor-site">
+                    {domain} <span class="sponsor-arrow" aria-hidden="true">↗</span>
+                  </span>
+                )}
+              </Tag>
+            ))}
           </div>
         ) : (
           <p class="lede">We're looking for our first partners.</p>
