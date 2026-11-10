@@ -669,6 +669,36 @@
     display: block;
   }
 
+  /* The photo is a gallery: the shared Carousel component, fitted to the
+     frame. The frame keeps the ring, the rounded corners and the 4:3 shape,
+     so the carousel inside gives up its own border, corners, shadow and 16:9
+     crop and simply fills it. */
+  .hero-frame .carousel {
+    position: absolute;
+    inset: 0;
+    width: auto;
+  }
+
+  .hero-frame .scroll-frame {
+    height: 100%;
+    overflow-y: hidden;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+  }
+
+  .hero-frame .scroll-track {
+    height: 100%;
+  }
+
+  .hero-frame .scroll-track img {
+    aspect-ratio: auto;
+    height: 100%;
+    border-radius: 0;
+    filter: none;
+  }
+
   /* ---- the network (HeroNetwork.astro) ---- */
 
   .hero-net {
@@ -1828,7 +1858,12 @@
      the button out of the tab order, so a keyboard visitor on a mouse could
      never reach it and :focus-within could never fire to bring it back.
      opacity plus pointer-events hides it from the mouse while keeping it
-     focusable. */
+     focusable.
+
+     :has(:focus-visible) rather than :focus-within, so only keyboard focus
+     brings the arrows back. A mouse click leaves its arrow focused too, and
+     with :focus-within both arrows then stayed on show after the mouse had
+     left the photo. */
   @media (hover: hover) {
     .carousel-nav {
       opacity: 0;
@@ -1836,7 +1871,7 @@
     }
 
     .carousel:hover .carousel-nav,
-    .carousel:focus-within .carousel-nav {
+    .carousel:has(:focus-visible) .carousel-nav {
       opacity: var(--nav-opacity);
       pointer-events: auto;
     }

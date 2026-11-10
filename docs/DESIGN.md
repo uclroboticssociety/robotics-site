@@ -171,7 +171,7 @@ All in `src/components/ui/` unless noted.
 | `MemberTile` / `AdvisorTile` | Portrait tiles with an initials fallback. |
 | `NextEvent` | Featured event panel; countdown or recap. |
 | `Countdown` | Client-side countdown to a real event. |
-| `Carousel` | Horizontal photo strip for `[scroll]`/`[scroll_folder]` bodies. |
+| `Carousel` | Horizontal photo strip for `[scroll]`/`[scroll_folder]` bodies, and the photo gallery in the home hero. |
 | `JoinCTA` | Closing call-to-action band - deep violet with an electric-violet glow. |
 | `events/EventsLayout` | Sidebar shell shared by events and projects. |
 
@@ -251,8 +251,15 @@ card is hovered.
   served byte-for-byte and never optimised, so don't put photos in it.
 
 Always give an image container a gradient fallback, set explicit dimensions or
-an aspect ratio, and lazy-load anything below the fold. The hero photo is the
-one exception to lazy loading.
+an aspect ratio, and lazy-load anything below the fold. The first photo of the
+hero gallery is the one exception to lazy loading.
+
+**The hero gallery.** The photo in the home hero is a `Carousel` of every image
+in `src/assets/hero/`, in file-name order. It moves on every 5 seconds (the
+`interval` on the `<Carousel>` in `src/pages/index.astro`), can be swiped, and
+has arrows that show on hover. The ringed frame (`.hero-frame`) sets the shape,
+so every photo is cropped to 4:3 from its centre whatever its own shape.
+Adding and removing photos is covered in the content guide.
 
 ---
 
@@ -371,8 +378,8 @@ Non-negotiables, all currently satisfied:
   and the hero decorations are `aria-hidden`.
 - One `h1` per page.
 - **Anything that moves on its own for more than 5s needs a way to stop it**
-  (WCAG 2.2.2). The carousel pauses on hover, focus, interaction and when off
-  screen. The hero network is pure decoration, stops off screen, and is still
+  (WCAG 2.2.2). The carousel pauses on hover, keyboard focus, interaction and
+  when off screen. The hero network is pure decoration, stops off screen, and is still
   under reduced motion.
 - **A control overlaid on photography carries its own contrast** (a plate, a
   scrim or a glyph shadow). Check it against the palest image on the page.

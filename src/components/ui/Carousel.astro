@@ -1,8 +1,9 @@
 ---
 /**
  * Horizontal photo strip for the `[scroll]` and `[scroll_folder]` body
- * markers. Native scroll-snap does the scrolling; the script below only moves
- * it along, either on a timer or when the reader clicks an arrow.
+ * markers, and for the photo gallery in the home hero. Native scroll-snap
+ * does the scrolling; the script below only moves it along, either on a timer
+ * or when the reader clicks an arrow.
  *
  * Images arrive already resolved by the calling page - this component does no
  * image lookup of its own, so it cannot be the thing that produces src="".
@@ -22,7 +23,12 @@
  * photo, so the styling rules are not the ones the other icon buttons follow.
  * See the .carousel-nav block in global.css for why.
  */
-type Slide = { src: string; alt: string };
+type Slide = {
+  src: string;
+  alt: string;
+  /** Optional: the same photo at several sizes, so a phone downloads a small one. */
+  srcset?: string;
+};
 
 type Props = {
   images: Slide[];
@@ -30,9 +36,16 @@ type Props = {
   width?: number;
   /** Escape hatch for a deck that shouldn't move on its own. */
   autoplay?: boolean;
+  /** Seconds each image stays up before the strip moves on by itself. */
+  interval?: number;
+  /** How wide the strip is on screen, for choosing from `srcset`. */
+  sizes?: string;
+  /** Load the first image straight away. Only for a carousel that is on
+      screen the moment the page opens (the home hero). */
+  eagerFirst?: boolean;
 };
 
-const { images, width, autoplay = true } = Astro.props;
+const { images, width, autoplay = true, interval = 5, sizes, eagerFirst = false } = Astro.props;
 
 const interactive = images.length > 1;
 // The width lands on the wrapper, not the frame, so the arrows sit against
@@ -47,10 +60,23 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
   aria-label={interactive ? `Photo carousel, ${images.length} images` : undefined}
   data-carousel={interactive ? "" : undefined}
   data-carousel-autoplay={interactive && autoplay ? "" : undefined}
+  data-carousel-interval={interactive && autoplay ? interval : undefined}
 >
   <div class="scroll-frame">
     <div class="scroll-track">
-      {images.map((image) => <img src={image.src} alt={image.alt} loading="lazy" />)}
+      {
+        images.map((image, index) => (
+          <img
+            src={image.src}
+            srcset={image.srcset}
+            sizes={image.srcset ? sizes : undefined}
+            alt={image.alt}
+            loading={eagerFirst && index === 0 ? "eager" : "lazy"}
+            fetchpriority={eagerFirst && index === 0 ? "high" : undefined}
+            decoding="async"
+          />
+        ))
+      }
     </div>
   </div>
 
@@ -96,7 +122,7 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
   // Moves each carousel along, on a timer and on an arrow click. The scrolling
   // itself is native -- this only calls scrollTo, so dragging, trackpads and
   // scroll-snap all keep working exactly as they would with no script at all.
-  const REVEAL_MS = 5000; // time on each image
+  const REVEAL_MS = 5000; // time on each image, unless the carousel sets its own
   const IDLE_MS = 8000; // quiet period after the reader touches it
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -112,6 +138,8 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
     if (!frame || slides.length < 2) return;
 
     const autoplayOn = box.hasAttribute("data-carousel-autoplay");
+    // The component's `interval` prop, in seconds.
+    const revealMs = Number(box.dataset.carouselInterval) * 1000 || REVEAL_MS;
 
     let timer: ReturnType<typeof setInterval> | undefined;
     let idle: ReturnType<typeof setTimeout> | undefined;
@@ -127,6 +155,18 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
       !idle &&
       !reduce.matches &&
       !document.hidden;
+
+    // Every image but the one on show is lazy, and a lazy image only starts
+    // downloading once it is scrolled into view. Here that is too late: the
+    // next photo would slide in as an empty box and then pop in. So the two
+    // neighbours of whichever image is on show are fetched ahead of time. A
+    // long deck still never downloads photos the reader does not get near.
+    const warm = (index: number) => {
+      [index - 1, index + 1].forEach((i) => {
+        const slide = slides[(i + slides.length) % slides.length];
+        if (slide instanceof HTMLImageElement && slide.loading !== "eager") slide.loading = "eager";
+      });
+    };
 
     // dir is 1 for the next image, -1 for the previous one. Both ends wrap.
     const goTo = (dir: 1 | -1) => {
@@ -156,11 +196,12 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
         left: Math.min(next * pitch, max),
         behavior: reduce.matches || wrapped ? "auto" : "smooth",
       });
+      warm(next);
     };
 
     const sync = () => {
       if (canPlay()) {
-        if (!timer) timer = setInterval(() => goTo(1), REVEAL_MS);
+        if (!timer) timer = setInterval(() => goTo(1), revealMs);
       } else if (timer) {
         clearInterval(timer);
         timer = undefined;
@@ -193,8 +234,11 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
       sync();
     });
 
-    box.addEventListener("focusin", () => {
-      focusInside = true;
+    // Only keyboard focus counts (:focus-visible). A mouse click also leaves
+    // its arrow focused, and counting that would stop the carousel for good
+    // after one click, long after the mouse had moved away.
+    box.addEventListener("focusin", (event) => {
+      focusInside = (event.target as Element).matches(":focus-visible");
       sync();
     });
     // focusout fires before the incoming focusin, so check where focus landed.
@@ -213,12 +257,35 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
     box.addEventListener("wheel", touched, { passive: true });
     box.addEventListener("keydown", touched);
 
+    // This scroll listener is safe because it only fetches images: it keeps
+    // the neighbours ready when the reader swipes instead of using an arrow.
+    frame.addEventListener(
+      "scroll",
+      () => {
+        const pitch = slides[1].offsetLeft - slides[0].offsetLeft;
+        if (pitch > 0) warm(Math.round(frame.scrollLeft / pitch));
+      },
+      { passive: true }
+    );
+
+    // Fetch the first neighbours once the carousel has been seen, but not
+    // before the page itself has finished loading, so they never compete with
+    // the image that is actually on show.
+    let warmed = false;
+    const warmFirst = () => {
+      if (warmed) return;
+      warmed = true;
+      if (document.readyState === "complete") warm(0);
+      else window.addEventListener("load", () => warm(0), { once: true });
+    };
+
     new IntersectionObserver(
       (entries) => {
         // A callback can carry several batched entries after a fast scroll,
         // and they are in time order - so read the last one, not the first,
         // or the carousel can be left believing a stale visibility.
         onScreen = entries[entries.length - 1].isIntersecting;
+        if (onScreen) warmFirst();
         sync();
       },
       { threshold: 0.35 }
