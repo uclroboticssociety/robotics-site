@@ -216,21 +216,11 @@
     height: 38px;
   }
 
+  /* 1px centres the name's capitals on the logo and the bar (and so on the
+     nav link text) in the heading font. Measured in the browser: re-measure
+     if the font, name or logo size changes. */
   .nav-in .brand span {
-    top: 5px;
-  }
-
-  /* Lift the whole navbar brand (logo and name together, so the nudge is
-     kept) so the name shares one baseline with the nav links and Join Us.
-     7px = the 5px nudge + the 2px a centred 19px name sits below centred 14px
-     links, measured in the browser. Desktop only: below 1000px the links are
-     hidden and the brand stays centred in the bar. Re-measure if the name,
-     link or logo sizes change. */
-  @media (min-width: 1001px) {
-    .nav-in > .brand {
-      position: relative;
-      top: -7px;
-    }
+    top: 1px;
   }
 
   .nav-links {
@@ -728,7 +718,8 @@
     fill: var(--color-accent);
   }
 
-  /* A ring that expands and fades each time a pulse reaches the node. */
+  /* A ring that expands and fades each time a pulse leaves or reaches the
+     node. */
   .net-halo {
     fill: none;
     stroke: var(--color-accent);

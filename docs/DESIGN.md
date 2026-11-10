@@ -272,9 +272,13 @@ The network behind the home hero. It is decoration only (`aria-hidden`).
   and the photo at every screen size. **If you move a node, check it at 1000,
   1440 and 1920px.** Only the thin links may pass behind text.
 - **On load** the links draw in and the nodes pop in, column by column (CSS).
-- **Then** the nodes drift slowly, pulses run along the links from left to
-  right, a node flashes a ring when a pulse reaches it, and nodes near the
-  pointer grow and turn violet (script).
+- **Then** the nodes drift slowly, and nodes near the pointer grow and turn
+  violet (script).
+- **Pulses only run when a visitor sets them off.** Hovering over a node, or
+  clicking or tapping one, sends a pulse out from it in each direction along
+  the links, and each node a pulse passes flashes a ring. Nothing runs on its
+  own: constant pulses were removed as too much visual noise, especially on
+  phones. Do not bring them back.
 - **Below 1000px** the hero stacks and the network becomes a band around the
   photo.
 - The script **stops while the hero is off screen**, and never starts under
