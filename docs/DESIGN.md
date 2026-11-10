@@ -171,7 +171,7 @@ All in `src/components/ui/` unless noted.
 | `MemberTile` / `AdvisorTile` | Portrait tiles with an initials fallback. |
 | `NextEvent` | Featured event panel; countdown or recap. |
 | `Countdown` | Client-side countdown to a real event. |
-| `Carousel` | Horizontal photo strip for `[scroll]`/`[scroll_folder]` bodies. |
+| `Carousel` | Horizontal photo strip for `[scroll]`/`[scroll_folder]` bodies, and the photo gallery in the home hero. |
 | `JoinCTA` | Closing call-to-action band - deep violet with an electric-violet glow. |
 | `events/EventsLayout` | Sidebar shell shared by events and projects. |
 
@@ -251,8 +251,15 @@ card is hovered.
   served byte-for-byte and never optimised, so don't put photos in it.
 
 Always give an image container a gradient fallback, set explicit dimensions or
-an aspect ratio, and lazy-load anything below the fold. The hero photo is the
-one exception to lazy loading.
+an aspect ratio, and lazy-load anything below the fold. The first photo of the
+hero gallery is the one exception to lazy loading.
+
+**The hero gallery.** The photo in the home hero is a `Carousel` of every image
+in `src/assets/hero/`, in file-name order. It moves on every 5 seconds (the
+`interval` on the `<Carousel>` in `src/pages/index.astro`), can be swiped, and
+has arrows that show on hover. The ringed frame (`.hero-frame`) sets the shape,
+so every photo is cropped to 4:3 from its centre whatever its own shape.
+Adding and removing photos is covered in the content guide.
 
 ---
 
@@ -272,9 +279,13 @@ The network behind the home hero. It is decoration only (`aria-hidden`).
   and the photo at every screen size. **If you move a node, check it at 1000,
   1440 and 1920px.** Only the thin links may pass behind text.
 - **On load** the links draw in and the nodes pop in, column by column (CSS).
-- **Then** the nodes drift slowly, pulses run along the links from left to
-  right, a node flashes a ring when a pulse reaches it, and nodes near the
-  pointer grow and turn violet (script).
+- **Then** the nodes drift slowly, and nodes near the pointer grow and turn
+  violet (script).
+- **Pulses only run when a visitor sets them off.** Hovering over a node, or
+  clicking or tapping one, sends a pulse out from it in each direction along
+  the links, and each node a pulse passes flashes a ring. Nothing runs on its
+  own: constant pulses were removed as too much visual noise, especially on
+  phones. Do not bring them back.
 - **Below 1000px** the hero stacks and the network becomes a band around the
   photo.
 - The script **stops while the hero is off screen**, and never starts under
@@ -367,8 +378,8 @@ Non-negotiables, all currently satisfied:
   and the hero decorations are `aria-hidden`.
 - One `h1` per page.
 - **Anything that moves on its own for more than 5s needs a way to stop it**
-  (WCAG 2.2.2). The carousel pauses on hover, focus, interaction and when off
-  screen. The hero network is pure decoration, stops off screen, and is still
+  (WCAG 2.2.2). The carousel pauses on hover, keyboard focus, interaction and
+  when off screen. The hero network is pure decoration, stops off screen, and is still
   under reduced motion.
 - **A control overlaid on photography carries its own contrast** (a plate, a
   scrim or a glyph shadow). Check it against the palest image on the page.

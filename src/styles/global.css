@@ -216,21 +216,11 @@
     height: 38px;
   }
 
+  /* 1px centres the name's capitals on the logo and the bar (and so on the
+     nav link text) in the heading font. Measured in the browser: re-measure
+     if the font, name or logo size changes. */
   .nav-in .brand span {
-    top: 5px;
-  }
-
-  /* Lift the whole navbar brand (logo and name together, so the nudge is
-     kept) so the name shares one baseline with the nav links and Join Us.
-     7px = the 5px nudge + the 2px a centred 19px name sits below centred 14px
-     links, measured in the browser. Desktop only: below 1000px the links are
-     hidden and the brand stays centred in the bar. Re-measure if the name,
-     link or logo sizes change. */
-  @media (min-width: 1001px) {
-    .nav-in > .brand {
-      position: relative;
-      top: -7px;
-    }
+    top: 1px;
   }
 
   .nav-links {
@@ -679,6 +669,36 @@
     display: block;
   }
 
+  /* The photo is a gallery: the shared Carousel component, fitted to the
+     frame. The frame keeps the ring, the rounded corners and the 4:3 shape,
+     so the carousel inside gives up its own border, corners, shadow and 16:9
+     crop and simply fills it. */
+  .hero-frame .carousel {
+    position: absolute;
+    inset: 0;
+    width: auto;
+  }
+
+  .hero-frame .scroll-frame {
+    height: 100%;
+    overflow-y: hidden;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+  }
+
+  .hero-frame .scroll-track {
+    height: 100%;
+  }
+
+  .hero-frame .scroll-track img {
+    aspect-ratio: auto;
+    height: 100%;
+    border-radius: 0;
+    filter: none;
+  }
+
   /* ---- the network (HeroNetwork.astro) ---- */
 
   .hero-net {
@@ -728,7 +748,8 @@
     fill: var(--color-accent);
   }
 
-  /* A ring that expands and fades each time a pulse reaches the node. */
+  /* A ring that expands and fades each time a pulse leaves or reaches the
+     node. */
   .net-halo {
     fill: none;
     stroke: var(--color-accent);
@@ -1837,7 +1858,12 @@
      the button out of the tab order, so a keyboard visitor on a mouse could
      never reach it and :focus-within could never fire to bring it back.
      opacity plus pointer-events hides it from the mouse while keeping it
-     focusable. */
+     focusable.
+
+     :has(:focus-visible) rather than :focus-within, so only keyboard focus
+     brings the arrows back. A mouse click leaves its arrow focused too, and
+     with :focus-within both arrows then stayed on show after the mouse had
+     left the photo. */
   @media (hover: hover) {
     .carousel-nav {
       opacity: 0;
@@ -1845,7 +1871,7 @@
     }
 
     .carousel:hover .carousel-nav,
-    .carousel:focus-within .carousel-nav {
+    .carousel:has(:focus-visible) .carousel-nav {
       opacity: var(--nav-opacity);
       pointer-events: auto;
     }

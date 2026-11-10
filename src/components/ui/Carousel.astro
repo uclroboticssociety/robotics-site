@@ -1,8 +1,9 @@
 ---
 /**
  * Horizontal photo strip for the `[scroll]` and `[scroll_folder]` body
- * markers. Native scroll-snap does the scrolling; the script below only moves
- * it along, either on a timer or when the reader clicks an arrow.
+ * markers, and for the photo gallery in the home hero. Native scroll-snap
+ * does the scrolling; the script below only moves it along, either on a timer
+ * or when the reader clicks an arrow.
  *
  * Images arrive already resolved by the calling page - this component does no
  * image lookup of its own, so it cannot be the thing that produces src="".
@@ -22,7 +23,12 @@
  * photo, so the styling rules are not the ones the other icon buttons follow.
  * See the .carousel-nav block in global.css for why.
  */
-type Slide = { src: string; alt: string };
+type Slide = {
+  src: string;
+  alt: string;
+  /** Optional: the same photo at several sizes, so a phone downloads a small one. */
+  srcset?: string;
+};
 
 type Props = {
   images: Slide[];
@@ -30,9 +36,16 @@ type Props = {
   width?: number;
   /** Escape hatch for a deck that shouldn't move on its own. */
   autoplay?: boolean;
+  /** Seconds each image stays up before the strip moves on by itself. */
+  interval?: number;
+  /** How wide the strip is on screen, for choosing from `srcset`. */
+  sizes?: string;
+  /** Load the first image straight away. Only for a carousel that is on
+      screen the moment the page opens (the home hero). */
+  eagerFirst?: boolean;
 };
 
-const { images, width, autoplay = true } = Astro.props;
+const { images, width, autoplay = true, interval = 5, sizes, eagerFirst = false } = Astro.props;
 
 const interactive = images.length > 1;
 // The width lands on the wrapper, not the frame, so the arrows sit against
@@ -47,10 +60,23 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
   aria-label={interactive ? `Photo carousel, ${images.length} images` : undefined}
   data-carousel={interactive ? "" : undefined}
   data-carousel-autoplay={interactive && autoplay ? "" : undefined}
+  data-carousel-interval={interactive && autoplay ? interval : undefined}
 >
   <div class="scroll-frame">
     <div class="scroll-track">
-      {images.map((image) => <img src={image.src} alt={image.alt} loading="lazy" />)}
+      {
+        images.map((image, index) => (
+          <img
+            src={image.src}
+            srcset={image.srcset}
+            sizes={image.srcset ? sizes : undefined}
+            alt={image.alt}
+            loading={eagerFirst && index === 0 ? "eager" : "lazy"}
+            fetchpriority={eagerFirst && index === 0 ? "high" : undefined}
+            decoding="async"
+          />
+        ))
+      }
     </div>
   </div>
 
@@ -96,7 +122,10 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
   // Moves each carousel along, on a timer and on an arrow click. The scrolling
   // itself is native -- this only calls scrollTo, so dragging, trackpads and
   // scroll-snap all keep working exactly as they would with no script at all.
-  const REVEAL_MS = 5000; // time on each image
+  //
+  // The strip is a loop: going on from the last photo slides to the first one
+  // exactly as any other step does. See "A loop with no seam" below.
+  const REVEAL_MS = 5000; // time on each image, unless the carousel sets its own
   const IDLE_MS = 8000; // quiet period after the reader touches it
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -109,9 +138,55 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
     const frame = box.querySelector<HTMLElement>(".scroll-frame");
     const track = box.querySelector<HTMLElement>(".scroll-track");
     const slides = track ? (Array.from(track.children) as HTMLElement[]) : [];
-    if (!frame || slides.length < 2) return;
+    if (!frame || !track || slides.length < 2) return;
+    const count = slides.length;
+
+    // A loop with no seam. A copy of the last photo is put in front of the
+    // first, and a copy of the first after the last:
+    //
+    //   [copy of last] [1] [2] ... [last] [copy of 1]
+    //
+    // Going on from the last photo then slides onto the copy of the first,
+    // the same movement as every other step. Once it has stopped, settle()
+    // below swaps the copy for the real first photo. The two look the same,
+    // so the swap cannot be seen, and the strip is ready to carry on. Going
+    // back from the first photo works the same way at the other end.
+    //
+    // The copies are made here, not in the HTML, so without JavaScript the
+    // strip is simply the photos once each. Screen readers skip the copies.
+    const twins = new Map<HTMLElement, HTMLElement>();
+    const copyOf = (slide: HTMLElement) => {
+      const copy = slide.cloneNode(true) as HTMLElement;
+      copy.setAttribute("aria-hidden", "true");
+      copy.setAttribute("alt", "");
+      copy.setAttribute("loading", "lazy");
+      copy.removeAttribute("fetchpriority");
+      twins.set(copy, slide);
+      // Draw both in the same frame they come into view. With the default
+      // (draw when ready) the swap could show an empty frame for an instant.
+      copy.setAttribute("decoding", "sync");
+      slide.setAttribute("decoding", "sync");
+      return copy;
+    };
+    track.prepend(copyOf(slides[count - 1]));
+    track.append(copyOf(slides[0]));
+
+    // Every place in the strip, copies included: cells[0] is the copy of the
+    // last photo, cells[1] to cells[count] are the photos, cells[count + 1] is
+    // the copy of the first.
+    const cells = Array.from(track.children) as HTMLElement[];
+
+    // The distance from one photo to the next. Measured rather than assumed,
+    // and re-read every time so a resize needs no extra handling.
+    const pitch = () => cells[1].offsetLeft - cells[0].offsetLeft;
+    const jump = (left: number) => frame.scrollTo({ left, behavior: "instant" });
+
+    // Start on the first photo, which now sits one place along.
+    jump(pitch());
 
     const autoplayOn = box.hasAttribute("data-carousel-autoplay");
+    // The component's `interval` prop, in seconds.
+    const revealMs = Number(box.dataset.carouselInterval) * 1000 || REVEAL_MS;
 
     let timer: ReturnType<typeof setInterval> | undefined;
     let idle: ReturnType<typeof setTimeout> | undefined;
@@ -128,39 +203,75 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
       !reduce.matches &&
       !document.hidden;
 
-    // dir is 1 for the next image, -1 for the previous one. Both ends wrap.
-    const goTo = (dir: 1 | -1) => {
-      // Measure the real slide pitch rather than assuming width + gap, so the
-      // target always lands exactly on a snap point. Re-read every call so a
-      // resize needs no extra handling.
-      const pitch = slides[1].offsetLeft - slides[0].offsetLeft;
-      if (pitch <= 0) return;
-      const max = frame.scrollWidth - frame.clientWidth;
-      const last = slides.length - 1;
-
-      // Step from the rounded current index rather than from the raw
-      // scrollLeft. A half-swiped strip then still moves a whole slide, and
-      // the wrap test cannot be thrown by a subpixel remainder. Note the test
-      // is on the current index, not the computed target: testing the target
-      // treats the last ordinary step as a wrap and skips the final image.
-      const current = Math.round(frame.scrollLeft / pitch);
-      let next = current + dir;
-      const wrapped = next < 0 || next > last;
-      if (next < 0) next = last;
-      if (next > last) next = 0;
-
-      // Jumping instantly beats sweeping the whole strip end to end, which
-      // reads as a glitch on a long deck. And CSS scroll-behavior does not
-      // govern this option, so reduced motion has to be honoured here too.
-      frame.scrollTo({
-        left: Math.min(next * pitch, max),
-        behavior: reduce.matches || wrapped ? "auto" : "smooth",
+    // Every image but the one on show is lazy, and a lazy image only starts
+    // downloading once it is scrolled into view. Here that is too late: the
+    // next photo would slide in as an empty box and then pop in. So the two
+    // neighbours of whichever image is on show are fetched ahead of time. A
+    // long deck still never downloads photos the reader does not get near.
+    // `index` is a place in `cells`. A copy and the photo it copies are
+    // fetched together, so the photo is ready by the time the copy is swapped
+    // for it.
+    const warm = (index: number) => {
+      [index - 1, index + 1].forEach((i) => {
+        const cell = cells[i];
+        [cell, twins.get(cell)].forEach((image) => {
+          if (image instanceof HTMLImageElement && image.loading !== "eager") image.loading = "eager";
+        });
       });
+    };
+
+    // Runs when the strip has stopped moving. If it stopped on a copy, swap
+    // to the photo the copy stands for: the same picture, `count` places
+    // away. Shifting by a whole number of places keeps any part-swiped offset
+    // too, so the swap is invisible even partway through a swipe.
+    const settle = () => {
+      const step = pitch();
+      if (step <= 0) return;
+      const place = frame.scrollLeft / step;
+      if (place > count + 0.5) jump(frame.scrollLeft - count * step);
+      else if (place < 0.5) jump(frame.scrollLeft + count * step);
+    };
+
+    if ("onscrollend" in window) {
+      frame.addEventListener("scrollend", settle);
+    } else {
+      // Older browsers have no "scrollend" event: treat a short silence after
+      // the last scroll event as the end.
+      let quiet: ReturnType<typeof setTimeout> | undefined;
+      frame.addEventListener(
+        "scroll",
+        () => {
+          clearTimeout(quiet);
+          quiet = setTimeout(settle, 120);
+        },
+        { passive: true }
+      );
+    }
+
+    // dir is 1 for the next image, -1 for the previous one. Both ends loop.
+    const goTo = (dir: 1 | -1) => {
+      const step = pitch();
+      if (step <= 0) return;
+
+      // A quick second click can arrive while the strip is still on a copy,
+      // so make the swap now rather than run off the end of the strip.
+      settle();
+
+      // Step from the rounded current place rather than from the raw
+      // scrollLeft, so a half-swiped strip still moves a whole slide and
+      // lands exactly on a snap point.
+      const current = Math.round(frame.scrollLeft / step);
+      const next = Math.max(0, Math.min(count + 1, current + dir));
+
+      // CSS scroll-behavior does not govern this option, so reduced motion
+      // has to be honoured here too.
+      frame.scrollTo({ left: next * step, behavior: reduce.matches ? "instant" : "smooth" });
+      warm(next);
     };
 
     const sync = () => {
       if (canPlay()) {
-        if (!timer) timer = setInterval(() => goTo(1), REVEAL_MS);
+        if (!timer) timer = setInterval(() => goTo(1), revealMs);
       } else if (timer) {
         clearInterval(timer);
         timer = undefined;
@@ -193,8 +304,11 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
       sync();
     });
 
-    box.addEventListener("focusin", () => {
-      focusInside = true;
+    // Only keyboard focus counts (:focus-visible). A mouse click also leaves
+    // its arrow focused, and counting that would stop the carousel for good
+    // after one click, long after the mouse had moved away.
+    box.addEventListener("focusin", (event) => {
+      focusInside = (event.target as Element).matches(":focus-visible");
       sync();
     });
     // focusout fires before the incoming focusin, so check where focus landed.
@@ -213,12 +327,35 @@ const style = width ? `width:${width}%; margin-left:auto; margin-right:auto;` : 
     box.addEventListener("wheel", touched, { passive: true });
     box.addEventListener("keydown", touched);
 
+    // This scroll listener is safe because it only fetches images: it keeps
+    // the neighbours ready when the reader swipes instead of using an arrow.
+    frame.addEventListener(
+      "scroll",
+      () => {
+        const step = pitch();
+        if (step > 0) warm(Math.round(frame.scrollLeft / step));
+      },
+      { passive: true }
+    );
+
+    // Fetch the first neighbours once the carousel has been seen, but not
+    // before the page itself has finished loading, so they never compete with
+    // the image that is actually on show.
+    let warmed = false;
+    const warmFirst = () => {
+      if (warmed) return;
+      warmed = true;
+      if (document.readyState === "complete") warm(1);
+      else window.addEventListener("load", () => warm(1), { once: true });
+    };
+
     new IntersectionObserver(
       (entries) => {
         // A callback can carry several batched entries after a fast scroll,
         // and they are in time order - so read the last one, not the first,
         // or the carousel can be left believing a stale visibility.
         onScreen = entries[entries.length - 1].isIntersecting;
+        if (onScreen) warmFirst();
         sync();
       },
       { threshold: 0.35 }

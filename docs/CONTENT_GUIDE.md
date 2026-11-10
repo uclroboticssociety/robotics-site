@@ -126,6 +126,8 @@ logo. Photos belong in one of two places, both of which Astro optimises to webp:
 - an event or project photo → that entry's own folder in `src/content/`
 - a committee/advisor/mission/sponsor photo → `src/assets/`, listed in the
   matching file in `src/data/`
+- a photo for the homepage gallery → `src/assets/hero/` (see
+  [Change the homepage photo gallery](#change-the-homepage-photo-gallery))
 
 **Rule of thumb:** if you are adding *content*, you work in `src/content/`. If you are changing *how content looks*, you work in `src/pages/` or `src/components/`.
 
@@ -618,6 +620,25 @@ Footer links live in `src/data/footer.ts`.
 ### Edit the event category descriptions
 
 `src/data/events.ts` holds the four categories - emoji, title and description text used by the sidebar. Changing a `description` or `emoji` here is safe.
+
+### Change the homepage photo gallery
+
+The large photo at the top of the homepage is a gallery. It shows **every image in `src/assets/hero/`**, moves to the next one every 5 seconds, and can be swiped or moved with the arrows that appear over it. There is no list to keep in step: the folder is the list.
+
+```
+src/assets/hero/
+├─ 01 CV Roast Oct 2026.webp
+├─ 02 Arduino Workshop Nov 2026.webp
+└─ …
+```
+
+- **To add a photo**, put it in the folder. **To remove one**, delete it.
+- **The number at the front sets the order.** `01` is the photo visitors see first, so make it a good one - and not the title photo of the latest event, because the "Most recent event" panel just below the gallery already shows that one. Keep the numbers two digits (`01`, not `1`).
+- **The rest of the file name is the photo's description** for visitors using a screen reader, so name it after what it shows: `03 Students soldering at the Arduino workshop.webp`.
+- **Every photo is cropped to a 4:3 landscape shape from its centre.** A tall phone photo loses its top and bottom, so check that the subject is still in the frame.
+- The gallery does **not** pick up event photos by itself. When an event has a photo worth showing off, copy it in here. Compress it first, as with any photo (see [Format and size](#format-and-size)); 1600px wide is plenty.
+
+With one photo in the folder the homepage shows it as a still picture, with no arrows.
 
 ### Edit a committee member
 

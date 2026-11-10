@@ -9,8 +9,11 @@
  *
  * What moves, and how:
  *   - on load, the links draw in and the nodes pop in, column by column (CSS)
- *   - the nodes then drift slightly and pulses travel along the links (script)
+ *   - the nodes then drift slightly (script)
  *   - nodes near the pointer grow and turn violet (script)
+ *   - hovering over a node, or clicking or tapping one, sends pulses out from
+ *     it along the links. Nothing else sets a pulse off: when nobody is
+ *     touching the network, only the slow drift moves (script)
  *
  * It is decoration only (aria-hidden). Without JavaScript, or with "reduce
  * motion" switched on, it is simply a still drawing. The script also stops
@@ -72,7 +75,9 @@ const edges = nodes.flatMap((from, a) =>
   nodes.flatMap((to, b) => (to.layer === from.layer + 1 ? [{ a, b }] : []))
 );
 
-const pulseCount = 7;
+// Pulses are a small pool that is reused: each hover or click takes up to two
+// of them (one heading right, one heading left) and hands them back at the end.
+const pulseCount = 8;
 ---
 
 <svg
@@ -144,6 +149,8 @@ const pulseCount = 7;
       driftX: number;
       driftY: number;
       speed: number;
+      hovered: boolean;
+      sentAt: number;
     };
 
     type Pulse = {
@@ -152,10 +159,24 @@ const pulseCount = 7;
       to: NetNode;
       start: number;
       duration: number;
+      // +1 while heading right through the columns, -1 while heading left.
+      step: number;
+      active: boolean;
     };
 
-    // How close (in pixels) the pointer must be for a node to react.
+    // How close (in pixels) the pointer must be for a node to grow and turn
+    // violet.
     const REACH = 170;
+    // How close the pointer must be to count as hovering over a node, which
+    // sends pulses out from it.
+    const HOVER_REACH = 36;
+    // A click or tap is less exact than a hover (a finger covers the node), so
+    // it reaches the nearest node within this distance.
+    const TAP_REACH = 64;
+    // After a hover sets a node off, hovering cannot set it off again for this
+    // long (ms). Stops a pointer resting on a node's edge from firing it over
+    // and over. A click or tap always works.
+    const COOLDOWN = 900;
 
     const nodes: NetNode[] = Array.from(svg.querySelectorAll<SVGGElement>("[data-node]")).map(
       (el, i) => {
@@ -173,6 +194,8 @@ const pulseCount = 7;
           driftX: 7 + (i % 4) * 2.5,
           driftY: 6 + (i % 3) * 3,
           speed: 0.00045 + (i % 5) * 0.00007,
+          hovered: false,
+          sentAt: -COOLDOWN,
         };
       }
     );
@@ -191,19 +214,10 @@ const pulseCount = 7;
     const pick = (list: NetNode[]) => list[Math.floor(Math.random() * list.length)];
 
     const pulses: Pulse[] = Array.from(svg.querySelectorAll<SVGCircleElement>("[data-pulse]")).map(
-      (el) => ({ el, from: nodes[0], to: nodes[0], start: 0, duration: 1 })
+      (el) => ({ el, from: nodes[0], to: nodes[0], start: 0, duration: 1, step: 1, active: false })
     );
 
-    // Send a pulse back to the first column, to set off after `delay` ms.
-    const launch = (pulse: Pulse, now: number, delay: number) => {
-      pulse.from = pick(layers[0]);
-      pulse.to = pick(layers[1]);
-      pulse.start = now + delay;
-      pulse.duration = 900 + Math.random() * 500;
-      pulse.el.style.opacity = "0";
-    };
-
-    // The halo ring on a node plays once each time a pulse arrives.
+    // The halo ring on a node plays once each time a pulse leaves or arrives.
     const fire = (node: NetNode) => node.el.classList.add("is-fired");
     svg.addEventListener("animationend", (event) => {
       const target = event.target as Element;
@@ -217,17 +231,58 @@ const pulseCount = 7;
     const pointer = { x: -10000, y: -10000 };
     const hero = svg.closest<HTMLElement>(".hero");
 
-    hero?.addEventListener("pointermove", (event) => {
+    const track = (event: PointerEvent) => {
       const matrix = svg.getScreenCTM();
       if (!matrix) return;
       const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
       pointer.x = point.x;
       pointer.y = point.y;
-    });
+    };
+
+    hero?.addEventListener("pointermove", track);
 
     hero?.addEventListener("pointerleave", () => {
       pointer.x = -10000;
       pointer.y = -10000;
+    });
+
+    // Sends pulses out from a node: one towards the right-hand end of the
+    // network and one towards the left, each hopping from column to column
+    // until it runs out of columns. This is the only thing that starts a
+    // pulse. Does nothing while the animation is stopped (off screen, or
+    // "reduce motion" switched on).
+    const send = (node: NetNode, now: number) => {
+      if (!request) return;
+      node.sentAt = now;
+      fire(node);
+
+      [1, -1].forEach((step) => {
+        const next = layers[node.layer + step];
+        const pulse = pulses.find((p) => !p.active);
+        // No column on that side, or every pulse is already travelling.
+        if (!next || !pulse) return;
+        pulse.from = node;
+        pulse.to = pick(next);
+        pulse.step = step;
+        pulse.start = now;
+        pulse.duration = 900 + Math.random() * 500;
+        pulse.active = true;
+      });
+    };
+
+    // A click or tap sets off the nearest node, if one is close enough.
+    hero?.addEventListener("pointerdown", (event) => {
+      track(event);
+      let nearest: NetNode | undefined;
+      let best = TAP_REACH;
+      nodes.forEach((node) => {
+        const distance = Math.hypot(node.x - pointer.x, node.y - pointer.y);
+        if (distance < best) {
+          best = distance;
+          nearest = node;
+        }
+      });
+      if (nearest) send(nearest, performance.now());
     });
 
     // Puts every node and link where it belongs. With `drift` each node also
@@ -256,22 +311,31 @@ const pulseCount = 7;
         const near = distance < REACH;
         node.el.classList.toggle("is-near", near);
         node.el.style.setProperty("--k", near ? (1 + 0.4 * (1 - distance / REACH)).toFixed(2) : "1");
+
+        // The moment the pointer arrives on a node, the node sends its pulses.
+        const hovered = distance < HOVER_REACH;
+        if (hovered && !node.hovered && now - node.sentAt > COOLDOWN) send(node, now);
+        node.hovered = hovered;
       });
 
       pulses.forEach((pulse) => {
+        if (!pulse.active) return;
         const t = (now - pulse.start) / pulse.duration;
-        if (t < 0) return; // still waiting to set off
+        if (t < 0) return; // set off after this frame began
 
         if (t >= 1) {
           fire(pulse.to);
-          if (pulse.to.layer === layers.length - 1) {
-            // Reached the last column: start again from the first, after a pause.
-            launch(pulse, now, 400 + Math.random() * 2600);
-          } else {
+          const next = layers[pulse.to.layer + pulse.step];
+          if (next) {
+            // Carry on to the next column.
             pulse.from = pulse.to;
-            pulse.to = pick(layers[pulse.from.layer + 1]);
+            pulse.to = pick(next);
             pulse.start = now;
             pulse.duration = 900 + Math.random() * 500;
+          } else {
+            // Reached the end of the network: back into the pool.
+            pulse.active = false;
+            pulse.el.style.opacity = "0";
           }
           return;
         }
@@ -300,14 +364,14 @@ const pulseCount = 7;
       const shouldRun = onScreen && !reduce.matches;
 
       if (shouldRun && !request) {
-        const now = performance.now();
-        // The first pulses wait for the draw-in to finish.
-        pulses.forEach((pulse, i) => launch(pulse, now, 1400 + i * 650));
         request = requestAnimationFrame(loop);
       } else if (!shouldRun && request) {
         cancelAnimationFrame(request);
         request = 0;
-        pulses.forEach((pulse) => (pulse.el.style.opacity = "0"));
+        pulses.forEach((pulse) => {
+          pulse.active = false;
+          pulse.el.style.opacity = "0";
+        });
       }
     };
 
