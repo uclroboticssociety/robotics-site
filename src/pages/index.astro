@@ -9,6 +9,7 @@ import EventRow from "../components/ui/EventRow.astro";
 import ProjectCard from "../components/ui/ProjectCard.astro";
 import MemberTile from "../components/ui/MemberTile.astro";
 import JoinCTA from "../components/ui/JoinCTA.astro";
+import HeroNetwork from "../components/ui/HeroNetwork.astro";
 import { committee } from "../data/committee";
 import { statusPillText } from "../data/site";
 import { byDateDesc, mostRecentEvent, nextEvent } from "../lib/events";
@@ -35,32 +36,38 @@ const missionPhoto = asset("mission/1.png");
   description="A student-led community for robotics, AI and mechatronics at UCL. Workshops, hackathons, challenges and projects, open to every student."
 >
   <div class="hero">
-    {
-      heroPhoto && (
-        <Image
-          class="hero-photo"
-          src={heroPhoto}
-          alt="Society members working on a robotics build"
-          widths={[720, 1080, 1600, 2048]}
-          sizes="100vw"
-          loading="eager"
-          decoding="async"
-        />
-      )
-    }
+    <HeroNetwork />
     <Container class="wrap-wide">
-      <div class="hero-in">
-        <span class="mono rise d1">{statusPillText()}</span>
-        <h1 class="rise d2">Experience the heart of UCL innovation</h1>
-        <p class="lede rise d3">
-          A student-led community for robotics, AI and mechatronics. We prototype, compete, and
-          share the thrill of real-world engineering.
-        </p>
-        <div class="acts rise d4">
-          <a class="btn" href="/join">Join the society</a>
-          <a class="btn btn-o" href="/events">See what's on</a>
-          <a class="btn btn-o" href="/about/sponsors">Partner with us</a>
+      <div class="hero-grid">
+        <div class="hero-in">
+          <span class="mono rise d1">{statusPillText()}</span>
+          {/* The spans only control the line break (.nb) and colour two words
+              (.hl); the words are unchanged. */}
+          <h1 class="rise d2">Experience the heart <span class="nb">of <span class="hl">UCL innovation</span></span></h1>
+          <p class="lede rise d3">
+            A student-led community for robotics, AI and mechatronics. We prototype, compete, and
+            share the thrill of real-world engineering.
+          </p>
+          <div class="acts rise d4">
+            <a class="btn" href="/join">Join the society</a>
+            <a class="btn btn-o" href="/events">See what's on</a>
+            <a class="btn btn-o" href="/about/sponsors">Partner with us</a>
+          </div>
         </div>
+        {
+          heroPhoto && (
+            <figure class="hero-frame">
+              <Image
+                src={heroPhoto}
+                alt="Society members working on a robotics build"
+                widths={[480, 720, 960, 1200]}
+                sizes="(max-width: 1000px) 92vw, 45vw"
+                loading="eager"
+                decoding="async"
+              />
+            </figure>
+          )
+        }
       </div>
     </Container>
     <a class="hero-scroll" href="#after-hero" aria-label="Scroll to content">
@@ -122,16 +129,17 @@ const missionPhoto = asset("mission/1.png");
       </div>
     </section>
 
-    <section class="section" data-reveal>
+    {/* These two sections stagger their items in instead of rising as a block. */}
+    <section class="section">
       <SectionHeader title="Committee" linkHref="/about/committee" linkLabel="Meet the full team →" />
-      <div class="team team-3">
+      <div class="team team-3" data-reveal-stagger>
         {featuredCommittee.map((member) => <MemberTile name={member.name} role={member.role} photo={member.photo} linkedin={member.linkedin} />)}
       </div>
     </section>
 
-    <section class="section" data-reveal>
+    <section class="section">
       <SectionHeader title="What's on" linkHref="/events" linkLabel="All events →" />
-      <div class="rows">
+      <div class="rows" data-reveal-stagger>
         {recentEvents.map((event) => <EventRow event={event} />)}
       </div>
     </section>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================================
-   UCL Robotics Society — "Studio" design tokens
+   UCL Robotics Society — "Network" design tokens
    ----------------------------------------------------------------------------
    This file is the single source of truth for colour, radius and type.
    Every component in the site references these tokens; there should be no
@@ -11,67 +11,71 @@
    ========================================================================== */
 
 @theme {
-  /* surfaces — paper/plate theme: flat paper ground, white and purple-tinted
-     panels, hairline rules. No radius scale — every edge is sharp. */
-  --color-bg: #f4f3f1; /* page background (paper) */
+  /* surfaces — "Network" theme: cool white ground, white panels floating on
+     soft violet shadows. No black anywhere: the darkest colour is the logo's
+     deep violet. */
+  --color-bg: #fbfaff; /* page background */
   --color-surface: #ffffff; /* cards, panels */
-  --color-surface-2: #f7f3f9; /* purple-tinted panel / alternating section ground */
-  --color-rule: #c9c6c1; /* all 1px borders and dividers */
-  --color-rule-hover: #a9a5a0; /* border on card hover */
+  --color-surface-2: #f1eafd; /* lilac mist: tinted panels, hovers */
+  --color-rule: #e4dcf2; /* quiet dividers */
+  --color-rule-hover: #c9b8ec;
 
   /* text */
-  --color-fg: #191a1c; /* primary text (ink) */
-  --color-muted: #5b5960; /* secondary text, metadata, nav idle */
+  --color-fg: #290050; /* primary text - the logo's deep violet */
+  --color-muted: #5f5177; /* secondary text, metadata, idle nav */
 
-  /* accents — a single purple accent, no secondary hue */
-  --color-accent: #500778; /* primary action, active state, focus ring */
-  --color-accent-hover: #3a0559; /* primary button hover, deep tag text */
-  --color-accent-deep: #3a0559; /* darker end of any accent gradient */
+  /* accents — violet only, no second hue */
+  --color-lilac: #dec5fb; /* the logo's fill, sampled from public/logo.png */
+  --color-accent: #6f32e6; /* electric violet: primary action, links, active */
+  --color-accent-hover: #5a21c9; /* primary button hover */
+  --color-accent-deep: #290050; /* dark end of the join band's gradient */
 
-  /* form error state — the one warm tone in the palette, deliberately not
-     purple so that "something is wrong" never reads as "this is the primary
-     action" */
+  /* form error state */
   --color-warn: #b3261e;
 
-  /* Image-shaped surfaces. Every image container is painted with these before
-     its picture loads, so a missing or slow image still reads as a designed
-     panel rather than a blank box. */
-  --color-shade-a: #edeae6;
-  --color-shade-b: #dad5ce;
-  --color-portrait-a: #efe9f3;
-  --color-portrait-b: #f4f3f1;
-  --color-thumb: #edeae6;
+  /* Image-shaped surfaces, painted before the picture loads. */
+  --color-shade-a: #f1eafd;
+  --color-shade-b: #dec5fb;
+  --color-portrait-a: #f1eafd;
+  --color-portrait-b: #dec5fb;
+  --color-thumb: #ece3fb;
 
   /* Sponsor wordmarks at rest, and the outline button's hover border. */
-  --color-idle: #a9a5a0;
-  --color-rule-strong: #8a8580;
+  --color-idle: #a99bc2;
+  --color-rule-strong: #6f32e6;
 
-  /* radii — this design has none. Every plate, tag, image and button is a
-     sharp rectangle; the tokens stay so components don't hardcode 0. */
-  --radius-sm: 0px;
-  --radius-btn: 0px;
-  --radius-thumb: 0px;
-  --radius-chip: 0px;
-  --radius-card: 0px;
-  --radius-panel: 0px;
-  --radius-member: 0px;
-  --radius-pill: 0px;
+  /* radii — soft everywhere; anything you can press is a full pill. */
+  --radius-sm: 10px;
+  --radius-btn: 999px;
+  --radius-thumb: 12px;
+  --radius-chip: 16px;
+  --radius-card: 24px;
+  --radius-panel: 32px;
+  --radius-member: 24px;
+  --radius-pill: 999px;
 
-  /* fonts — self-hosted at build time, see astro.config.mjs */
-  --font-disp: var(--font-archivo);
-  --font-mono: var(--font-spline-mono);
+  /* fonts — the Red Hat family, self-hosted at build time (astro.config.mjs).
+     Display for headings, Text for everything readable, Mono for dates,
+     counts and labels only. */
+  --font-head: var(--font-redhat-display);
+  --font-disp: var(--font-redhat-text);
+  --font-mono: var(--font-redhat-mono);
 }
 
-/* Composite accent tints. These are rgba/hex values layered over --bg rather
-   than points on a colour scale, so they live outside @theme (no utilities
-   needed). Use them as-is; do not re-derive new tints from --color-accent. */
 :root {
-  --accent-tint-bg: #efe9f3;
-  --accent-tint-border: rgba(80, 7, 120, 0.35);
-  --accent-tint-text: #3a0559;
-  --status-on-bg: #efe9f3;
-  --status-on-border: rgba(80, 7, 120, 0.35);
-  --status-on-text: #3a0559;
+  --accent-tint-bg: #ede3fd;
+  --accent-tint-border: rgba(111, 50, 230, 0.3);
+  --accent-tint-text: #4a17b0;
+  --status-on-bg: #ede3fd;
+  --status-on-border: rgba(111, 50, 230, 0.3);
+  --status-on-text: #4a17b0;
+
+  /* Depth comes from two violet-tinted shadows, not from borders. */
+  --shadow-1: 0 1px 2px rgba(41, 0, 80, 0.06), 0 10px 28px -14px rgba(41, 0, 80, 0.22);
+  --shadow-2: 0 2px 4px rgba(41, 0, 80, 0.06), 0 30px 60px -26px rgba(77, 23, 176, 0.42);
+
+  /* One easing for everything that moves: fast start, long soft landing. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ==========================================================================
@@ -547,143 +551,238 @@
   }
 
   /* ---- home hero ------------------------------------------------------- */
-  /* The only page with a hero. Every other page opens with .page-header. A
-     full-bleed photo sits behind the text with a dark purple gradient wash
-     for legibility, so hero type is white rather than the paper-theme ink. */
+  /* The only page with a hero. Every other page opens with .page-header.
+     Light ground, text on the left, photo on the right, and behind both an
+     animated node network (HeroNetwork.astro) in the style of the logo. */
 
   .hero {
     position: relative;
     overflow: hidden;
-    /* Fills the screen below the 75px nav (74px bar + 1px border) on every
-       device; the .hero-scroll arrow tells people there is more below.
-       svh = screen height with the mobile toolbar showing, so it doesn't jump;
-       vh is the fallback for older browsers. */
-    min-height: clamp(476px, calc(100vh - 75px), 646px);
-    min-height: clamp(476px, calc(100svh - 75px), 646px);
-    /* The text block is centred both ways, in line with the scroll arrow; the
-       text inside it is left-aligned (see .hero-in). The bottom padding leaves
-       room for the arrow, and because it is larger than the top padding the
-       block sits slightly above the true centre, which looks balanced. */
+    isolation: isolate;
+    /* Slides up behind the floating nav (12px gap + 64px bar), so the hero's
+       background reaches the top of the page. */
+    margin-top: -76px;
+    padding: 132px 0 96px;
+    min-height: clamp(620px, 100vh, 840px);
+    min-height: clamp(620px, 100svh, 840px);
     display: flex;
     align-items: center;
-    padding: 27px 0 75px;
+    background:
+      radial-gradient(900px 520px at 88% 6%, #ece0ff 0%, rgba(236, 224, 255, 0) 70%),
+      radial-gradient(700px 480px at 0% 100%, #f3ebff 0%, rgba(243, 235, 255, 0) 70%),
+      var(--color-bg);
   }
 
-  .hero-photo {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: contrast(1.05);
+  /* The container must span the hero: inside a flex row, .wrap's auto margins
+     would otherwise shrink it to its content. */
+  .hero > .wrap {
+    flex: 1;
+    min-width: 0;
   }
 
-  .hero::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(
-      0deg,
-      rgba(28, 4, 44, 0.92),
-      rgba(28, 4, 44, 0.72) 60%,
-      rgba(28, 4, 44, 0.6)
-    );
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(32px, 5vw, 88px);
+    align-items: center;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .hero-in {
+    position: relative;
+    z-index: 2;
   }
 
   .hero h1 {
-    font-size: clamp(34px, 4.8vw, 82px);
-    /* In em (the title's own size), so the line length grows exactly with the
-       letters and the break is always "Experience the heart / of UCL
-       innovation". Measured in the browser at weight 800: "Experience the
-       heart" = 9.71em, "Experience the heart of" = 10.80em. Keep this between
-       10em and 10.7em, or re-measure if the title text changes. */
-    max-width: 10.2em;
+    font-size: clamp(32px, 4.4vw, 64px);
+    font-weight: 900;
+    line-height: 1.03;
+    letter-spacing: -0.025em;
+    /* In em (the title's own size) so the break is always "Experience the
+       heart / of UCL innovation". Measured in the browser in Red Hat Display
+       900: "Experience the heart" = 9.9em, "heart of UCL innovation" = 11em.
+       Keep this between those two, and re-measure if the title or font
+       changes. */
+    max-width: 10.5em;
     text-wrap: balance;
-    font-weight: 800;
-    margin: 20px 0 0;
-    color: #fff;
+    margin: 22px 0 0;
   }
 
+  /* Keeps "of UCL innovation" on one line. */
+  .hero h1 .nb {
+    white-space: nowrap;
+  }
+
+  .hero h1 .hl {
+    color: var(--color-accent);
+  }
+
+  /* Status line: a white pill with a live "node" dot in front of it. */
   .hero .mono {
-    color: #d9bfea;
-    font-size: 11.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 14px 7px 11px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-1);
+    color: var(--color-fg);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .hero .mono::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    animation: live-dot 2.2s ease-out infinite;
   }
 
   .hero .lede {
-    color: rgba(255, 255, 255, 0.88);
-    font-size: clamp(16px, 1.2vw, 17px);
-    max-width: 44ch;
+    font-size: clamp(16.5px, 1.3vw, 19px);
+    max-width: 46ch;
+    margin-top: 24px;
   }
 
   .hero .acts {
     margin-top: 34px;
   }
 
-  .hero .btn-o {
-    background: transparent;
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.55);
-  }
-
-  .hero .btn-o:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: #fff;
-  }
-
-  /* The container must span the hero. .wrap has margin: 0 auto, and inside a
-     flex row auto margins shrink an item to its content and centre it, which
-     put the left-aligned text in a centred box instead of under the logo. */
-  .hero > .wrap {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .hero-in {
+  /* The photo, framed like one of the network's nodes at a much larger size:
+     a white ring with a thin violet outline. */
+  .hero-frame {
     position: relative;
     z-index: 2;
-    /* Room for the title: 10.2em x 82px. fit-content makes the block hug its
-       widest line (the title), so margin: auto centres the text itself rather
-       than an emptier box around it. */
-    max-width: 836px;
-    width: fit-content;
-    margin: 0 auto;
+    margin: 0;
+    justify-self: end;
+    width: min(100%, 600px);
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border: 7px solid #fff;
+    border-radius: var(--radius-panel);
+    background: linear-gradient(150deg, var(--color-shade-a), var(--color-shade-b));
+    box-shadow:
+      0 0 0 1.5px var(--color-fg),
+      var(--shadow-2);
+    animation: frame-in 1.1s var(--ease-out) 0.25s backwards;
   }
 
-  /* Scroll hint. A bare white glyph like .carousel-nav, since it sits on the
-     photo (see DESIGN.md, "Icon-only controls"). */
+  .hero-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ---- the network (HeroNetwork.astro) ---- */
+
+  .hero-net {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Faint behind the text on the left, full strength on the right. */
+    -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 32%, #000 64%);
+    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 32%, #000 64%);
+  }
+
+  .net-edge {
+    stroke: #d6c1f6;
+    stroke-width: 1.5;
+    /* pathLength is set to 1 in the markup, so the line draws in by sliding
+       a dash of length 1 into place. */
+    stroke-dasharray: 1;
+    animation: edge-draw 0.9s var(--ease-out) backwards;
+    animation-delay: calc(var(--l) * 130ms + 120ms);
+  }
+
+  .net-body {
+    transform-box: fill-box;
+    transform-origin: center;
+    /* --k is set by the script: nodes near the pointer grow slightly. */
+    transform: scale(var(--k, 1));
+    transition: transform 0.35s var(--ease-out);
+    animation: node-in 0.7s var(--ease-out) backwards;
+    animation-delay: calc(var(--l) * 130ms);
+  }
+
+  .net-ring {
+    fill: #fff;
+    stroke: var(--color-fg);
+    stroke-width: 1.5;
+  }
+
+  .net-core {
+    fill: var(--color-fg);
+    transition: fill 0.3s;
+  }
+
+  .net-node.is-near .net-core {
+    fill: var(--color-accent);
+  }
+
+  /* A ring that expands and fades each time a pulse reaches the node. */
+  .net-halo {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .net-node.is-fired .net-halo {
+    animation: node-fire 0.7s ease-out;
+  }
+
+  .net-pulse {
+    fill: var(--color-accent);
+    opacity: 0;
+    filter: drop-shadow(0 0 5px rgba(111, 50, 230, 0.75));
+  }
+
+  /* Scroll hint: a small white disc, like the nav. */
   .hero-scroll {
     position: absolute;
-    z-index: 2; /* above the .hero::after wash */
+    z-index: 2;
     left: 50%;
-    bottom: 20px;
+    bottom: 22px;
     transform: translateX(-50%);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    color: #fff;
-    opacity: 0.55;
-    transition: opacity 0.18s;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--color-rule);
+    box-shadow: var(--shadow-1);
+    color: var(--color-fg);
+    transition: color 0.18s;
     animation: hero-bob 2.4s ease-in-out infinite;
   }
 
   .hero-scroll:hover,
   .hero-scroll:focus-visible {
-    opacity: 1;
+    color: var(--color-accent);
   }
 
   .hero-scroll svg {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
   }
 
-  /* The arrow's target, just below the hero. The margin keeps the sticky nav
-     from covering the section it scrolls to. */
+  /* The arrow's target, just below the hero. The margin keeps the floating
+     nav from covering the section it scrolls to. */
   #after-hero {
-    scroll-margin-top: 75px;
+    scroll-margin-top: 92px;
   }
 
   /* ---- page header (every page that isn't home) ------------------------ */
@@ -958,11 +1057,11 @@
   }
 
   /* LinkedIn corner badge: a documented exception to the plate-free
-     .carousel-nav convention (see DESIGN.md, "Icon-only controls") — a
+     .carousel-nav convention (see DESIGN.md §4, "Buttons") — a
      translucent, blurred glass chip rather than a bare drop-shadowed glyph,
      since committee/advisor photos are numerous and uncontrolled for
-     contrast in a way the carousel's curated set isn't. Also this
-     codebase's one deliberate non-zero radius (see DESIGN.md §1, §7.3).
+     contrast in a way the carousel's curated set isn't. The Network layer
+     makes it a circle.
      Scoped to .member .face, not just .member-linkedin, so this outranks
      the initials-fallback rule above (.member .face span) — both are <span>s. */
   .member .face .member-linkedin {
@@ -2060,6 +2159,623 @@
 }
 
 /* ==========================================================================
+   "Network" layer
+   --------------------------------------------------------------------------
+   The sections above define each component's structure (layout, spacing,
+   grid columns). Everything below is the "Network" look applied on top: soft
+   rounded panels lifted on violet shadows instead of bordered plates, a
+   floating navbar, and the logo's node-and-link motif as the recurring
+   detail. When a rule here and a rule above disagree, this one wins, because
+   it comes later. To change how something LOOKS, look here first; to change
+   how it is LAID OUT, look above. See docs/DESIGN.md.
+   ========================================================================== */
+
+/* Fade between pages instead of a hard cut, in browsers that support it. */
+@view-transition {
+  navigation: auto;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-head);
+    font-weight: 800;
+    /* Red Hat Display is already tight at heavy weights, so only a little
+       negative tracking, and slightly wider word gaps to keep words apart. */
+    letter-spacing: -0.015em;
+    word-spacing: 0.05em;
+    line-height: 1.06;
+  }
+
+  ::selection {
+    background: var(--color-lilac);
+    color: var(--color-fg);
+  }
+}
+
+@layer components {
+  /* ---- nav: a floating rounded bar ------------------------------------- */
+
+  .site-nav {
+    top: 12px;
+    margin: 12px clamp(12px, 2vw, 28px) 0;
+    border: 1px solid var(--color-rule);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.74);
+    box-shadow: var(--shadow-1);
+  }
+
+  .site-nav::before {
+    border-radius: inherit;
+    backdrop-filter: blur(16px) saturate(160%);
+  }
+
+  /* The bar is inset from the screen edge, so its own gutter is reduced by
+     the same amount: the logo still lines up with the page content below. */
+  .site-nav .wrap-wide {
+    padding: 0 max(14px, calc(clamp(20px, 3vw, 56px) - clamp(12px, 2vw, 28px) - 1px));
+  }
+
+  .nav-in {
+    height: 62px;
+  }
+
+  .brand {
+    font-family: var(--font-head);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-links {
+    gap: 4px;
+  }
+
+  .nav-links > a:not(.btn),
+  .nav-menu > button {
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+    font-size: 14.5px;
+    font-weight: 500;
+    transition:
+      color 0.18s,
+      background 0.18s;
+  }
+
+  .nav-links > a:not(.btn):hover,
+  .nav-menu > button:hover,
+  .nav-menu > button[aria-expanded="true"] {
+    background: var(--color-surface-2);
+  }
+
+  .nav-links > a[aria-current="page"]:not(.btn),
+  .nav-menu[data-current] > button {
+    color: var(--accent-tint-text);
+    background: var(--accent-tint-bg);
+  }
+
+  .nav-links a.btn {
+    margin-left: 10px;
+    padding: 10px 20px;
+  }
+
+  /* The links now have 14px of padding, so the panel lines up with the
+     button's own left edge instead of being pulled left of it. */
+  .nav-panel {
+    left: 0;
+    top: calc(100% + 16px);
+    border-color: var(--color-rule);
+    border-radius: 18px;
+    box-shadow: var(--shadow-2);
+  }
+
+  .nav-panel::before {
+    top: -16px;
+    height: 16px;
+  }
+
+  .nav-panel a:hover {
+    background: var(--color-surface-2);
+  }
+
+  .nav-panel a[aria-current="page"] {
+    color: var(--accent-tint-text);
+    background: var(--accent-tint-bg);
+  }
+
+  .nav-toggle {
+    flex: none;
+    border-radius: 14px;
+    background: var(--color-surface);
+  }
+
+  /* The mobile menu drops down as a floating sheet under the bar. */
+  .nav-drawer {
+    left: clamp(12px, 2vw, 28px);
+    right: clamp(12px, 2vw, 28px);
+    top: 86px;
+    height: auto;
+    max-height: calc(100dvh - 98px);
+    padding: 8px 0 24px;
+    border: 1px solid var(--color-rule);
+    border-radius: 22px;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-2);
+  }
+
+  /* ---- type ------------------------------------------------------------ */
+
+  .mono {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+
+  .lede {
+    font-size: 19px;
+  }
+
+  /* ---- buttons --------------------------------------------------------- */
+
+  .btn {
+    font-size: 14.5px;
+    padding: 12px 22px;
+    transition:
+      transform 0.3s var(--ease-out),
+      box-shadow 0.3s var(--ease-out),
+      background 0.18s,
+      border-color 0.18s;
+  }
+
+  .btn:hover {
+    box-shadow: 0 12px 26px -10px rgba(111, 50, 230, 0.65);
+  }
+
+  .btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn-o {
+    background: var(--color-surface);
+    color: var(--color-fg);
+    border-color: var(--color-rule-hover);
+  }
+
+  .btn-o:hover {
+    background: var(--color-surface);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    box-shadow: var(--shadow-1);
+  }
+
+  .btn-quiet,
+  .btn-quiet:hover,
+  .btn-quiet:active {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* ---- section header -------------------------------------------------- */
+
+  .sh {
+    margin-bottom: 32px;
+  }
+
+  .sh h2 {
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 800;
+  }
+
+  /* The section link's arrow slides forward on hover. */
+  .sh a.r {
+    transition: translate 0.3s var(--ease-out);
+  }
+
+  .sh a.r:hover {
+    translate: 4px 0;
+    text-decoration: none;
+  }
+
+  /* ---- page header ----------------------------------------------------- */
+
+  .page-header h1 {
+    font-weight: 900;
+    letter-spacing: -0.025em;
+  }
+
+  /* ---- featured event panel -------------------------------------------- */
+
+  .next {
+    border: 0;
+    box-shadow: var(--shadow-2);
+  }
+
+  .next-r {
+    border-left: 0;
+  }
+
+  .next-r img {
+    transition: scale 0.9s var(--ease-out);
+  }
+
+  .next:hover .next-r img {
+    scale: 1.04;
+  }
+
+  .next h3 {
+    font-weight: 800;
+  }
+
+  .tag {
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+
+  .meta {
+    font-size: 12.5px;
+  }
+
+  /* Countdown: one lilac tile per unit. */
+  .count {
+    gap: 8px;
+    border: 0;
+  }
+
+  .u,
+  .u:not(:last-child) {
+    border: 0;
+    border-radius: var(--radius-chip);
+    background: var(--color-surface-2);
+  }
+
+  .u strong {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  /* ---- about ----------------------------------------------------------- */
+
+  .about .big {
+    font-family: var(--font-head);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    word-spacing: 0.05em;
+    color: var(--color-fg);
+  }
+
+  /* Same white-ring frame as the hero photo. */
+  .duo {
+    border: 7px solid #fff;
+    border-radius: var(--radius-panel);
+    box-shadow:
+      0 0 0 1.5px var(--color-fg),
+      var(--shadow-2);
+  }
+
+  .duo img {
+    transition: scale 0.9s var(--ease-out);
+  }
+
+  .duo:hover img {
+    scale: 1.04;
+  }
+
+  /* ---- committee tiles ------------------------------------------------- */
+
+  .team {
+    gap: 22px;
+  }
+
+  .member {
+    border: 0;
+    box-shadow: var(--shadow-1);
+    transition:
+      transform 0.5s var(--ease-out),
+      box-shadow 0.5s var(--ease-out);
+  }
+
+  .member:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .member .face {
+    overflow: hidden;
+  }
+
+  .member .face img {
+    transition: scale 0.9s var(--ease-out);
+  }
+
+  .member:hover .face img {
+    scale: 1.05;
+  }
+
+  .member .face span {
+    font-family: var(--font-head);
+    color: rgba(41, 0, 80, 0.3);
+  }
+
+  .member .face .member-linkedin {
+    border-radius: 50%;
+  }
+
+  .member .n {
+    padding: 16px 18px 18px;
+    border-top: 0;
+  }
+
+  .member .n b {
+    font-family: var(--font-head);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    word-spacing: 0.05em;
+  }
+
+  .member .n span {
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+
+  /* ---- event rows ------------------------------------------------------ */
+  /* Same columns as before; the whole list is one white rounded panel. */
+
+  .rows {
+    border-top: 0;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+  }
+
+  .row {
+    padding: 16px 22px 16px 16px;
+    transition: background 0.2s;
+  }
+
+  .row:last-child {
+    border-bottom: 0;
+  }
+
+  .row:hover {
+    background: var(--color-surface-2);
+  }
+
+  .row .t {
+    font-family: var(--font-head);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    word-spacing: 0.05em;
+    transition: translate 0.35s var(--ease-out);
+  }
+
+  .row:hover .t {
+    translate: 5px 0;
+  }
+
+  .st {
+    font-weight: 500;
+  }
+
+  /* ---- sidebar, cards, panels, media ----------------------------------- */
+
+  .side-panel,
+  .card,
+  .panel {
+    border: 0;
+    box-shadow: var(--shadow-1);
+  }
+
+  .side {
+    top: 104px;
+  }
+
+  .card {
+    transition:
+      transform 0.5s var(--ease-out),
+      box-shadow 0.5s var(--ease-out);
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .content-img,
+  .scroll-frame,
+  .detail-hero {
+    border: 0;
+    box-shadow: var(--shadow-1);
+  }
+
+  .notice {
+    border-radius: var(--radius-chip);
+  }
+
+  /* ---- forms ----------------------------------------------------------- */
+
+  .input {
+    border-width: 1.5px;
+    border-radius: 14px;
+  }
+
+  .input:focus-visible {
+    box-shadow: 0 0 0 4px rgba(111, 50, 230, 0.16);
+  }
+
+  /* ---- join band ------------------------------------------------------- */
+
+  .join {
+    border-radius: var(--radius-panel);
+    background:
+      radial-gradient(120% 160% at 100% 0%, #6f32e6 0%, rgba(111, 50, 230, 0) 55%),
+      var(--color-accent-deep);
+    box-shadow: var(--shadow-2);
+  }
+
+  .join .btn {
+    color: var(--color-fg);
+  }
+
+  .join .btn:hover {
+    opacity: 1;
+    box-shadow: 0 12px 26px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  .join .btn-o,
+  .join .btn-o:hover {
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .join .btn-o {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .join .btn-o:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #fff;
+  }
+
+  /* ---- footer ---------------------------------------------------------- */
+
+  .site-footer {
+    background: var(--color-surface);
+  }
+
+  .socials a:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--accent-tint-bg);
+  }
+
+  /* ---- motion ---------------------------------------------------------- */
+
+  /* The existing reveals keep their keyframes but travel further and land
+     more softly. */
+  .rise,
+  [data-reveal][data-shown] {
+    animation-duration: 1s;
+    animation-timing-function: var(--ease-out);
+  }
+
+  /* Staggered reveal: the children of a [data-reveal-stagger] group rise in
+     one after another as they scroll into view. The observer in Base.astro
+     adds [data-shown] to each child and numbers the ones that arrive together
+     (--i). "backwards", not "forwards": once the animation ends the element
+     goes back to its normal styles, so its hover transform works. */
+  [data-reveal-stagger] > [data-shown] {
+    animation: rise-in 0.9s var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+}
+
+/* The "network spine": on wide screens a thin line runs down the left margin
+   and each section header sits on it as a node, so the hero's network appears
+   to continue down the page. A node is hollow until its section has scrolled
+   into view. Below 1320px there is no margin to put it in, so it is left out.
+   Only sections that open with a SectionHeader get it: a line with no node
+   on it just looks like a stray border. */
+@media (min-width: 1320px) {
+  .section:has(> .sh) {
+    position: relative;
+  }
+
+  .section:has(> .sh)::before {
+    content: "";
+    position: absolute;
+    left: -40px;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: var(--color-lilac);
+  }
+
+  /* The line fades in at the top of the first section rather than starting
+     with a hard end. */
+  .section:has(> .sh):first-of-type::before {
+    background: linear-gradient(rgba(222, 197, 251, 0), var(--color-lilac) 70px);
+  }
+
+  .section > .sh {
+    position: relative;
+  }
+
+  .section > .sh::before {
+    content: "";
+    position: absolute;
+    left: -48.75px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    margin-top: -9.5px;
+    box-sizing: content-box;
+    border: 4.5px solid #fff;
+    border-radius: 50%;
+    background: var(--color-fg);
+    box-shadow: 0 0 0 1.5px var(--color-fg);
+    transition: background 0.5s 0.35s;
+  }
+
+  .section[data-reveal]:not([data-shown]) > .sh::before {
+    background: #fff;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+@keyframes frame-in {
+  from {
+    opacity: 0;
+    transform: translateY(36px) scale(0.96);
+  }
+}
+
+@keyframes live-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(111, 50, 230, 0.55);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 8px rgba(111, 50, 230, 0);
+  }
+}
+
+@keyframes edge-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes node-in {
+  from {
+    transform: scale(0);
+  }
+}
+
+@keyframes node-fire {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.3);
+  }
+}
+
+/* ==========================================================================
    Breakpoints
    ========================================================================== */
 
@@ -2198,6 +2914,83 @@
 
   .sponsors {
     gap: 26px;
+  }
+}
+
+/* "Network" look: responsive adjustments. */
+@media (max-width: 1000px) {
+  /* Hero stacks: text first, photo underneath. It no longer has to fill the
+     screen, so the scroll arrow goes. */
+  .hero {
+    min-height: 0;
+    padding: 124px 0 64px;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 64px;
+  }
+
+  .hero-frame {
+    justify-self: center;
+    width: min(100%, 560px);
+  }
+
+  .hero-scroll {
+    display: none;
+  }
+
+  /* Once the hero stacks, the network moves out from behind the text and
+     becomes a band around the photo: nodes show in the gap above it and in
+     the space below it, and the links cross behind it. The height is the
+     photo's own height (three quarters of its width) plus 150px: 86px above
+     and the hero's 64px of bottom padding below. */
+  .hero-net {
+    top: auto;
+    height: calc(min(100vw - 40px, 560px) * 0.75 + 150px);
+    -webkit-mask-image: linear-gradient(rgba(0, 0, 0, 0), #000 44px);
+    mask-image: linear-gradient(rgba(0, 0, 0, 0), #000 44px);
+  }
+}
+
+@media (max-width: 640px) {
+  /* The bar sits closer to the screen edge on a phone. */
+  .site-nav {
+    margin: 8px 8px 0;
+    top: 8px;
+  }
+
+  .site-nav .wrap {
+    padding: 0 12px;
+  }
+
+  .nav-in {
+    gap: 12px;
+  }
+
+  .nav-in > .brand {
+    font-size: 17px;
+  }
+
+  .nav-drawer {
+    left: 8px;
+    right: 8px;
+    top: 80px;
+    max-height: calc(100dvh - 88px);
+  }
+
+  .nav-drawer .wrap {
+    padding: 0 20px;
+  }
+
+  .hero {
+    margin-top: -72px;
+    padding-top: 108px;
+  }
+
+  .hero-frame,
+  .duo {
+    border-width: 5px;
   }
 }
 
