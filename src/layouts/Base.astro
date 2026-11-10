@@ -26,10 +26,11 @@ const {
         the logo changes, bump ?v= so every browser fetches it fresh, and run
         scripts/make_favicon.mjs to rebuild public/favicon.ico to match. */}
     <link rel="icon" href="/logo.svg?v=2" type="image/svg+xml" />
-    <meta name="theme-color" content="#F4F3F1" />
-    {/* Display weights are used above the fold on every page, so preload them. */}
-    <Font cssVariable="--font-archivo" preload />
-    <Font cssVariable="--font-spline-mono" />
+    <meta name="theme-color" content="#FBFAFF" />
+    {/* Headings and body text are above the fold on every page, so preload them. */}
+    <Font cssVariable="--font-redhat-display" preload />
+    <Font cssVariable="--font-redhat-text" preload />
+    <Font cssVariable="--font-redhat-mono" />
   </head>
   <body>
     <Navbar />
@@ -44,17 +45,30 @@ const {
       // rootMargin rather than a threshold: a section taller than the viewport
       // can never reach, say, threshold 0.15, but its top always crosses 85%
       // of the viewport height.
-      const revealables = document.querySelectorAll("[data-reveal]");
+      //
+      // [data-reveal-stagger] goes on a group (a grid or a list) instead: each
+      // of its children is watched separately. Children that come into view
+      // at the same moment (one row of a grid) are numbered 0, 1, 2... in
+      // --i, and the CSS turns that number into a delay so they arrive one
+      // after another.
+      const revealables = document.querySelectorAll<HTMLElement>(
+        "[data-reveal], [data-reveal-stagger] > *"
+      );
 
       if (revealables.length) {
         const observer = new IntersectionObserver(
           (entries) => {
+            let order = 0;
             entries.forEach((entry) => {
               if (!entry.isIntersecting) return;
-              entry.target.setAttribute("data-shown", "");
+              const el = entry.target as HTMLElement;
+              if (el.parentElement?.hasAttribute("data-reveal-stagger")) {
+                el.style.setProperty("--i", String(order++));
+              }
+              el.setAttribute("data-shown", "");
               // Reveal once. Re-animating on every scroll past is what makes
               // this kind of thing feel cheap.
-              observer.unobserve(entry.target);
+              observer.unobserve(el);
             });
           },
           { rootMargin: "0px 0px -15% 0px" }
