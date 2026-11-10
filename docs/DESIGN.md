@@ -1,138 +1,158 @@
-# Design language - "Studio"
+# Design language - "Network"
 
 How this site looks, and how to extend it without it drifting. Read this before
 adding a page or a component.
 
-The whole language lives in **`src/styles/global.css`**. That file is the single
-source of truth for colour, radius and type. If you find yourself writing a hex
-value anywhere else, something has gone wrong.
+The idea in one line: **the logo is a small neural network drawn as a robot**
+(dark nodes in white rings, joined by thin links), so the site is built from
+that same node-and-link motif on a light, soft, violet ground.
 
-This is a **single light "paper" theme by design**. There is no dark mode and no
-theme switcher. Do not add one, and do not add `localStorage`-driven theming.
+The whole language lives in **`src/styles/global.css`**. That file is the single
+source of truth for colour, radius, shadow and type. If you find yourself
+writing a hex value anywhere else, something has gone wrong.
+
+This is a **single light theme by design**. There is no dark mode and no theme
+switcher. Do not add one, and do not add `localStorage`-driven theming.
+
+---
+
+## 0. How global.css is organised
+
+Read this first, it will save you time.
+
+1. **Tokens** (`@theme` and `:root` at the top) - every colour, radius, shadow,
+   font and easing value.
+2. **Components** - one section per component (`---- nav ----`,
+   `---- event rows ----`, …). These set **structure**: layout, grid columns,
+   spacing, sizes.
+3. **The "Network" layer** (the block headed `"Network" layer`, near the end) -
+   sets **appearance** on top of the components: radii, shadows, fonts, hover
+   motion, the floating navbar, the spine. Because it comes later, it wins when
+   the two disagree.
+4. **Breakpoints**, then the Network layer's own responsive rules, then the
+   **reduced-motion** block, which must stay last.
+
+So: to change how something **looks**, look in the Network layer first. To
+change how it is **laid out**, look in its component section.
 
 ---
 
 ## 1. Tokens
 
-Defined in the `@theme` block at the top of `global.css`. Tailwind generates
-utilities from them (`bg-surface`, `text-muted`, `border-rule`, …), and the
-component classes reference them directly.
+### Colour
 
-### Surfaces
-
-| Token | Value | Use |
-|---|---|---|
-| `--color-bg` | `#F4F3F1` | Page background (paper) |
-| `--color-surface` | `#FFFFFF` | Cards, panels |
-| `--color-surface-2` | `#F7F3F9` | Purple-tinted panel / alternating section ground |
-| `--color-rule` | `#C9C6C1` | Every 1px border and divider |
-| `--color-rule-hover` | `#A9A5A0` | Border on card hover |
-
-### Text
+Built from the logo's three colours: the lilac fill, the deep violet of the
+nodes, and white. There is no black anywhere on the site - the darkest colour
+is the logo's deep violet.
 
 | Token | Value | Use |
 |---|---|---|
-| `--color-fg` | `#191A1C` | Primary text (ink) |
-| `--color-muted` | `#5B5960` | Secondary text, metadata, idle nav |
-
-### Accents
-
-| Token | Value | Use |
-|---|---|---|
-| `--color-accent` | `#500778` | Primary action, active state, focus ring, links |
-| `--color-accent-hover` | `#3A0559` | Primary button hover, deep-purple fills (join band, tag/countdown text) |
-| `--color-accent-deep` | `#3A0559` | Darker end of an accent gradient |
+| `--color-bg` | `#FBFAFF` | Page background (cool white) |
+| `--color-surface` | `#FFFFFF` | Cards, panels, the navbar |
+| `--color-surface-2` | `#F1EAFD` | Lilac mist: tinted panels, hover backgrounds |
+| `--color-rule` | `#E4DCF2` | Quiet dividers (row separators, the footer edge) |
+| `--color-rule-hover` | `#C9B8EC` | Outline button border |
+| `--color-fg` | `#290050` | All primary text - the logo's deep violet |
+| `--color-muted` | `#5F5177` | Secondary text, metadata, idle nav |
+| `--color-lilac` | `#DEC5FB` | The logo's fill. Decoration only (the spine, selection) |
+| `--color-accent` | `#6F32E6` | Electric violet: primary button, links, active states, focus ring |
+| `--color-accent-hover` | `#5A21C9` | Primary button hover |
+| `--color-accent-deep` | `#290050` | Dark end of the join band's gradient |
 | `--color-warn` | `#B3261E` | Form errors only - the one warm tone |
 
-There is a single accent hue - no separate secondary "ice" colour. Every link,
-active state and highlight uses `--color-accent` (or `--color-accent-hover` where
-a deeper shade reads better against a light tint).
+**Violet only, no second hue.** `--color-warn` is deliberately not purple, so
+"something is wrong" never reads as "this is the primary action".
 
-`--color-warn` is deliberately not purple, so "something is wrong" can never be
-mistaken for "this is the primary action". It is the only place it appears.
+The `:root` block below `@theme` holds composite values (`--accent-tint-*`,
+`--status-on-*`, the two shadows, `--ease-out`). Use them as they are - do not
+derive new tints from `--color-accent`.
 
-### Accent tints
+`--color-shade-*`, `--color-portrait-*` and `--color-thumb` paint every image
+container before its picture loads, so a slow or missing image reads as a
+designed panel instead of a blank box.
 
-Composite values in the `:root` block below `@theme` (`--accent-tint-bg`,
-`--accent-tint-border`, `--accent-tint-text`, `--status-on-*`). **Use them as
-they are - do not derive new tints from `--color-accent`.**
+### Radius
 
-### Image surfaces
+Everything is rounded. Anything you can press is a full pill.
 
-`--color-shade-a/b`, `--color-portrait-a/b`, `--color-thumb`, `--color-idle`,
-`--color-rule-strong`. Every image container is painted with one of these before
-its picture loads, so a missing or slow image reads as a designed panel instead
-of a blank box.
+| Token | Value | Use |
+|---|---|---|
+| `--radius-btn`, `--radius-pill` | `999px` | Buttons, nav links, tags, status pills |
+| `--radius-sm` | `10px` | Small hover backgrounds inside panels |
+| `--radius-thumb` | `12px` | Event row thumbnails |
+| `--radius-chip` | `16px` | Countdown cells, inputs, small panels |
+| `--radius-card`, `--radius-member` | `24px` | Cards, member tiles, the event list |
+| `--radius-panel` | `32px` | Big panels: featured event, photo frames, join band |
 
-### Radii
+Round controls (`.socials a`, `.hero-scroll`, the LinkedIn badge) are circles.
 
-All `--radius-*` tokens are `0`. This is a sharp-edged, hairline-plate
-aesthetic - buttons, cards, tags, thumbnails and images are rectangles, never
-rounded. The tokens still exist (rather than every component hardcoding `0`) so
-a future, deliberate change to the radius scale only touches one file.
+### Shadow
 
-**One raised, deliberate exception:** `.member-linkedin` (the committee/advisor
-LinkedIn badge) is `border-radius: 9px`, hardcoded rather than a token. A
-sharp-cornered chip that small reads as a stray rectangle sitting on a photo
-rather than a considered control, which is the failure mode the site's other
-sharp corners don't have to worry about (they're never this small or this
-isolated on imagery) - see "Icon-only controls" above.
+Depth comes from **two violet-tinted shadows, not from borders**. Panels have
+no outline at all.
 
-### Two documented exceptions to "no hex outside the tokens"
+- `--shadow-1` - resting: cards, tiles, the event list, the navbar.
+- `--shadow-2` - raised: hover state, the featured event, big photo frames,
+  dropdowns, the join band.
 
-1. `<meta name="theme-color">` in `Base.astro` - a meta tag cannot read a CSS
-   variable.
-2. The hero's dark photo-overlay gradient and the join band's white-on-purple
-   button overrides in `global.css` (`.hero::after`, `.hero .btn-o`, `.join`,
-   `.join .btn`, `.join .btn-o`) - these sit on a photo or a solid accent fill
-   rather than the paper background, so they need real white/black values that
-   aren't points on the paper-theme scale.
-
-Both are deliberate. Nothing else should carry a raw colour.
+Never use a grey or black shadow, and never invent a third level.
 
 ---
 
 ## 2. Type
 
-Two self-hosted families, configured in `astro.config.mjs` through Astro's Fonts
-API and preloaded in `Base.astro`. Nothing is fetched from Google at page load.
+The Red Hat family, self-hosted at build time through Astro's Fonts API
+(`astro.config.mjs`) and preloaded in `Base.astro`. Nothing is fetched from
+Google at page load.
 
-- **Archivo** (`--font-disp`) - everything readable.
-- **Spline Sans Mono** (`--font-mono`) - machine-ish information *only*.
+- **Red Hat Display** (`--font-head`) - headings, member names, event titles,
+  the brand name.
+- **Red Hat Text** (`--font-disp`) - everything readable: body, buttons, nav.
+- **Red Hat Mono** (`--font-mono`) - machine-ish information *only*: dates,
+  times, counts, status flags, category labels, section meta.
 
 | Role | Spec |
 |---|---|
-| `h1` page title | Archivo 800, `clamp(44px,6.2vw,76px)`, `-.035em`, max 13ch |
-| `h2` section head | Archivo 700, `clamp(24px,3.2vw,36px)` |
-| `h3` card title | 20px; `clamp(28px,3.8vw,44px)` for the featured event |
-| Body | Archivo 400, 16.5px, line-height 1.6, `--color-fg` |
-| Home hero | Text block centred horizontally and vertically, text left-aligned inside it. Title `clamp(40px,5.6vw,96px)`, max 10.2em (keeps a two-line break; measured at weight 800, re-measure if the title text changes); lede up to 20px, 44ch; mono label 11.5px |
-| Lede (`.lede`) | Archivo 400, 18.5px, `--color-muted`, max 46ch |
-| Metadata (`.mono`) | Spline Sans Mono, 10–11.5px, `.10–.13em`, uppercase |
-| Big numbers | Archivo 700, `-.04em`, `tabular-nums`, `--color-accent-hover` |
+| Home hero title | Display 900, `clamp(32px,4.4vw,64px)`, max `10.5em` (see below) |
+| `h1` page title | Display 900, `clamp(44px,6.2vw,76px)`, `-.025em` |
+| `h2` section head | Display 800, `clamp(28px,3.4vw,40px)` |
+| Headings generally | Display 800, `-.015em`, `word-spacing: .05em` |
+| Body | Text 400, 16.5px, line-height 1.6 |
+| Lede (`.lede`) | Text 400, 19px, `--color-muted` |
+| Metadata (`.mono`) | Mono, 10–12.5px, `.1em`, uppercase |
 
-**Mono is for dates, times, counts, status flags, category labels and section
-meta.** Never set a paragraph or a heading in mono.
+Red Hat Display is already tight at heavy weights, so headings get only a
+little negative tracking and slightly wider word gaps. Don't push the tracking
+tighter - words start to run together.
+
+**The hero title's line break is measured, not luck.** It must always break as
+"Experience the heart / of UCL innovation". `max-width: 10.5em` sits between
+the width of "Experience the heart" (9.9em) and "heart of UCL innovation"
+(11em), and the `.nb` span keeps "of UCL innovation" together. If the title text
+or font changes, re-measure in the browser and update the comment in
+`global.css`. The `.hl` span colours "UCL innovation" violet; neither span
+changes the words.
+
+**Mono never sets a paragraph or a heading.**
 
 ---
 
 ## 3. Layout
 
 - **Container** - `src/components/ui/Container.astro` (`.wrap`): 1200px max,
-  30px gutters. Use it; don't set page widths inline. If a page needs a
-  narrower measure, put a max-width on the content (e.g. `.prose-body` at
-  70ch).
-- **Background** - flat paper (`--color-bg`). No decorative gradients or
-  textures behind the page; depth comes from hairline borders and the
-  occasional tinted panel (`--color-surface-2`), not from a background layer.
-- **Width** - everything sits in the 1200px `Container`, except the navbar and
-  home hero, which use `wrap-wide`: full screen width with a 20-56px gutter.
-- **Section rhythm** - `.section` gives 92px top padding. Nothing else sets its
-  own section spacing.
-- **Breakpoints** - 1000px is the main one (grids collapse, nav becomes a
-  drawer), 900px tightens the hero's bottom padding (the hero fills the screen
-  below the nav at every width, with a scroll arrow), 640px tightens gutters and stacks section
-  headers. Test at 320 / 768 / 1000 / 1440.
+  30px gutters (20px under 640px). Use it; don't set page widths inline.
+- **Width** - everything sits in the 1200px container, except the navbar and
+  home hero, which use `wrap-wide` (full width with a 20-56px gutter).
+- **Floating navbar** - a white rounded bar, inset 12px from the top and sides
+  (8px on phones), sticky. Its inner gutter is reduced by the inset so the logo
+  still lines up with the page content below. The home hero slides up
+  underneath it (`margin-top: -76px`) so the hero's background reaches the top
+  of the screen; the hero's top padding makes up the difference.
+- **Section rhythm** - `.section` gives 92px top padding (64px on phones).
+  Nothing else sets its own section spacing.
+- **Breakpoints** - 1320px (the spine appears), 1000px (grids collapse, nav
+  becomes a drawer, the hero stacks), 640px (gutters tighten, section headers
+  stack). Test at 320 / 390 / 768 / 1000 / 1440 / 1920.
 
 ---
 
@@ -144,77 +164,62 @@ All in `src/components/ui/` unless noted.
 |---|---|
 | `Container` | The page container. Everything sits in one. |
 | `PageHeader` | **Every page that isn't home opens with this.** |
-| `SectionHeader` | `h2` left, mono meta or an accent link right. |
-| `EventRow` | One line in a chronological list of events. |
+| `SectionHeader` | `h2` left, mono meta or an accent link right. Its arrow slides forward on hover. |
+| `HeroNetwork` | The animated network behind the home hero. Home only. See §6. |
+| `EventRow` | One line in a chronological list. A group of rows is one white rounded panel. |
 | `ProjectCard` | Browsable, image-led card. |
 | `MemberTile` / `AdvisorTile` | Portrait tiles with an initials fallback. |
 | `NextEvent` | Featured event panel; countdown or recap. |
 | `Countdown` | Client-side countdown to a real event. |
-| `Carousel` | Horizontal photo strip for `[scroll]`/`[scroll_folder]` bodies. Autoplays; pauses on hover, focus and off screen. Hover-revealed prev/next arrows. |
-| `JoinCTA` | Closing call-to-action band - solid accent fill, white text. |
+| `Carousel` | Horizontal photo strip for `[scroll]`/`[scroll_folder]` bodies. |
+| `JoinCTA` | Closing call-to-action band - deep violet with an electric-violet glow. |
 | `events/EventsLayout` | Sidebar shell shared by events and projects. |
 
 Sponsor logos on `/about/sponsors` are the one deliberate exception to "cards
 or rows": a logo is a mark, not something to browse, so they sit straight on
-the paper in the **sponsor plate** (`.sponsor-plate`): two logos to a row, no
-boxes and no rules around them, just a short hairline tick between each pair
-(horizontal once they stack on phones), and each sponsor's web address in mono
-underneath (accent on hover, like the About rows). Each logo's height is scaled by 1/√(aspect ratio) so wide
+the page in the **sponsor plate** (`.sponsor-plate`): two logos to a row, no
+panels around them, just a short thin tick between each pair (horizontal once
+they stack on phones), and each sponsor's web address in mono underneath
+(accent on hover). Each logo's height is scaled by 1/√(aspect ratio) so wide
 and compact logos carry the same visual weight.
 
-There is no home-only decorative canvas: the hero is a full-bleed photo with a
-dark gradient overlay, not an animated illustration.
+### The node motif
 
-### Prose
+The logo's node - **a dark dot in a white ring with a thin violet outline** - is
+the one recurring decoration. It appears as:
 
-`.prose-body` styles the whole Markdown element set, not just the handful the
-old body renderer could produce. Content bodies go through Astro's own Markdown
-processor (`src/lib/markdown.ts`), so an author can write a table, a blockquote,
-a numbered list or a code block and it will already look right - **you do not
-need to add CSS when someone uses a new bit of Markdown.**
+- the nodes of `HeroNetwork`;
+- **photo frames**: the hero photo and the "Our story" photo get a 7px white
+  border plus a 1.5px `--color-fg` outline (5px on phones) - a node at a much
+  larger size;
+- **the spine**: on screens 1320px and wider, a thin lilac line runs down the
+  left margin and every `SectionHeader` sits on it as a small node, so the
+  hero's network seems to continue down the page. The node is hollow until its
+  section scrolls into view. Only sections that open with a `SectionHeader`
+  get it - a line with no node reads as a stray border.
+- the status pill's live dot in the hero.
 
-Two things to keep in mind if you extend it. Tailwind's preflight strips list
-markers and element margins, so any new list-like element needs its
-`list-style` set explicitly or it renders unnumbered and unindented. And every
-element here is styled from the tokens with sharp corners, so a new one should
-be too - see §7.
+Use the white-ring frame for a hero-level photo only. Ordinary content images
+get `--shadow-1` and a radius, no ring.
 
 ### Buttons - three variants, no more
 
-- `.btn` - primary. Purple fill, white text.
-- `.btn.btn-o` - outline. Transparent fill, ink border and text.
-- `.btn.btn-quiet` - text only, `--color-accent`, underline on hover.
+- `.btn` - primary. Violet pill, white text. Shadow on hover.
+- `.btn.btn-o` - outline. White fill, lilac border; turns violet on hover.
+- `.btn.btn-quiet` - text only, `--color-accent`.
 
-On a dark ground (the hero photo, the join band) `.btn`/`.btn-o` are inverted by
-a scoped override (`.hero .btn-o`, `.join .btn`, `.join .btn-o`) rather than a
-fourth variant - the class name and markup stay the same everywhere.
+On the join band, `.btn`/`.btn-o` are inverted by a scoped override
+(`.join .btn`, `.join .btn-o`) rather than a fourth variant.
 
-**Exactly one primary button per view region.** If two purple things compete
-for attention on a screen, demote one to outline.
+**Exactly one primary button per view region.** If two violet pills compete for
+attention, demote one to outline.
 
-Icon-only controls that belong to one component sit outside these three rather
-than becoming a fourth variant: `.nav-toggle` (mobile drawer), `.socials a`
-(footer), `.carousel-nav` (the carousel's prev/next arrows) and `.hero-scroll`
-(the home hero's scroll-down arrow). All four are a
-fixed square, `inline-flex` centred, with a `currentColor` glyph, and none is
-ever accent purple - two arrows on one photo must not read as primary actions.
-
-**The plate is not part of the convention.** `.nav-toggle` and `.socials a`
-carry a 1px `--color-rule` box because they sit on paper, where it costs
-nothing. `.carousel-nav` has none: it sits *on a photo*, where an opaque box
-covers the picture and eats real estate a narrow carousel cannot spare. Its
-box survives at 40x40 as an invisible hit target only. A future control
-overlaid on imagery should default to the arrows' bare-glyph treatment, not
-the other two.
-
-**Exception: `.member-linkedin`.** The committee/advisor LinkedIn badge is a
-small translucent, blurred glass chip (not an opaque plate) behind the glyph,
-because unlike the carousel's handful of curated photos, member headshots are
-numerous and their contrast is uncontrolled — a bare drop-shadowed glyph
-disappears against a pale one. The chip stays translucent for exactly that
-reason: enough to guarantee contrast on any photo, not opaque enough to read
-as a plate. Follow this pattern only for the same problem (many,
-uncontrolled-contrast photos), not as a default upgrade to `.carousel-nav`.
+Icon-only controls (`.nav-toggle`, `.socials a`, `.carousel-nav`,
+`.hero-scroll`) are fixed squares or circles with a `currentColor` glyph, never
+filled violet. `.carousel-nav` sits on a photo with no plate; its glyph carries a
+drop shadow for contrast. The LinkedIn badge on member tiles is a small blurred
+glass circle, because member photos are numerous and their contrast is
+uncontrolled.
 
 ### Status
 
@@ -226,125 +231,121 @@ upcoming/today.
 
 ## 5. Imagery
 
-Every image gets a light contrast treatment - this is a paper/print aesthetic,
-not a moody duotone one. These are already baked into the component classes;
-you only need them if you build something new.
-
 | Role | Treatment |
 |---|---|
-| Featured event / hero / card / row / detail photo | `contrast(1.05)` only |
+| Event / card / row / detail photo | `contrast(1.05)`, rounded, `--shadow-1` |
+| Hero and "Our story" photos | White ring frame (see "The node motif") |
 | Portrait | **None - committee and advisory photos stay in full colour.** |
+
+Photos inside cards and tiles zoom very slightly (`scale: 1.04-1.05`) when the
+card is hovered.
 
 **Where images live matters.**
 
 - **`src/assets/`** - page images (committee, advisors, mission, sponsors).
-  Astro converts these to webp at the sizes actually used. Reference them by
-  path relative to `src/assets` and resolve with `asset()` from
-  `src/lib/assets.ts`.
+  Astro converts these to webp at the sizes used. Resolve them with `asset()`
+  from `src/lib/assets.ts`.
 - **`src/content/<collection>/<entry>/`** - images belonging to an event or
   project. See `CONTENT_GUIDE.md`.
-- **`public/`** - only genuinely static files: favicon, logo. **Anything here is
-  served byte-for-byte and never optimised**, so don't put photos in it.
+- **`public/`** - only genuinely static files: favicon, logo. Anything here is
+  served byte-for-byte and never optimised, so don't put photos in it.
 
 Always give an image container a gradient fallback, set explicit dimensions or
-an aspect ratio, and lazy-load anything below the fold.
+an aspect ratio, and lazy-load anything below the fold. The hero photo is the
+one exception to lazy loading.
 
 ---
 
 ## 6. Motion
 
-Two reveals, one animation. Both run `@keyframes rise` - 16px translateY,
-0.8s, `cubic-bezier(0.2, 0.7, 0.3, 1)`. Don't introduce a third set of values.
+One easing for everything: `--ease-out` (fast start, long soft landing).
+Hand-written CSS and vanilla JS only - **no animation library**.
+
+### The signature: `HeroNetwork.astro`
+
+The network behind the home hero. It is decoration only (`aria-hidden`).
+
+- **Layout.** 1, 2, 5, 2, 5, 2, 1 nodes per column - the logo's own pattern
+  (antenna, shoulders, row of five, eyes), then mirrored. Each node is placed
+  by hand as a fraction of the hero's width and height, in the `layout` list
+  at the top of the file, so that nodes stay clear of the text, the buttons
+  and the photo at every screen size. **If you move a node, check it at 1000,
+  1440 and 1920px.** Only the thin links may pass behind text.
+- **On load** the links draw in and the nodes pop in, column by column (CSS).
+- **Then** the nodes drift slowly, pulses run along the links from left to
+  right, a node flashes a ring when a pulse reaches it, and nodes near the
+  pointer grow and turn violet (script).
+- **Below 1000px** the hero stacks and the network becomes a band around the
+  photo.
+- The script **stops while the hero is off screen**, and never starts under
+  `prefers-reduced-motion` - it checks that itself and listens for the setting
+  changing. Without JavaScript the network is simply a still drawing.
+
+### Reveals
 
 - `.rise` with `.d1`-`.d4` - the page-load reveal. **First screen only, four
-  elements maximum.** Never on every section. The four delays are currently
-  all spent on the home hero.
-- `data-reveal` - the scroll-triggered reveal. The observer in `Base.astro`
-  adds `data-shown` once, then stops watching that element.
-  - **One per section, and below the fold only.** An element already on
-    screen at load fires immediately and competes with the hero.
-  - **Never on the items inside a section** - the committee grid arrives as
-    one block, not tile by tile.
-  - The element is fully visible until `data-shown` lands, so if the script
-    never runs the reader loses the animation, not the content. Never give
-    `[data-reveal]` an `opacity: 0` resting state.
-  - There is deliberately no stagger mechanism. If one is ever genuinely
-    needed, put `animation-delay` on the specific child then - don't build a
-    `.d5`-`.d8` ladder for it.
-- Hover: cards lift 3px (tiles 4px); buttons lift 1px. Transitions 0.16-0.22s.
-- Carousels (`Carousel.astro`) advance every 5s and pause on hover, on
-  keyboard focus, for 8s after any interaction, and while off screen. The
-  prev/next arrows use the same code path as autoplay, so they are reachable
-  under `prefers-reduced-motion` and jump without a smooth sweep.
-- `prefers-reduced-motion: reduce` disables every animation and transition.
-  **This is not optional.** The CSS block at the foot of `global.css` covers
-  anything driven by a class or a transition - which is why `data-reveal`
-  needs no reduced-motion handling of its own.
+  elements maximum.** All four are spent on the home hero.
+- `data-reveal` - scroll-triggered reveal of a whole section, once. The observer
+  is in `Base.astro`.
+- `data-reveal-stagger` - put it on a **group** (a grid or list) instead. Each
+  child is watched separately, and children that arrive together (one row of a
+  grid) rise one after another, 90ms apart. Used on the home committee grid and
+  event list.
+- Neither ever gives an element an `opacity: 0` resting state. Content is
+  visible until the script adds `data-shown`, so if the script never runs the
+  reader loses the animation, not the content.
+- Don't put `data-reveal` on an element that is on screen at load, and don't
+  nest the two attributes.
 
-  **It does not stop JavaScript.** `scroll-behavior: auto !important` has no
-  effect on the `behavior` option of `scrollTo`, and nothing in CSS stops a
-  `setInterval`. **Any script that moves something must check
-  `matchMedia("(prefers-reduced-motion: reduce)")` itself and listen for its
-  `change` event.** `Carousel.astro` is the reference implementation.
+### Hover
 
-### Staying library-free
+Cards and tiles lift (5-6px) and move to `--shadow-2`; photos inside them zoom
+slightly; event titles slide right; section links' arrows slide forward;
+buttons press in slightly on click. Transitions 0.3-0.5s on `--ease-out`.
 
-Motion here is hand-written CSS and vanilla JS - there is no animation
-library, and that is a deliberate choice rather than an accident. Fades,
-slides, staggers and carousels do not need one, and a dependency is a second
-vocabulary for the next committee to learn on top of these tokens.
+### Page transitions
 
-Revisit only when you hit something these genuinely can't express: sequenced
-timelines (A, then B overlapping C), scroll-scrubbed motion, springs, or SVG
-path drawing. At that point add a small library **for that one component** -
-Astro bundles a component's script only into the pages that use it, so it
-never becomes a site-wide dependency.
+`@view-transition { navigation: auto; }` cross-fades between pages in browsers
+that support it, and does nothing elsewhere. Do **not** switch to Astro's
+`ClientRouter`: it would stop the nav, countdown, carousel and network scripts
+from re-running on each page.
+
+### Reduced motion
+
+`prefers-reduced-motion: reduce` disables every animation and transition. **This
+is not optional.** The block at the foot of `global.css` covers CSS. It does not
+stop JavaScript: **any script that moves something must check
+`matchMedia("(prefers-reduced-motion: reduce)")` itself and listen for its
+`change` event.** `Carousel.astro` and `HeroNetwork.astro` are the reference
+implementations.
+
+If you ever genuinely need sequenced timelines, scroll-scrubbed motion or
+springs, add a small library **for that one component** only - Astro bundles a
+component's script only into the pages that use it.
 
 ---
 
 ## 7. Extending the language
 
-When the prototype doesn't cover what you're building, follow these rather than
-inventing a new pattern.
-
-1. **Every inner page opens with `PageHeader`**, not a hero. The full-bleed
-   photo treatment never appears outside the home hero.
-2. **Depth comes from borders, not shadows or radius.** Panels are
-   `--color-surface` on `--color-bg` with a 1px `--color-rule`, sharp corners.
-   Shadows only on hover, and only long, soft, low-opacity blacks.
-
-   **Legibility shadows are exempt.** A shadow that exists to hold a glyph
-   apart from photography underneath it is not doing depth, and this rule is
-   not about it. `.carousel-nav svg`'s `drop-shadow` replaces the plate the
-   arrows used to sit on; `.member-linkedin`'s blur and box-shadow do the same
-   job by a different route - see "Icon-only controls" above. The hero's
-   alternative - a full-bleed scrim (`.hero::after`) - was rejected there
-   because a scrim would spend exactly the space dropping the plate was meant
-   to save.
-3. **Nothing is rounded** (see §1). Don't reach for a radius value that isn't
-   `0` - if a shape genuinely needs one, that's a deliberate exception to raise,
-   not a one-off tweak. `.member-linkedin` (§1, "Radii") is the one raised so
-   far.
+1. **Every inner page opens with `PageHeader`**, not a hero. `HeroNetwork` and
+   the ringed hero photo never appear outside the home page.
+2. **Depth comes from the two shadows, not from borders.** A new panel is
+   `--color-surface` with `--shadow-1` and `--radius-card`, no outline. It
+   moves to `--shadow-2` only if it is raised (hovered, featured, floating).
+3. **Everything is rounded**, using the radius tokens. Never hardcode a radius.
 4. **Accent budget:** `--color-accent` for the primary action, active/upcoming
-   status and links; `--color-accent-hover` for deep-purple fills (the join
-   band, countdown values, tag text). There is no secondary hue.
+   status, links and focus. There is no secondary hue.
 5. **Any list of things** uses `EventRow` if it is scannable and chronological,
    or the card grid if it is browsable and image-led. **Do not build a third
    list pattern.**
-6. **New sections** follow: `.section` (92px) → `SectionHeader` → content →
-   optional right-aligned accent link. Nothing else sets its own spacing.
-7. **No emoji as iconography.** Categories are identified by mono uppercase
-   labels.
-8. **Capability queries are allowed where a control genuinely depends on the
-   input device.** The rest of the stylesheet branches only on viewport width,
-   and that stays the default. But width is a poor proxy for input: the
-   carousel arrows use `@media (hover: hover)` because a `max-width` rule would
-   leave a touch tablet wider than 1000px with no visible control. Write them so
-   **visible is the base state and hiding is the enhancement**, so a device that
-   matches neither branch still gets a working control.
+6. **New sections** follow: `.section` → `SectionHeader` → content. Using
+   `SectionHeader` also puts the section on the spine for free.
+7. **No emoji as iconography.** Categories are identified by mono labels.
+8. **Capability queries** (`@media (hover: hover)`) are allowed where a control
+   genuinely depends on the input device. Visible is the base state; hiding is
+   the enhancement.
 9. If a genuinely new component is unavoidable, build it from existing tokens
-   and add it to §4 here, so the next committee inherits a documented language
-   rather than a pile of exceptions.
+   and add it to §4 here.
 
 ---
 
@@ -357,38 +358,20 @@ Non-negotiables, all currently satisfied:
 - `--color-muted` on `--color-bg` is fine for body-sized text. Do not use it
   below 12px for essential information, and never dim it further.
 - Everything interactive works from the keyboard: the nav dropdown, the mobile
-  drawer (Escape closes, focus is trapped), the sidebar accordions, the
-  carousels (the prev/next arrow buttons) and the forms.
-
-  The carousel frame carries **no `tabindex`**, but Chrome and Firefox still
-  give a scrollable region a tab stop of its own when it has no focusable
-  descendants, so the tab order per carousel is prev, next, then the frame.
-  That is deliberate: the frame's stop is what makes arrow-key scrolling
-  available, and focusing it also trips `:focus-within` and reveals the arrows.
-  **Do not "fix" it with `tabindex="-1"`** - that would take keyboard scrolling
-  away from the people the browser behaviour exists for.
-- Real alt text on content images, `alt=""` on decorative ones.
+  menu (Escape closes, focus is trapped), the sidebar accordions, the carousels
+  and the forms.
+- The carousel frame carries **no `tabindex`**; browsers give a scrollable
+  region its own tab stop, which is what makes arrow-key scrolling work. Do not
+  "fix" it with `tabindex="-1"`.
+- Real alt text on content images, `alt=""` on decorative ones. `HeroNetwork`
+  and the hero decorations are `aria-hidden`.
 - One `h1` per page.
-- **Carousel autoplay and WCAG 2.2.2 (Pause, Stop, Hide).** Anything that moves
-  on its own for more than 5s needs a way to stop it. Autoplay pauses on
-  hover, on keyboard focus of the frame, for 8s after any interaction, and
-  while the carousel is off screen - and never starts at all under
-  `prefers-reduced-motion`. Keyboard focus is the pause mechanism. If that is
-  ever judged insufficient, the fix is a visible pause button, not removing
-  the guards.
-- **The carousel scrollbar is hidden**, so the frame can hug its images with no
-  white space around them. The prev/next arrows and autoplay are what now
-  signal there is more to see. Manual control is the arrows, swipe, trackpad,
-  and arrow keys once the frame has focus - so a desktop visitor with a plain
-  mouse wheel is covered. Do not bring the scrollbar back to add an affordance;
-  extend the overlaid controls instead.
-- **A control overlaid on photography carries its own contrast.** The picture
-  underneath is chosen by a content editor and unknown at build time, so it may
-  be pale, busy, or dark. Never rely on the photo to make a control readable:
-  give it a plate, a scrim, or a shadow on the glyph itself, and check it
-  against the palest image on the page rather than a convenient one.
-- **Hover-revealed controls must be visible on touch.** A touch device has no
-  hover state, so a control that only appears on `:hover` is unreachable there.
-  Hide it inside `@media (hover: hover)`, never in the base rule, and hide it
-  with `opacity` plus `pointer-events: none` - `visibility`/`display` would drop
-  it out of the tab order, putting it beyond a keyboard visitor on a mouse.
+- **Anything that moves on its own for more than 5s needs a way to stop it**
+  (WCAG 2.2.2). The carousel pauses on hover, focus, interaction and when off
+  screen. The hero network is pure decoration, stops off screen, and is still
+  under reduced motion.
+- **A control overlaid on photography carries its own contrast** (a plate, a
+  scrim or a glyph shadow). Check it against the palest image on the page.
+- **Hover-revealed controls must be visible on touch.** Hide them inside
+  `@media (hover: hover)` with `opacity` plus `pointer-events: none`, never in
+  the base rule.

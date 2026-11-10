@@ -1,0 +1,339 @@
+---
+/**
+ * The animated node network behind the home hero.
+ *
+ * It is drawn the way the logo is: dark nodes with a white ring, joined by
+ * thin links. The columns follow the logo's own arrangement (1 antenna node,
+ * 2 shoulders, the row of 5, the 2 eyes) and then mirror it to fill the width:
+ * 1, 2, 5, 2, 5, 2, 1.
+ *
+ * What moves, and how:
+ *   - on load, the links draw in and the nodes pop in, column by column (CSS)
+ *   - the nodes then drift slightly and pulses travel along the links (script)
+ *   - nodes near the pointer grow and turn violet (script)
+ *
+ * It is decoration only (aria-hidden). Without JavaScript, or with "reduce
+ * motion" switched on, it is simply a still drawing. The script also stops
+ * while the hero is scrolled off screen. Styling lives in global.css under
+ * "home hero".
+ */
+// Size of the drawing used before the script runs (see "layout" below).
+const W = 1440;
+const H = 800;
+
+// The nodes, column by column from left to right. Each is [x, y] as a
+// fraction of the hero's width and height, so the drawing follows the layout
+// at any screen size. They are placed by hand to stay clear of the content:
+// along the top and bottom of the hero, in the gap between the text and the
+// photo, and peeking out past the photo's right edge. Only the thin links
+// pass behind the text.
+const layout: [number, number][][] = [
+  [[0.035, 0.17]],
+  [
+    [0.16, 0.13],
+    [0.14, 0.9],
+  ],
+  [
+    [0.3, 0.2],
+    [0.38, 0.11],
+    [0.27, 0.87],
+    [0.36, 0.94],
+    [0.44, 0.86],
+  ],
+  [
+    [0.512, 0.3],
+    [0.515, 0.74],
+  ],
+  [
+    [0.6, 0.13],
+    [0.72, 0.19],
+    [0.86, 0.12],
+    [0.66, 0.9],
+    [0.8, 0.87],
+  ],
+  [
+    [0.985, 0.34],
+    [0.975, 0.68],
+  ],
+  [[0.93, 0.93]],
+];
+
+// Columns with fewer nodes get bigger ones, as in the logo.
+const scale: Record<number, number> = { 1: 1.3, 2: 1.1, 5: 0.82 };
+
+type Node = { fx: number; fy: number; layer: number; s: number };
+
+const nodes: Node[] = layout.flatMap((column, layer) =>
+  column.map(([fx, fy]) => ({ fx, fy, layer, s: scale[column.length] }))
+);
+
+// Every node is linked to every node in the next column.
+const edges = nodes.flatMap((from, a) =>
+  nodes.flatMap((to, b) => (to.layer === from.layer + 1 ? [{ a, b }] : []))
+);
+
+const pulseCount = 7;
+---
+
+<svg
+  class="hero-net"
+  data-hero-net
+  viewBox={`0 0 ${W} ${H}`}
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  <g>
+    {
+      edges.map((edge) => (
+        <line
+          class="net-edge"
+          data-edge
+          data-a={edge.a}
+          data-b={edge.b}
+          pathLength="1"
+          x1={nodes[edge.a].fx * W}
+          y1={nodes[edge.a].fy * H}
+          x2={nodes[edge.b].fx * W}
+          y2={nodes[edge.b].fy * H}
+          style={`--l:${nodes[edge.a].layer}`}
+        />
+      ))
+    }
+  </g>
+  <g>
+    {Array.from({ length: pulseCount }).map(() => <circle class="net-pulse" data-pulse r="4.5" />)}
+  </g>
+  <g>
+    {
+      nodes.map((node) => (
+        <g
+          class="net-node"
+          data-node
+          data-fx={node.fx}
+          data-fy={node.fy}
+          data-layer={node.layer}
+          transform={`translate(${node.fx * W} ${node.fy * H})`}
+          style={`--l:${node.layer}`}
+        >
+          <g class="net-body">
+            <circle class="net-halo" r={13 * node.s} />
+            <circle class="net-ring" r={13 * node.s} />
+            <circle class="net-core" r={7.5 * node.s} />
+          </g>
+        </g>
+      ))
+    }
+  </g>
+</svg>
+
+<script>
+  const svg = document.querySelector<SVGSVGElement>("[data-hero-net]");
+
+  if (svg) {
+    type NetNode = {
+      el: SVGGElement;
+      fx: number;
+      fy: number;
+      homeX: number;
+      homeY: number;
+      x: number;
+      y: number;
+      layer: number;
+      phase: number;
+      driftX: number;
+      driftY: number;
+      speed: number;
+    };
+
+    type Pulse = {
+      el: SVGCircleElement;
+      from: NetNode;
+      to: NetNode;
+      start: number;
+      duration: number;
+    };
+
+    // How close (in pixels) the pointer must be for a node to react.
+    const REACH = 170;
+
+    const nodes: NetNode[] = Array.from(svg.querySelectorAll<SVGGElement>("[data-node]")).map(
+      (el, i) => {
+        return {
+          el,
+          fx: Number(el.dataset.fx),
+          fy: Number(el.dataset.fy),
+          homeX: 0,
+          homeY: 0,
+          x: 0,
+          y: 0,
+          layer: Number(el.dataset.layer),
+          // Each node gets its own slow orbit so they never move in step.
+          phase: i * 2.4,
+          driftX: 7 + (i % 4) * 2.5,
+          driftY: 6 + (i % 3) * 3,
+          speed: 0.00045 + (i % 5) * 0.00007,
+        };
+      }
+    );
+
+    const edges = Array.from(svg.querySelectorAll<SVGLineElement>("[data-edge]")).map((el) => ({
+      el,
+      a: nodes[Number(el.dataset.a)],
+      b: nodes[Number(el.dataset.b)],
+    }));
+
+    const layers: NetNode[][] = [];
+    nodes.forEach((node) => {
+      (layers[node.layer] ??= []).push(node);
+    });
+
+    const pick = (list: NetNode[]) => list[Math.floor(Math.random() * list.length)];
+
+    const pulses: Pulse[] = Array.from(svg.querySelectorAll<SVGCircleElement>("[data-pulse]")).map(
+      (el) => ({ el, from: nodes[0], to: nodes[0], start: 0, duration: 1 })
+    );
+
+    // Send a pulse back to the first column, to set off after `delay` ms.
+    const launch = (pulse: Pulse, now: number, delay: number) => {
+      pulse.from = pick(layers[0]);
+      pulse.to = pick(layers[1]);
+      pulse.start = now + delay;
+      pulse.duration = 900 + Math.random() * 500;
+      pulse.el.style.opacity = "0";
+    };
+
+    // The halo ring on a node plays once each time a pulse arrives.
+    const fire = (node: NetNode) => node.el.classList.add("is-fired");
+    svg.addEventListener("animationend", (event) => {
+      const target = event.target as Element;
+      if (target.classList.contains("net-halo")) {
+        target.closest(".net-node")?.classList.remove("is-fired");
+      }
+    });
+
+    // Pointer position in the drawing's own coordinates. The svg ignores the
+    // pointer (so it never blocks a click), so listen on the hero around it.
+    const pointer = { x: -10000, y: -10000 };
+    const hero = svg.closest<HTMLElement>(".hero");
+
+    hero?.addEventListener("pointermove", (event) => {
+      const matrix = svg.getScreenCTM();
+      if (!matrix) return;
+      const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+      pointer.x = point.x;
+      pointer.y = point.y;
+    });
+
+    hero?.addEventListener("pointerleave", () => {
+      pointer.x = -10000;
+      pointer.y = -10000;
+    });
+
+    // Puts every node and link where it belongs. With `drift` each node also
+    // circles slowly around its home position; without it the drawing is still.
+    const place = (now: number, drift: boolean) => {
+      nodes.forEach((node) => {
+        node.x = node.homeX + (drift ? Math.cos(now * node.speed + node.phase) * node.driftX : 0);
+        node.y =
+          node.homeY + (drift ? Math.sin(now * node.speed * 1.3 + node.phase) * node.driftY : 0);
+        node.el.setAttribute("transform", `translate(${node.x.toFixed(1)} ${node.y.toFixed(1)})`);
+      });
+
+      edges.forEach((edge) => {
+        edge.el.setAttribute("x1", edge.a.x.toFixed(1));
+        edge.el.setAttribute("y1", edge.a.y.toFixed(1));
+        edge.el.setAttribute("x2", edge.b.x.toFixed(1));
+        edge.el.setAttribute("y2", edge.b.y.toFixed(1));
+      });
+    };
+
+    const frame = (now: number) => {
+      place(now, true);
+
+      nodes.forEach((node) => {
+        const distance = Math.hypot(node.x - pointer.x, node.y - pointer.y);
+        const near = distance < REACH;
+        node.el.classList.toggle("is-near", near);
+        node.el.style.setProperty("--k", near ? (1 + 0.4 * (1 - distance / REACH)).toFixed(2) : "1");
+      });
+
+      pulses.forEach((pulse) => {
+        const t = (now - pulse.start) / pulse.duration;
+        if (t < 0) return; // still waiting to set off
+
+        if (t >= 1) {
+          fire(pulse.to);
+          if (pulse.to.layer === layers.length - 1) {
+            // Reached the last column: start again from the first, after a pause.
+            launch(pulse, now, 400 + Math.random() * 2600);
+          } else {
+            pulse.from = pulse.to;
+            pulse.to = pick(layers[pulse.from.layer + 1]);
+            pulse.start = now;
+            pulse.duration = 900 + Math.random() * 500;
+          }
+          return;
+        }
+
+        // Ease in and out, so a pulse leaves and arrives gently.
+        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        pulse.el.setAttribute("cx", (pulse.from.x + (pulse.to.x - pulse.from.x) * eased).toFixed(1));
+        pulse.el.setAttribute("cy", (pulse.from.y + (pulse.to.y - pulse.from.y) * eased).toFixed(1));
+        pulse.el.style.opacity = "1";
+      });
+    };
+
+    // CSS cannot stop a script, so this checks "reduce motion" itself and
+    // listens for the setting changing (see docs/DESIGN.md, Motion). It also
+    // only runs while the hero is on screen.
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let onScreen = false;
+    let request = 0;
+
+    const loop = (now: number) => {
+      frame(now);
+      request = requestAnimationFrame(loop);
+    };
+
+    const update = () => {
+      const shouldRun = onScreen && !reduce.matches;
+
+      if (shouldRun && !request) {
+        const now = performance.now();
+        // The first pulses wait for the draw-in to finish.
+        pulses.forEach((pulse, i) => launch(pulse, now, 1400 + i * 650));
+        request = requestAnimationFrame(loop);
+      } else if (!shouldRun && request) {
+        cancelAnimationFrame(request);
+        request = 0;
+        pulses.forEach((pulse) => (pulse.el.style.opacity = "0"));
+      }
+    };
+
+    // The HTML is drawn on a fixed 1440x800 canvas that the browser scales to
+    // fit, which is only roughly right. Here the canvas is switched to real
+    // pixels and each node is put at its fraction of the hero's actual size,
+    // so the nodes stay round, stay the same size, and stay clear of the text
+    // at every screen width. Runs once now and again whenever the hero resizes.
+    const layout = () => {
+      const { width, height } = svg.getBoundingClientRect();
+      svg.removeAttribute("viewBox");
+      nodes.forEach((node) => {
+        node.homeX = node.fx * width;
+        node.homeY = node.fy * height;
+      });
+      if (!request) place(0, false);
+    };
+
+    layout();
+    new ResizeObserver(layout).observe(svg);
+
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      update();
+    }).observe(svg);
+
+    reduce.addEventListener("change", update);
+  }
+</script>
