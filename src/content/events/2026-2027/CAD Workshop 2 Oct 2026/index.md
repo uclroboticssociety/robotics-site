@@ -21,12 +21,8 @@ Where: Room 312 26 Bedford Way
 
 Why: Robots
 
-    !!!/
+!!!/
 
-    /!!!
-    Remember to get your **free** taster membership [here](https://studentsunionucl.org/clubs-societies/robotics-society)
-    !!!/
-
-    /!!!
-    [More Info](https://studentsunionucl.org/whats-on/clubs-societies/maze-solving-challenge-taster-session)
-    !!!/
+/!!!
+Remember to get your **free** taster membership [here](https://studentsunionucl.org/clubs-societies/robotics-society)
+!!!/
