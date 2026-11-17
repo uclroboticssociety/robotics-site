@@ -28,7 +28,7 @@ const highlight = status === "upcoming" || status === "today";
 <a class="row" href={`/events/${event.id}`}>
   {
     thumb ? (
-      <Image class="thumb" src={thumb} alt="" width={140} height={92} loading="lazy" decoding="async" />
+      <Image class="thumb" src={thumb} alt="" width={140} height={92} densities={[1, 2]} loading="lazy" decoding="async" />
     ) : (
       <span class="thumb thumb-empty" aria-hidden="true" />
     )
