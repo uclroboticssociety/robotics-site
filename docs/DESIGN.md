@@ -288,6 +288,11 @@ The network behind the home hero. It is decoration only (`aria-hidden`).
   phones. Do not bring them back.
 - **Below 1000px** the hero stacks and the network becomes a band around the
   photo.
+- **At 640px and below** (phones) the network is quieter: nodes marked "wide
+  only" in `layout` are hidden with their links, so the columns of 5 become
+  columns of 3. The rest are smaller (`--net-size`), fainter, and drift half
+  as far. The 640px appears in both the script and `global.css`; change both
+  together.
 - The script **stops while the hero is off screen**, and never starts under
   `prefers-reduced-motion` - it checks that itself and listens for the setting
   changing. Without JavaScript the network is simply a still drawing.
